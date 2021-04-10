@@ -1,5 +1,6 @@
 import org.ejml.simple.SimpleMatrix;
 
+import java.beans.DesignMode;
 
 public class NeuralNetwork {
 
@@ -15,21 +16,118 @@ public class NeuralNetwork {
         return g;
     }
 
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static double nn_cost_function(SimpleMatrix parameters,
+                                        SimpleMatrix input_data,
+                                        SimpleMatrix output_data,
+                                        int input_layer_size,
+                                        int hidden_layer_size,
+                                        int num_labels, double lambda){
+        // Num examples, num features
+        int m = input_data.numRows();
+        int n = input_data.numCols();
 
+        // Reshape the nn parameters back into the weights for each layer.
+        SimpleMatrix theta_1 = new SimpleMatrix(hidden_layer_size, input_layer_size+1);
+        SimpleMatrix theta_2 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
+        theta_1 = copy_parameters(theta_1, parameters, 0);
+        theta_2 = copy_parameters(theta_2, parameters, theta_1.getNumElements()-1);
+
+        /*
+        Forward Propagation
+         */
+        // Expand the y output values into a maxtrix of single values
+        SimpleMatrix eye_matrix = SimpleMatrix.identity(num_labels);
+        SimpleMatrix y_matrix = new SimpleMatrix(m, num_labels);
+        for(int i = 0; i < m; i++){
+            int row_num = (int)output_data.get(i, 0);
+            SimpleMatrix eye_row_data = eye_matrix.rows(row_num-1, row_num);
+            y_matrix.insertIntoThis(i, 0, eye_row_data);
+        }
+
+        // Bias unit matrix
+        SimpleMatrix bias_units = new SimpleMatrix(m, 1);
+        bias_units = bias_units.plus(1.0);
+
+        // Activation units for layer 1, add bias unit to the input layer
+        SimpleMatrix a_1 = input_data.concatColumns(bias_units);
+
+        // Activation units for layer 2
+        SimpleMatrix z_2 = a_1.mult(theta_1.transpose());
+        SimpleMatrix a_2 = sigmoid(z_2);
+        a_2 = a_2.concatColumns(bias_units);
+
+        // Activation units for layer 3 (output layer)
+        SimpleMatrix z_3 = a_2.mult(theta_2.transpose());
+        SimpleMatrix a_3 = sigmoid(z_3);
+
+        // Hypothesis assignment
+        SimpleMatrix hyp = a_3;
+
+        // Inner Cost Function Calculation
+        SimpleMatrix term_1 = y_matrix.negative().elementMult(hyp.elementLog());
+        SimpleMatrix term_2 = y_matrix.negative().plus(1).elementMult(hyp.negative().plus(1).elementLog());
+        SimpleMatrix inner_term = term_1.minus(term_2);
+        double inner_sum = inner_term.elementSum();
+        double un_reg_cost = inner_sum / m;
+
+        return un_reg_cost;
+    }
+
+    public static SimpleMatrix copy_parameters(SimpleMatrix inp_matrix, SimpleMatrix inp_vector, int vect_idx){
+        for(int col = 0; col < inp_matrix.numCols(); col++){
+            for(int row = 0; row < inp_matrix.numRows(); row++){
+                inp_matrix.set(row, col, inp_vector.get(0, vect_idx));
+                vect_idx += 1;
+            }
+        }
+
+        return inp_matrix;
+    }
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static void nn_gradient(){
+
+    }
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
     public static void main(String[] agrs){
-        double[][] firstMatrix = {
-                new double[]{1d, 5d},
-                new double[]{2d, 3d},
-                new double[]{1d, 7d}
+        double[][] nn_params =new double[][] {
+                new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d},
+                new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d},
+                new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d},
+                new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d},
+                new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}
         };
-        double [][] secondMatrix = {
-            new double[]{-5d}
-        };
-        SimpleMatrix sim_firstMatrix = new SimpleMatrix(firstMatrix);
-        SimpleMatrix sim_secondMatrix = new SimpleMatrix(secondMatrix);
+        SimpleMatrix nn_param_mat = new SimpleMatrix(nn_params);
         NeuralNetwork nn = new NeuralNetwork();
-        SimpleMatrix test = nn.sigmoid(sim_secondMatrix);
-        System.out.print(test);
+        double[][] test = new double[][]{
+                new double[]{0},
+                new double[]{0},
+                new double[]{2},
+                new double[]{2},
+                new double[]{4}
+        };
+        SimpleMatrix y = new SimpleMatrix(test);
+        nn.nn_cost_function(nn_param_mat, nn_param_mat, y, 3, 2, 5, 0.1);
     }
 
 }

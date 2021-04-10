@@ -51,17 +51,6 @@ public class screen_capture {
         }
     }
 
-    public static void matrix_test(){
-        double[][] firstMatrix = {
-                new double[]{1d, 5d},
-                new double[]{2d, 3d},
-                new double[]{1d, 7d}
-        };
-        SimpleMatrix firstMatrix_Test = new SimpleMatrix(firstMatrix);
-
-        return;
-    }
-
     /*
     Name       :
     Purpose    :
@@ -76,9 +65,6 @@ public class screen_capture {
         double run_time = (delay_time / 1000.0) * num_pics;
         System.out.printf("Ideal program runtime: %.3f seconds\n", run_time);
         screen_capture obj = new screen_capture();
-
-        // Matrix test
-        obj.matrix_test();
 
         // Time and execute the funciton
         double start = System.currentTimeMillis();

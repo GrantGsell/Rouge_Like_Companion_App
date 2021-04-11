@@ -95,16 +95,24 @@ class TestNeuralNetwork {
         int lambda = 4;
 
         //Output Data
-        double unregularized_cost_output = 7.4069698;
+        double un_regularized_cost_output = 7.4069698;
+        double regularized_cost_output = 19.4736365;
 
         // Create NeuralNetwork object
         NeuralNetwork nn = new NeuralNetwork();
 
-        // Unregularized Cost Function Test
+        // Tolerance Variable
         double tolerance = 0.0000001;
-        Assertions.assertEquals(unregularized_cost_output, nn.nn_cost_function(
+
+        // Unregularized Cost Function Test
+        Assertions.assertEquals(un_regularized_cost_output, nn.nn_cost_function(
                 parameters, input_data, output_data, num_inp_layers,
                 num_hidden_layers, num_labels, 0 ), tolerance);
+
+        // Regularized Cost Function Test
+        Assertions.assertEquals(regularized_cost_output, nn.nn_cost_function(
+                parameters, input_data, output_data, num_inp_layers,
+                num_hidden_layers, num_labels, lambda ), tolerance);
 
         return;
     }

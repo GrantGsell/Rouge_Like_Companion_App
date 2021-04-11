@@ -16,10 +16,19 @@ public class NeuralNetwork {
     }
 
     /*
-    Name       :
-    Purpose    :
+    Name       : nn_cost_function
+    Purpose    : To calculate the regularized cost of the neural network based
+                    on the given parameters.
     Parameters :
-    Return     :
+                 parameters
+                 input_data
+                 output_data
+                 input_layer_size
+                 hidden_layer_size
+                 num_labels
+                 lambda
+    Return     : cost a double denoting the cost the nn should pay for
+                    obtaining incorrect values.
     Notes      :
      */
     public static double nn_cost_function(SimpleMatrix parameters,
@@ -72,13 +81,19 @@ public class NeuralNetwork {
         SimpleMatrix term_2 = y_matrix.negative().plus(1).elementMult(a_3.negative().plus(1).elementLog());
         SimpleMatrix inner_term = term_1.minus(term_2);
         double inner_sum = inner_term.elementSum();
-        double un_reg_cost = inner_sum / m;
+        double cost = inner_sum / m;
 
         // Regularization Term Calculation
-        SimpleMatrix temp_theta_1;
+        SimpleMatrix temp_theta_1 =  theta_1.extractMatrix(0, theta_1.numRows(), 1, theta_1.numCols());
+        SimpleMatrix temp_theta_2 =  theta_2.extractMatrix(0, theta_2.numRows(), 1, theta_2.numCols());
+        double theta_1_const = temp_theta_1.elementPower(2.0).elementSum();
+        double theta_2_const = temp_theta_2.elementPower(2.0).elementSum();
+        double reg_term = (lambda / (2 * m)) * (theta_1_const + theta_2_const);
 
+        // Cost Function Recalculation with Regularization
+        cost += reg_term;
 
-        return un_reg_cost;
+        return cost;
     }
 
     public static SimpleMatrix copy_parameters(SimpleMatrix inp_matrix, SimpleMatrix inp_vector, int vect_idx){

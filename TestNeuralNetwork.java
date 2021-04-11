@@ -94,7 +94,7 @@ class TestNeuralNetwork {
         });
         int lambda = 4;
 
-        //Output Data
+        // Expected Results
         double un_regularized_cost_output = 7.4069698;
         double regularized_cost_output = 19.4736365;
 
@@ -150,5 +150,94 @@ class TestNeuralNetwork {
                 nn.sigmoid_gradient(input_data).getDDRM(), tolerance);
 
         return;
+    }
+
+    @Test
+    void test_nn_gradient(){
+        // Input Data
+        // Input Parameter Instantiation
+        int num_inp_layers = 2;
+        int num_hidden_layers = 2;
+        int num_labels = 4;
+        SimpleMatrix parameters  = new SimpleMatrix(new double[][]{
+                new double[]{0.100, 0.200, 0.300, 0.400, 0.500, 0.600, 0.700,
+                        0.800, 0.900, 1.000, 1.100, 1.200, 1.300, 1.400,
+                        1.500, 1.600, 1.700, 1.800}
+        });
+        SimpleMatrix input_data = new SimpleMatrix(new double[][]{
+                new double[]{0.5403023, -0.4161468},
+                new double[]{-0.9899925, -0.6536436},
+                new double[]{0.2836622, 0.9601703}
+        });
+        SimpleMatrix output_data = new SimpleMatrix(new double[][]{
+                new double[]{4d},
+                new double[]{2d},
+                new double[]{3d}
+        });
+        int lambda = 4;
+
+        // Create NeuralNetwork object
+        NeuralNetwork nn = new NeuralNetwork();
+
+        // Tolerance Variable
+        double tolerance = 0.0000001;
+
+        // Result Data
+        SimpleMatrix expected_data_un_regularized = new SimpleMatrix(
+                new double[][]{
+                        new double[]{0.766138370},
+                        new double[]{0.979896866},
+                        new double[]{-0.027539616},
+                        new double[]{-0.035844209},
+                        new double[]{-0.024928783},
+                        new double[]{-0.053861694},
+                        new double[]{0.883417208},
+                        new double[]{0.568762345},
+                        new double[]{0.584667662},
+                        new double[]{0.598139237},
+                        new double[]{0.459313549},
+                        new double[]{0.344618183},
+                        new double[]{0.256313331},
+                        new double[]{0.311885063},
+                        new double[]{0.478336623},
+                        new double[]{0.368920407},
+                        new double[]{0.259770622},
+                        new double[]{0.322330889}
+                }
+        );
+
+        SimpleMatrix expected_data_regularized = new SimpleMatrix(
+                new double[][]{
+                        new double[]{0.766138370},
+                        new double[]{0.979896866},
+                        new double[]{0.372460384},
+                        new double[]{0.497489124},
+                        new double[]{0.641737884},
+                        new double[]{0.746138306},
+                        new double[]{0.883417208},
+                        new double[]{0.568762345},
+                        new double[]{0.584667662},
+                        new double[]{0.598139237},
+                        new double[]{1.925980216},
+                        new double[]{1.944618183},
+                        new double[]{1.989646665},
+                        new double[]{2.178551730},
+                        new double[]{2.478336623},
+                        new double[]{2.502253740},
+                        new double[]{2.526437289},
+                        new double[]{2.722330889}
+                }
+        );
+
+        // Testing without regularization
+        EjmlUnitTests.assertEquals(expected_data_un_regularized.getDDRM(), nn.nn_gradient(
+                parameters, input_data, output_data, num_inp_layers,
+                num_hidden_layers, num_labels, 0).getDDRM(), tolerance);
+
+        // Testing with regularization
+
+
+        return;
+
     }
 }

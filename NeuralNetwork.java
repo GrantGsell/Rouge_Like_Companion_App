@@ -12,8 +12,7 @@ public class NeuralNetwork {
     Notes      : None.
      */
     public static SimpleMatrix sigmoid(SimpleMatrix z){
-        SimpleMatrix g = z.scale(-1.0).elementExp().plus(1).elementPower(-1.0);
-        return g;
+        return z.scale(-1.0).elementExp().plus(1).elementPower(-1.0);
     }
 
     /*
@@ -65,17 +64,19 @@ public class NeuralNetwork {
 
         // Activation units for layer 3 (output layer)
         SimpleMatrix z_3 = a_2.mult(theta_2.transpose());
-        SimpleMatrix a_3 = sigmoid(z_3);
+        SimpleMatrix a_3 = sigmoid(z_3);            // hypothesis == a_3 (for this specific netowrk)
 
-        // Hypothesis assignment
-        SimpleMatrix hyp = a_3;
 
         // Inner Cost Function Calculation
-        SimpleMatrix term_1 = y_matrix.negative().elementMult(hyp.elementLog());
-        SimpleMatrix term_2 = y_matrix.negative().plus(1).elementMult(hyp.negative().plus(1).elementLog());
+        SimpleMatrix term_1 = y_matrix.negative().elementMult(a_3.elementLog());
+        SimpleMatrix term_2 = y_matrix.negative().plus(1).elementMult(a_3.negative().plus(1).elementLog());
         SimpleMatrix inner_term = term_1.minus(term_2);
         double inner_sum = inner_term.elementSum();
         double un_reg_cost = inner_sum / m;
+
+        // Regularization Term Calculation
+        SimpleMatrix temp_theta_1;
+
 
         return un_reg_cost;
     }

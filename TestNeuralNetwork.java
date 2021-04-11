@@ -70,4 +70,42 @@ class TestNeuralNetwork {
         EjmlUnitTests.assertEquals(test_out_4.getDDRM(), nn.sigmoid(test_inp_4).getDDRM(), tolerance);
         EjmlUnitTests.assertEquals(test_out_5.getDDRM(), nn.sigmoid(test_inp_5).getDDRM(), tolerance);
     }
+
+    @Test
+    void test_nn_cost_function(){
+        // Input Parameter Instantiation
+        int num_inp_layers = 2;
+        int num_hidden_layers = 2;
+        int num_labels = 4;
+        SimpleMatrix parameters  = new SimpleMatrix(new double[][]{
+                new double[]{0.100, 0.200, 0.300, 0.400, 0.500, 0.600, 0.700,
+                             0.800, 0.900, 1.000, 1.100, 1.200, 1.300, 1.400,
+                             1.500, 1.600, 1.700, 1.800}
+        });
+        SimpleMatrix input_data = new SimpleMatrix(new double[][]{
+                new double[]{0.5403023, -0.4161468},
+                new double[]{-0.9899925, -0.6536436},
+                new double[]{0.2836622, 0.9601703}
+        });
+        SimpleMatrix output_data = new SimpleMatrix(new double[][]{
+                new double[]{4d},
+                new double[]{2d},
+                new double[]{3d}
+        });
+        int lambda = 4;
+
+        //Output Data
+        double unregularized_cost_output = 7.4069698;
+
+        // Create NeuralNetwork object
+        NeuralNetwork nn = new NeuralNetwork();
+
+        // Unregularized Cost Function Test
+        double tolerance = 0.0000001;
+        Assertions.assertEquals(unregularized_cost_output, nn.nn_cost_function(
+                parameters, input_data, output_data, num_inp_layers,
+                num_hidden_layers, num_labels, 0 ), tolerance);
+
+        return;
+    }
 }

@@ -234,8 +234,11 @@ class TestNeuralNetwork {
                 parameters, input_data, output_data, num_inp_layers,
                 num_hidden_layers, num_labels, 0).getDDRM(), tolerance);
 
-        // Testing with regularization
 
+        // Testing with regularization
+        EjmlUnitTests.assertEquals(expected_data_regularized.getDDRM(), nn.nn_gradient(
+                parameters, input_data, output_data, num_inp_layers,
+                num_hidden_layers, num_labels, lambda).getDDRM(), tolerance);
 
         return;
 

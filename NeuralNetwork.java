@@ -175,19 +175,19 @@ public class NeuralNetwork {
 
         // Gradient Regularization
 
-        // Unroll gradients
+        // Unroll gradients (column wise)
         int total_theta_elements = theta_1_grad.getNumElements() + theta_2_grad.getNumElements();
         SimpleMatrix grad = new SimpleMatrix(total_theta_elements, 1);
         int unroll_index = 0;
-        for(int row_1 = 0; row_1 < theta_1_grad.numRows(); row_1++){
-            for(int col_1 = 0; col_1 < theta_1_grad.numCols(); col_1++){
+        for(int col_1 = 0; col_1 < theta_1_grad.numCols(); col_1++){
+            for(int row_1 = 0; row_1 < theta_1_grad.numRows(); row_1++){
                 double temp_val = theta_1_grad.get(row_1, col_1);
                 grad.set(unroll_index, 0, temp_val);
                 unroll_index += 1;
             }
         }
-        for(int row_2 = 0; row_2 < theta_2_grad.numRows(); row_2++){
-            for(int col_2 = 0; col_2 < theta_2_grad.numCols(); col_2++){
+        for(int col_2 = 0; col_2 < theta_2_grad.numCols(); col_2++){
+            for(int row_2 = 0; row_2 < theta_2_grad.numRows(); row_2++){
                 double temp_val = theta_2_grad.get(row_2, col_2);
                 grad.set(unroll_index, 0, temp_val);
                 unroll_index += 1;

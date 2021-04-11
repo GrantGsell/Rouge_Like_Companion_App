@@ -116,4 +116,39 @@ class TestNeuralNetwork {
 
         return;
     }
+
+    @Test
+    void test_sigmoid_gradient(){
+        // Input Data
+        SimpleMatrix input_data = new SimpleMatrix(
+                new double[][]{
+                        new double[]{-1d, -2d, -3d},
+                        new double[]{8d, 1d, 6d},
+                        new double[]{3d, 5d, 7d},
+                        new double[]{4d, 9d, 2d}
+                }
+        );
+
+        // Output Data
+        SimpleMatrix output_data = new SimpleMatrix(
+                new double[][]{
+                        new double[]{0.196611933, 0.104993585, 0.045176660},
+                        new double[]{0.000335238, 0.196611933, 0.002466509},
+                        new double[]{0.045176660, 0.006648057, 0.000910221},
+                        new double[]{0.017662706, 0.000123379, 0.104993585}
+                }
+        );
+
+        // Create NeuralNetwork object
+        NeuralNetwork nn = new NeuralNetwork();
+
+        // Tolerance Variable
+        double tolerance = 0.0000001;
+
+        // Testing
+        EjmlUnitTests.assertEquals(output_data.getDDRM(),
+                nn.sigmoid_gradient(input_data).getDDRM(), tolerance);
+
+        return;
+    }
 }

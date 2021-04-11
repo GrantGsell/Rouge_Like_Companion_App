@@ -206,8 +206,6 @@ public class NeuralNetwork {
     Notes      : None.
      */
     public static SimpleMatrix sigmoid_gradient(SimpleMatrix z){
-        SimpleMatrix test_a = sigmoid(z);
-        SimpleMatrix test_b = sigmoid(z).negative().plus(1.0);
         return sigmoid(z).elementMult(sigmoid(z).negative().plus(1.0));
     }
 

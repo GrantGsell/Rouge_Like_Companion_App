@@ -173,7 +173,13 @@ public class NeuralNetwork {
         theta_1_grad = theta_1_grad.divide(m);
         theta_2_grad = theta_2_grad.divide(m);
 
+        // Gradient Regularization Term calculation
+        SimpleMatrix reg_term_theta_1 = theta_1.extractMatrix(0, theta_1.numRows(), 1, theta_1.numCols()).scale(lambda/m);
+        SimpleMatrix reg_term_theta_2 = theta_2.extractMatrix(0, theta_2.numRows(), 1, theta_2.numCols()).scale(lambda/m);
+
         // Gradient Regularization
+        theta_1_grad.insertIntoThis(0, 1, theta_1_grad.extractMatrix(0, theta_1_grad.numRows(), 1, theta_1_grad.numCols()).plus(reg_term_theta_1));
+        theta_2_grad.insertIntoThis(0, 1, theta_2_grad.extractMatrix(0, theta_2_grad.numRows(), 1, theta_2_grad.numCols()).plus(reg_term_theta_2));
 
         // Unroll gradients (column wise)
         int total_theta_elements = theta_1_grad.getNumElements() + theta_2_grad.getNumElements();

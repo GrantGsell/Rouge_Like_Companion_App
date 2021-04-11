@@ -37,7 +37,7 @@ public class NeuralNetwork {
         SimpleMatrix theta_1 = new SimpleMatrix(hidden_layer_size, input_layer_size+1);
         SimpleMatrix theta_2 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
         theta_1 = copy_parameters(theta_1, parameters, 0);
-        theta_2 = copy_parameters(theta_2, parameters, theta_1.getNumElements()-1);
+        theta_2 = copy_parameters(theta_2, parameters, theta_1.getNumElements());
 
         /*
         Forward Propagation
@@ -56,12 +56,12 @@ public class NeuralNetwork {
         bias_units = bias_units.plus(1.0);
 
         // Activation units for layer 1, add bias unit to the input layer
-        SimpleMatrix a_1 = input_data.concatColumns(bias_units);
+        SimpleMatrix a_1 = bias_units.concatColumns(input_data);
 
         // Activation units for layer 2
         SimpleMatrix z_2 = a_1.mult(theta_1.transpose());
         SimpleMatrix a_2 = sigmoid(z_2);
-        a_2 = a_2.concatColumns(bias_units);
+        a_2 = bias_units.concatColumns(a_2);
 
         // Activation units for layer 3 (output layer)
         SimpleMatrix z_3 = a_2.mult(theta_2.transpose());

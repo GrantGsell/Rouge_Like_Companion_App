@@ -58,17 +58,14 @@ class TestNeuralNetwork {
         SimpleMatrix test_out_4 = new SimpleMatrix(test_arr_out_4);
         SimpleMatrix test_out_5 = new SimpleMatrix(test_arr_out_5);
 
-        // Create NeuralNetwork object
-        NeuralNetwork nn = new NeuralNetwork();
-
         // Perform assertions
         double tolerance = 0.000000001;
-        EjmlUnitTests.assertEquals(test_out_0.getDDRM(), nn.sigmoid(test_inp_0).getDDRM(), tolerance);
-        EjmlUnitTests.assertEquals(test_out_1.getDDRM(), nn.sigmoid(test_inp_1).getDDRM(), tolerance);
-        EjmlUnitTests.assertEquals(test_out_2.getDDRM(), nn.sigmoid(test_inp_2).getDDRM(), tolerance);
-        EjmlUnitTests.assertEquals(test_out_3.getDDRM(), nn.sigmoid(test_inp_3).getDDRM(), tolerance);
-        EjmlUnitTests.assertEquals(test_out_4.getDDRM(), nn.sigmoid(test_inp_4).getDDRM(), tolerance);
-        EjmlUnitTests.assertEquals(test_out_5.getDDRM(), nn.sigmoid(test_inp_5).getDDRM(), tolerance);
+        EjmlUnitTests.assertEquals(test_out_0.getDDRM(), NeuralNetwork.sigmoid(test_inp_0).getDDRM(), tolerance);
+        EjmlUnitTests.assertEquals(test_out_1.getDDRM(), NeuralNetwork.sigmoid(test_inp_1).getDDRM(), tolerance);
+        EjmlUnitTests.assertEquals(test_out_2.getDDRM(), NeuralNetwork.sigmoid(test_inp_2).getDDRM(), tolerance);
+        EjmlUnitTests.assertEquals(test_out_3.getDDRM(), NeuralNetwork.sigmoid(test_inp_3).getDDRM(), tolerance);
+        EjmlUnitTests.assertEquals(test_out_4.getDDRM(), NeuralNetwork.sigmoid(test_inp_4).getDDRM(), tolerance);
+        EjmlUnitTests.assertEquals(test_out_5.getDDRM(), NeuralNetwork.sigmoid(test_inp_5).getDDRM(), tolerance);
     }
 
     @Test
@@ -98,29 +95,29 @@ class TestNeuralNetwork {
         double un_regularized_cost_output = 7.4069698;
         double regularized_cost_output = 19.4736365;
 
-        // Create NeuralNetwork object
-        NeuralNetwork nn = new NeuralNetwork();
-
         // Tolerance Variable
         double tolerance = 0.0000001;
 
-        // Unregularized Cost Function Test
-        Assertions.assertEquals(un_regularized_cost_output, nn.nn_cost_function(
+        // Un-regularized Cost Function Test
+        Assertions.assertEquals(un_regularized_cost_output, NeuralNetwork.nn_cost_function(
                 parameters, input_data, output_data, num_inp_layers,
                 num_hidden_layers, num_labels, 0 ), tolerance);
 
         // Regularized Cost Function Test
-        Assertions.assertEquals(regularized_cost_output, nn.nn_cost_function(
+        Assertions.assertEquals(regularized_cost_output, NeuralNetwork.nn_cost_function(
                 parameters, input_data, output_data, num_inp_layers,
                 num_hidden_layers, num_labels, lambda ), tolerance);
-
-        return;
     }
 
     @Test
     void test_sigmoid_gradient(){
         // Input Data
-        SimpleMatrix input_data = new SimpleMatrix(
+        SimpleMatrix input_data_0 = new SimpleMatrix(
+                new double[][]{
+                        new double[]{0}
+                }
+        );
+        SimpleMatrix input_data_1 = new SimpleMatrix(
                 new double[][]{
                         new double[]{-1d, -2d, -3d},
                         new double[]{8d, 1d, 6d},
@@ -130,7 +127,12 @@ class TestNeuralNetwork {
         );
 
         // Output Data
-        SimpleMatrix output_data = new SimpleMatrix(
+        SimpleMatrix output_data_0 = new SimpleMatrix(
+                new double[][]{
+                        new double[]{0.250000000}
+                }
+        );
+        SimpleMatrix output_data_1 = new SimpleMatrix(
                 new double[][]{
                         new double[]{0.196611933, 0.104993585, 0.045176660},
                         new double[]{0.000335238, 0.196611933, 0.002466509},
@@ -139,17 +141,13 @@ class TestNeuralNetwork {
                 }
         );
 
-        // Create NeuralNetwork object
-        NeuralNetwork nn = new NeuralNetwork();
 
         // Tolerance Variable
         double tolerance = 0.0000001;
 
         // Testing
-        EjmlUnitTests.assertEquals(output_data.getDDRM(),
-                nn.sigmoid_gradient(input_data).getDDRM(), tolerance);
-
-        return;
+        EjmlUnitTests.assertEquals(output_data_0.getDDRM(), NeuralNetwork.sigmoid_gradient(input_data_0).getDDRM(), tolerance);
+        EjmlUnitTests.assertEquals(output_data_1.getDDRM(), NeuralNetwork.sigmoid_gradient(input_data_1).getDDRM(), tolerance);
     }
 
     @Test
@@ -175,9 +173,6 @@ class TestNeuralNetwork {
                 new double[]{3d}
         });
         int lambda = 4;
-
-        // Create NeuralNetwork object
-        NeuralNetwork nn = new NeuralNetwork();
 
         // Tolerance Variable
         double tolerance = 0.0000001;
@@ -230,17 +225,41 @@ class TestNeuralNetwork {
         );
 
         // Testing without regularization
-        EjmlUnitTests.assertEquals(expected_data_un_regularized.getDDRM(), nn.nn_gradient(
+        EjmlUnitTests.assertEquals(expected_data_un_regularized.getDDRM(), NeuralNetwork.nn_gradient(
                 parameters, input_data, output_data, num_inp_layers,
                 num_hidden_layers, num_labels, 0).getDDRM(), tolerance);
 
 
         // Testing with regularization
-        EjmlUnitTests.assertEquals(expected_data_regularized.getDDRM(), nn.nn_gradient(
+        EjmlUnitTests.assertEquals(expected_data_regularized.getDDRM(), NeuralNetwork.nn_gradient(
                 parameters, input_data, output_data, num_inp_layers,
                 num_hidden_layers, num_labels, lambda).getDDRM(), tolerance);
+    }
 
-        return;
+    @Test
+    void test_debug_initialize_weights(){
+        // Test parameters
+        int l_in = 3;
+        int l_out = 5;
+
+        // Expected Output Data
+        SimpleMatrix expected_data = new SimpleMatrix(
+                new double[][]{
+                        new double[]{0.084147098, -0.027941550, -0.099999021, -0.028790332},
+                        new double[]{0.090929743, 0.065698660, -0.053657292, -0.096139749},
+                        new double[]{0.014112001, 0.098935825, 0.042016704, -0.075098725},
+                        new double[]{-0.075680250, 0.041211849, 0.099060736, 0.014987721},
+                        new double[]{-0.095892427, -0.054402111, 0.065028784, 0.091294525}
+                }
+        );
+
+        // Tolerance Variable
+        double tolerance = 0.0000001;
+
+        // Testing
+        EjmlUnitTests.assertEquals(expected_data.getDDRM(),
+                NeuralNetwork.debug_initialize_weights(l_in, l_out).getDDRM(),
+                tolerance);
 
     }
 }

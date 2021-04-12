@@ -1,5 +1,5 @@
 import org.ejml.simple.SimpleMatrix;
-
+import java.util.Random;
 import java.beans.DesignMode;
 
 public class NeuralNetwork {
@@ -45,8 +45,8 @@ public class NeuralNetwork {
         // Reshape the nn parameters back into the weights for each layer.
         SimpleMatrix theta_1 = new SimpleMatrix(hidden_layer_size, input_layer_size+1);
         SimpleMatrix theta_2 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
-        theta_1 = copy_parameters(theta_1, parameters, 0);
-        theta_2 = copy_parameters(theta_2, parameters, theta_1.getNumElements());
+        copy_parameters(theta_1, parameters, 0);
+        copy_parameters(theta_2, parameters, theta_1.getNumElements());
 
         /*
         Forward Propagation
@@ -97,20 +97,18 @@ public class NeuralNetwork {
         return cost;
     }
 
-    public static SimpleMatrix copy_parameters(SimpleMatrix inp_matrix, SimpleMatrix inp_vector, int vect_idx){
+    public static void copy_parameters(SimpleMatrix inp_matrix, SimpleMatrix inp_vector, int vect_idx){
         for(int col = 0; col < inp_matrix.numCols(); col++){
             for(int row = 0; row < inp_matrix.numRows(); row++){
                 inp_matrix.set(row, col, inp_vector.get(0, vect_idx));
                 vect_idx += 1;
             }
         }
-
-        return inp_matrix;
     }
 
     /*
-    Name       :
-    Purpose    :
+    Name       : nn_gradient
+    Purpose    : To calculate the gradient of the neural network.
     Parameters :
     Return     :
     Notes      :
@@ -216,31 +214,74 @@ public class NeuralNetwork {
     }
 
     /*
+    Name       : random_initialize_weights
+    Purpose    : To randomly initialize the weights of a layer with l_in
+                    incoming connections, and l_out outgoing connections.
+    Parameters :
+                 l_in, an integer denoting the number of incoming connections.
+                 l_out, an integer denoting the number of outgoing connections.
+    Return     : rand_weights a simple matrix of dimensions (l_out x l_in + 1)
+    Notes      :
+     */
+    public static SimpleMatrix random_initialize_weights(int l_in, int l_out){
+        SimpleMatrix rand_weights = SimpleMatrix.random_DDRM(l_out, l_in + 1, 0, 1,  new Random());
+        double epsilon = Math.sqrt(6) / Math.sqrt(l_in + l_out);
+        rand_weights.scale(2).scale(epsilon).minus(epsilon);
+        return rand_weights;
+    }
+
+    /*
+    Name       : debug_initialize_weights
+    Purpose    : To initialize the weights of a layer with l_in incoming
+                    connections, and l_out outgoing connections using a fixed
+                    strategy (the same weight values each time).
+    Parameters :
+                 l_in, an integer denoting the number of incoming connections.
+                 l_out, an integer denoting the number of outgoing connections.
+    Return     : fixed_weights, a simple matrix denoting a matrix of weights
+                    that will always have the same values.
+    Notes      : None.
+     */
+    public static SimpleMatrix debug_initialize_weights(int l_in, int l_out){
+        SimpleMatrix fixed_weights = new SimpleMatrix(l_out, l_in + 1);
+        int sin_index = 1;
+        for(int col = 0; col < fixed_weights.numCols(); col++){
+            for(int row = 0; row < fixed_weights.numRows(); row++){
+                fixed_weights.set(row, col, Math.sin(sin_index));
+                sin_index += 1;
+            }
+        }
+        return fixed_weights.divide(10);
+    }
+
+
+    /*
     Name       :
     Purpose    :
     Parameters :
     Return     :
     Notes      :
      */
-    public static void main(String[] agrs){
-        double[][] nn_params =new double[][] {
-                new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d},
-                new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d},
-                new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d},
-                new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d},
-                new double[]{1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}
-        };
-        SimpleMatrix nn_param_mat = new SimpleMatrix(nn_params);
-        NeuralNetwork nn = new NeuralNetwork();
-        double[][] test = new double[][]{
-                new double[]{0},
-                new double[]{0},
-                new double[]{2},
-                new double[]{2},
-                new double[]{4}
-        };
-        SimpleMatrix y = new SimpleMatrix(test);
-        nn.nn_cost_function(nn_param_mat, nn_param_mat, y, 3, 2, 5, 0.1);
+    public static SimpleMatrix compute_numerical_gradient(double cost, SimpleMatrix theta){
+        SimpleMatrix numerical_gradient = new SimpleMatrix(theta.numRows(), theta.numCols());
+        SimpleMatrix perturb = new SimpleMatrix(theta.numRows(), theta.numCols());
+        double epsilon = 1e-4;
+        for(int i = 0; i < theta.getNumElements(); i++){
+            // Set perturbation vector
+            perturb.set(i, 0, epsilon);
+        }
+        return theta;
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static void main(String[] args){
     }
 
 }

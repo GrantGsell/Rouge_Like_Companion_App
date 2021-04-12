@@ -258,7 +258,7 @@ class TestNeuralNetwork {
 
         // Testing
         EjmlUnitTests.assertEquals(expected_data.getDDRM(),
-                NeuralNetwork.debug_initialize_weights(l_in, l_out).getDDRM(),
+                NeuralNetwork.debug_initialize_weights(l_out, l_in).getDDRM(),
                 tolerance);
 
     }

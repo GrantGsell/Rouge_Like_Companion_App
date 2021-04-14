@@ -3,10 +3,13 @@ import org.ejml.simple.SimpleMatrix;
 import org.junit.jupiter.api.Test;
 import org.ejml.EjmlUnitTests;
 
+
+
 class TestNeuralNetwork {
 
     @Test
     void test_sigmoid() {
+
         // Create arrays for input matrices
         double[][] test_arr_inp_0 = new double[][]{new double[]{-5d}};
         double[][] test_arr_inp_1 = new double[][]{new double[]{0d}};
@@ -85,9 +88,9 @@ class TestNeuralNetwork {
                 new double[]{0.2836622, 0.9601703}
         });
         SimpleMatrix output_data = new SimpleMatrix(new double[][]{
-                new double[]{4d},
-                new double[]{2d},
-                new double[]{3d}
+                new double[]{3d},
+                new double[]{1d},
+                new double[]{2d}
         });
         int lambda = 4;
 
@@ -168,9 +171,9 @@ class TestNeuralNetwork {
                 new double[]{0.2836622, 0.9601703}
         });
         SimpleMatrix output_data = new SimpleMatrix(new double[][]{
-                new double[]{4d},
-                new double[]{2d},
-                new double[]{3d}
+                new double[]{3d},
+                new double[]{1d},
+                new double[]{2d}
         });
         int lambda = 4;
 

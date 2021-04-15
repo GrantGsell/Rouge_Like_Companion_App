@@ -421,7 +421,8 @@ public class NeuralNetwork implements DiffFunction{
                                                 int input_layer_size,
                                                 int hidden_layer_size,
                                                 int num_labels,
-                                                double lambda){
+                                                double lambda,
+                                                String file_name){
         // Set initial theta values
         SimpleMatrix initial_theta_1 = random_initialize_weights(input_layer_size, hidden_layer_size);
         SimpleMatrix initial_theta_2 = random_initialize_weights(hidden_layer_size, num_labels);
@@ -453,7 +454,7 @@ public class NeuralNetwork implements DiffFunction{
 
         }
         double[] learned_parameters = initial_theta_comb.getDDRM().data;
-        write_parameters_to_csv(learned_parameters);
+        write_parameters_to_csv(learned_parameters, file_name);
     }
 
     /*
@@ -469,7 +470,8 @@ public class NeuralNetwork implements DiffFunction{
                                         int input_layer_size,
                                         int hidden_layer_size,
                                         int num_labels,
-                                        double lambda){
+                                        double lambda,
+                                        String file_name){
 
         QNMinimizer qn = new QNMinimizer(1,true);
 
@@ -495,7 +497,7 @@ public class NeuralNetwork implements DiffFunction{
         // Learn parameters
         NeuralNetwork obj = new NeuralNetwork();
         double[] learned_parameters = qn.minimize(obj, tolerance, initial_theta, max_num_iter);
-        write_parameters_to_csv(learned_parameters);
+        write_parameters_to_csv(learned_parameters, file_name);
     }
 
     @Override
@@ -630,7 +632,7 @@ public class NeuralNetwork implements DiffFunction{
     Return     :
     Notes      :
      */
-    public static void write_parameters_to_csv(double[] parameters){
+    public static void write_parameters_to_csv(double[] parameters, String file_name){
         // convert double array to string array
         String[] str = new String[parameters.length];
         for(int i = 0; i < parameters.length; i++){
@@ -639,7 +641,7 @@ public class NeuralNetwork implements DiffFunction{
 
         try {
             // Write data to file
-            String filename = "src/parameters.csv";
+            String filename = file_name; // "src/parameters.csv";
             CSVWriter writer = new CSVWriter(new FileWriter(filename), ',', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                     CSVWriter.DEFAULT_LINE_END);
             writer.writeNext(str);
@@ -701,10 +703,11 @@ public class NeuralNetwork implements DiffFunction{
         // Read in data
         String input_file_name = "src/input_data_x.csv";
         String output_file_name = "src/output_data_y.csv";
-        NeuralNetwork.read_data(num_examples, 400, input_data, output_data, input_file_name, output_file_name);
+        NeuralNetwork.read_data(num_examples, input_layer_size, input_data, output_data, input_file_name, output_file_name);
 
         // Learn the parameters
-        //NeuralNetwork.learn_parameters_via_gd(input_data, output_data, input_layer_size, hidden_layer_size, num_labels, lambda);
+        String parameter_file_path = "src/parameters.csv";
+        NeuralNetwork.learn_parameters_via_gd(input_data, output_data, input_layer_size, hidden_layer_size, num_labels, lambda, parameter_file_path);
         //NeuralNetwork.learn_parameters(input_data, output_data, input_layer_size, hidden_layer_size, num_labels, lambda);
 
         // Read in parameter data
@@ -726,8 +729,8 @@ public class NeuralNetwork implements DiffFunction{
             }
             System.out.format("Actual: %.2f | %.2f : Predicted\n", actual_data[i], prediction_data[i]);
         }
-        double percent_correcct = ((double)total_correct/ (double)num_examples) * 100;
-        System.out.format("Percentage Correct: %.2f%%\n", percent_correcct);
+        double percent_correct = ((double)total_correct/ (double)num_examples) * 100;
+        System.out.format("Percentage Correct: %.2f%%\n", percent_correct);
 
     }
 

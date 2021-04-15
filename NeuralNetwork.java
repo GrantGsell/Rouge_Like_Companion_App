@@ -590,10 +590,10 @@ public class NeuralNetwork implements DiffFunction{
     Return     :
     Notes      :
      */
-    public static void read_data(int num_examples, int num_features, SimpleMatrix input_data, SimpleMatrix output_data){
+    public static void read_data(int num_examples, int num_features, SimpleMatrix input_data, SimpleMatrix output_data, String input_file_name, String output_file_name){
         try{
             // Read in Input data
-            BufferedReader br = new BufferedReader(new FileReader("src/input_data_x.csv"));
+            BufferedReader br = new BufferedReader(new FileReader(input_file_name)); //"src/input_data_x.csv"));
             String line = "";
             int row = 0;
             while(row < num_examples && (line = br.readLine()) != null){
@@ -608,7 +608,7 @@ public class NeuralNetwork implements DiffFunction{
             }
 
             // Read Output data
-            BufferedReader br_y = new BufferedReader(new FileReader("src/output_data_y.csv"));
+            BufferedReader br_y = new BufferedReader(new FileReader(output_file_name)); //"src/output_data_y.csv"));
             int row_y = 0;
             while(row_y < num_examples && (line = br_y.readLine()) != null){
                 String[] data = line.split(",");
@@ -639,11 +639,9 @@ public class NeuralNetwork implements DiffFunction{
 
         try {
             // Write data to file
-            //FileWriter outputfile = new FileWriter("src/parameters.csv");
             String filename = "src/parameters.csv";
             CSVWriter writer = new CSVWriter(new FileWriter(filename), ',', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                     CSVWriter.DEFAULT_LINE_END);
-//            CSVWriter writer = new CSVWriter(outputfile);
             writer.writeNext(str);
             writer.flush();
             System.out.println("Parameter Data Written\n");
@@ -701,7 +699,9 @@ public class NeuralNetwork implements DiffFunction{
         SimpleMatrix output_data = new SimpleMatrix(num_examples, 1);;
 
         // Read in data
-        NeuralNetwork.read_data(num_examples, 400, input_data, output_data);
+        String input_file_name = "src/input_data_x.csv";
+        String output_file_name = "src/output_data_y.csv";
+        NeuralNetwork.read_data(num_examples, 400, input_data, output_data, input_file_name, output_file_name);
 
         // Learn the parameters
         //NeuralNetwork.learn_parameters_via_gd(input_data, output_data, input_layer_size, hidden_layer_size, num_labels, lambda);

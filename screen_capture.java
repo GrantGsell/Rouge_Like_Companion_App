@@ -1,10 +1,16 @@
+import org.ejml.simple.SimpleMatrix;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class screen_capture {
+    public static boolean timer_flag = false;
+    public static Timer event_timer = new Timer();
 
     /*
     Name       : screenshot
@@ -16,7 +22,7 @@ public class screen_capture {
                  num_screenshots, an integer denoting the number of screenshots
                     to be taken.
                  delay_time_ms, a integer denoting the time interval between
-                    screen captures in miliseconds.
+                    screen captures in milliseconds.
     Return     : None
     Notes      : None
      */
@@ -29,6 +35,15 @@ public class screen_capture {
 
         // Take n screenshots
         for(int i = 0; i < num_screenshots; i++){
+            if(i % 100 == 0 && i != 0){
+                int temp_break_point = 5;
+                try {
+                    Thread.sleep(5000);
+                }
+                catch (Exception e){
+                    System.out.println(e);
+                }
+            }
             // Generate iterative file path
             String index = Integer.toString(i);
             String file_path = cwd + index + ".jpg";
@@ -58,8 +73,8 @@ public class screen_capture {
     }
 
     /*
-    Name       :
-    Purpose    :
+    Name       : active_capture
+    Purpose    : To actively take screenshots and look for notification boxes.
     Parameters :
     Return     :
     Notes      :
@@ -74,12 +89,16 @@ public class screen_capture {
         // Iterative file index
         int itr = 0;
 
-        // Read in the border image 'database'
-        int[][] border_data = new int[345][400*3*2];
-        ObtainData.read_border_data(border_data);
+        // Testing variables
+        int border_height = 3;
+        int num_features = 7200;
+        int num_classes = 4;
+        //boolean timer_flag = false;
 
-        // Threshold number of similarities
-        int threshold = 150;
+
+        // Obtain border class base matrix
+        double[][] class_border_matrix = ObtainData.average_border_color_per_class(num_classes, border_height, num_features);
+
 
         while(true){
             // Screenshot
@@ -91,13 +110,18 @@ public class screen_capture {
                 int width = 400;
                 int y_offset = 767;
                 int height = 77;
+
+                // Crop image to new image
                 BufferedImage crop = capture.getSubimage(x_offset, y_offset, width, height);
 
-                // Obtain number of similarities
-                int num_same_elem = ObtainData.compare_image_to_border_data_int_ret(crop,border_data);
+                int prediction = ObtainData.average_percent_difference(crop, class_border_matrix, num_classes, border_height, num_features);
 
                 // Set threshold to save if reached
-                if(num_same_elem > threshold){
+                if(prediction != 0 && timer_flag == false){
+                    // Set timer flag high and start the timer
+                    timer_flag = true;
+                    event_timer.schedule(new FlagSetTask(), 1000);
+
                     // Print out message
                     System.out.println("Notification box found!");
 
@@ -111,6 +135,8 @@ public class screen_capture {
                     ImageIO.write(crop, "jpg", outputfile);
 
                 }
+                //
+
                 // Time delay between screenshots
                 Thread.sleep(delay_time_ms);
             }
@@ -123,6 +149,15 @@ public class screen_capture {
     }
 
 
+    static class FlagSetTask extends TimerTask{
+        public void run(){
+            System.out.println("Timer Stopped, Imaging Resuming!");
+            timer_flag = false;
+            //event_timer.cancel();
+        }
+    }
+
+
 
     /*
     Name       :
@@ -132,11 +167,14 @@ public class screen_capture {
     Notes      :
      */
     public static void main(String[] args) {
-        String file_name = "test";
-        boolean active_capture = false;
+        String file_name = "temp";
+        boolean active_capture = true;
 
-        if(!active_capture) {
-            int num_pics = 25;
+        if(active_capture) {
+            screen_capture.active_capture(file_name, 50);
+        }
+        else{
+            int num_pics = 50;
             int delay_time = 250;
             double run_time = (delay_time / 1000.0) * num_pics;
             System.out.printf("Ideal program runtime: %.3f seconds\n", run_time);
@@ -153,11 +191,5 @@ public class screen_capture {
             double screenshot_overhead = (time_delta - run_time) / num_pics;
             System.out.printf("Time for 1 screenshot: %.3f seconds\n", screenshot_overhead);
         }
-        else{
-            screen_capture.active_capture(file_name, 250);
-        }
-
-
     }
-
 }

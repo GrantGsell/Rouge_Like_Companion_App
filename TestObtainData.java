@@ -11,51 +11,127 @@ import static org.junit.jupiter.api.Assertions.*;
 class TestObtainData {
 
     @Test
-    void test_compare_image_to_border_data() {
+    void test_average_percent_difference(){
+        // Class variables
+        int num_classes = 4;
+        int border_height = 3;
+        int num_features = 7200;
+        double[][] class_border_matrix;
+        int num_errors = 0;
+
+        // Generate the border data matrix
+        class_border_matrix = ObtainData.average_border_color_per_class(num_classes, border_height, num_features);
+
         /*
-        Test against 'database' to ensure 'database is working correctly.
+         Perform test for class 1
          */
-        // Set file_path for testing files
-        String base_file_name = "screenshots/images_for_processing/temp_";//0.jpg"
-
-        // Obtain border data
-        int[][] border_data = new int[345][400*3*2];
-        ObtainData.read_border_data(border_data);
-
-        // Iterate over files and perform tests
-        for(int i = 0; i < 17; i++){
-            // Create iterative file name
-            String file_path = base_file_name + Integer.toString(i) + ".jpg";
-            try {
-                // Obtain BufferedImage based on file name
+        String class_1_base_file_path = "screenshots/class_1_border/class_1_";
+        int num_borders_1 = 285;
+        try {
+            for (int i = 0; i < num_borders_1; i++) {
+                String file_path = class_1_base_file_path + Integer.toString(i) + ".jpg";
                 BufferedImage image = ImageIO.read(new File(file_path));
-                // Compare image border data to 'database'
-                Assertions.assertTrue(ObtainData.compare_image_to_border_data(image, border_data));
+                int prediction = ObtainData.average_percent_difference(image, class_border_matrix, num_classes, border_height, num_features);
+                if(prediction != 1){
+                    num_errors += 1;
+                    System.out.println("Error");
+                }
             }
-            catch (IOException e){
-                System.out.print(e);
+            Assertions.assertTrue(num_errors < 5);
+        }
+        catch (IOException e){
+            System.out.println(e);
+        }
+
+
+        /*
+         Perform test for class 2
+         */
+        String class_2_base_file_path = "screenshots/class_2_border/class_2_";
+        int num_borders_2 = 285;
+        num_errors = 0;
+        try {
+            for (int i = 0; i < num_borders_2; i++) {
+                String file_path = class_2_base_file_path + Integer.toString(i) + ".jpg";
+                BufferedImage image = ImageIO.read(new File(file_path));
+                int prediction = ObtainData.average_percent_difference(image, class_border_matrix, num_classes, border_height, num_features);
+                if(prediction != 2){
+                    num_errors += 1;
+                    System.out.println("Error");
+                }
             }
+            Assertions.assertTrue(num_errors < 5);
+        }
+        catch (IOException e){
+            System.out.println(e);
+        }
+
+
+        /*
+         Perform test for class 3
+         */
+        String class_3_base_file_path = "screenshots/class_3_border/class_3_";
+        int num_borders_3 = 112;
+        num_errors = 0;
+        try {
+            for (int i = 0; i < num_borders_3; i++) {
+                String file_path = class_3_base_file_path + Integer.toString(i) + ".jpg";
+                BufferedImage image = ImageIO.read(new File(file_path));
+                int prediction = ObtainData.average_percent_difference(image, class_border_matrix, num_classes, border_height, num_features);
+                if(prediction != 3){
+                    num_errors += 1;
+                    System.out.println("Error");
+                }
+            }
+            Assertions.assertTrue(num_errors < 5);
+        }
+        catch (IOException e){
+            System.out.println(e);
+        }
+
+
+        /*
+         Perform test for class 4
+         */
+        String class_4_base_file_path = "screenshots/class_4_border/class_4_";
+        int num_borders_4 = 22;
+        num_errors = 0;
+        try {
+            for (int i = 0; i < num_borders_4; i++) {
+                String file_path = class_4_base_file_path + Integer.toString(i) + ".jpg";
+                BufferedImage image = ImageIO.read(new File(file_path));
+                int prediction = ObtainData.average_percent_difference(image, class_border_matrix, num_classes, border_height, num_features);
+                if(prediction != 4){
+                    num_errors += 1;
+                    System.out.println("Error");
+                }
+            }
+            Assertions.assertTrue(num_errors < 5);
+        }
+        catch (IOException e){
+            System.out.println(e);
         }
 
         /*
-        Real testing
+         Perform test for the negative classes
          */
-        // Set file_path for testing files
-        String base_file_name_2 = "screenshots/test_";//0.jpg"
-
-        // Iterate over files and perform tests
-        for(int i = 11; i < 24; i++){
-            // Create iterative file name
-            String file_path = base_file_name_2 + Integer.toString(i) + ".jpg";
-            try {
-                // Obtain BufferedImageage based on file name
+        String class_0_base_file_path = "screenshots/negative_borders/negative_";
+        int num_borders_0 = 471;
+        num_errors = 0;
+        try {
+            for (int i = 0; i < num_borders_0; i++) {
+                String file_path = class_0_base_file_path + Integer.toString(i) + ".jpg";
                 BufferedImage image = ImageIO.read(new File(file_path));
-                // Compare image border data to 'database'
-                System.out.println(ObtainData.compare_image_to_border_data(image, border_data));
+                int prediction = ObtainData.average_percent_difference(image, class_border_matrix, num_classes, border_height, num_features);
+                if(prediction != 0){
+                    num_errors += 1;
+                    System.out.println("Error");
+                }
             }
-            catch (IOException e){
-                System.out.print(e);
-            }
+            Assertions.assertTrue(num_errors < 5);
+        }
+        catch (IOException e){
+            System.out.println(e);
         }
 
     }

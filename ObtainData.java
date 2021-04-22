@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -20,7 +21,7 @@ public class ObtainData {
     Notes      :
      */
     public static void create_image_border_data(int total_num_borders, int border_width, int border_height, int num_classes){
-        // Obtain borders, transform into useable data
+        // Obtain borders, transform into usable data
         try {
             int num_borders = 0;
             int arr_index = 0;
@@ -213,11 +214,11 @@ public class ObtainData {
                 switch (k) {
                     case 0:
                         base_file_path = "screenshots/class_1_border/class_1_";
-                        num_borders = 285;
+                        num_borders = 358;
                         break;
                     case 1:
                         base_file_path = "screenshots/class_2_border/class_2_";
-                        num_borders = 285;
+                        num_borders = 286;
                         break;
                     case 2:
                         base_file_path = "screenshots/class_3_border/class_3_";
@@ -312,7 +313,7 @@ public class ObtainData {
 
             // Set the text box end/start indices
             if(curr_box_class == 1 && text_box_start < 0){
-                text_box_start = x_offset;
+                text_box_start = x_offset - 5;
             }
             else if(curr_box_class == 1 && text_box_start >0){
                 text_box_end = x_offset + sw_width;
@@ -324,7 +325,7 @@ public class ObtainData {
 
         // Check to see if a text box was found, if so return the text box image
         if(text_box_start != text_box_end){
-            int text_box_size = text_box_end - text_box_start;
+            int text_box_size = text_box_end - text_box_start + 3;
             BufferedImage text_box = image.getSubimage(text_box_start, y_offset, text_box_size, sw_height);
             return text_box;
         }
@@ -341,7 +342,7 @@ public class ObtainData {
     Return     :
     Notes      :
      */
-    public static void obtain_sliding_window_data(int sw_height,
+    public static SimpleMatrix obtain_sliding_window_data(int sw_height,
                                                   int sw_width,
                                                   int sw_delta,
                                                   int start_class,
@@ -355,8 +356,7 @@ public class ObtainData {
         int input_data_id = 0;
         int pixel_depth = 3;
         int num_boxes = Math.floorDiv(example_width - sw_width, sw_delta);
-        double[][] input_data = new double[num_boxes * num_examples][sw_height * sw_width * pixel_depth];
-        String[] output_data = new String[num_boxes * num_examples];
+
 
         // Determine which class, and set the max number of borders
         String base_file_path = "";
@@ -364,7 +364,7 @@ public class ObtainData {
         switch (start_class) {
             case 1:
                 base_file_path = "screenshots/class_1_border/class_1_";
-                max_num_borders = 285;
+                max_num_borders = 358;
                 break;
             case 2:
                 base_file_path = "screenshots/class_2_border/class_2_";
@@ -380,53 +380,78 @@ public class ObtainData {
                 break;
         }
 
+        // Instantiate input data
+        double[][] input_data_class_1 = new double[4215][sw_height * sw_width * pixel_depth];
+
+
         /*
          Iterate over images, obtain pixel sub-boxes, prompt for user input
          */
         try {
+            int char_index = 0;
             // Select the example image
             for(int ex_num = start_ex_idx; ex_num < max_num_borders; ex_num++) {
                 // Read in the example image
                 String file_path = base_file_path + Integer.toString(ex_num) + ".jpg";
                 BufferedImage curr_ex_image = ImageIO.read(new File(file_path));
+                curr_ex_image = curr_ex_image.getSubimage(0,16, curr_ex_image.getWidth(), curr_ex_image.getHeight()-16);
+
+                // Isolate the text-box
+                curr_ex_image = text_box_recognition(curr_ex_image, sw_height, sw_width, sw_delta);
+
+                // Perform image pre-processing
+                curr_ex_image = background_processing(curr_ex_image);
+
+                // Obtain character segmentation arraylist
+                ArrayList<Integer> char_seg = character_segmentation(curr_ex_image, sw_height, sw_width, sw_delta - 3);
 
                 /*
                  Use sliding window to obtain sub image
                  */
                 int x_offset = 0;
                 int y_offset = 16;
-                for(int curr_idx = 0; curr_idx < num_boxes; curr_idx++) {
+                for(int curr_idx = 0; curr_idx < char_seg.size(); curr_idx++) {
                     // Obtain a sliding window box
-                    BufferedImage curr_box = curr_ex_image.getSubimage(x_offset, y_offset, sw_width, sw_height);
+                    BufferedImage curr_char = curr_ex_image.getSubimage(char_seg.get(curr_idx), 0, sw_width, sw_height);
 
-                    // Prompt for use input on the image
-                    Scanner myObj = new Scanner(System.in);  // Create a Scanner object
-                    System.out.println("Enter Character classification: 0 is not text, 1 is text");
-                    String user_input = myObj.nextLine();  // Read user input
+                    /*
+                    Write current char to folder, used for testing only
+                     */
+                    /*
+                    // Generate iterative file path
+                    String index = Integer.toString(char_index);
+                    String cwd = "screenshots/Char_Test_folder/test_";
+                    String test_file_path = cwd + index + ".jpg";
+                    char_index += 1;
+
+                    // Write image buffer to file
+                    File output_file = new File(test_file_path);
+                    ImageIO.write(curr_char, "jpg", output_file);
+                    */
 
                     // Obtain sub-box pixel data
-                    double[] pixel_data = get_image_rgb_data_double(curr_box);
+                    double[] pixel_data = get_image_rgb_data_double(curr_char);
 
                     // Set array data
-                    input_data[input_data_id] = pixel_data;
-                    output_data[input_data_id] = user_input;
+                    input_data_class_1[input_data_id] = pixel_data;
                     input_data_id += 1;
+
                 }
             }
 
             // Convert input/output data to SimpleMatrix
-            SimpleMatrix input_data_matrix = new SimpleMatrix(input_data);
-            //SimpleMatrix output_data_matrix = new SimpleMatrix(new double[][]{output_data});
+            SimpleMatrix input_data_matrix = new SimpleMatrix(input_data_class_1);
 
+            return input_data_matrix;
             // Write Simple Matrix data to csv
-            input_data_matrix.loadCSV(input_data_file);
-            //output_data_matrix.loadCSV(output_data_file);
+            //input_data_matrix.loadCSV(input_data_file);
+
         }
         catch (IOException e){
             System.out.println("IO ERROR");
             System.out.println(e);
         }
-
+        return null;
     }
 
     /*
@@ -452,11 +477,125 @@ public class ObtainData {
                 white_pixel_count += 1;
             }
         }
-
         // Return boolean, 1 for valid box, 0 for invalid
         return white_pixel_count >= 68;
-
     }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static boolean num_black_pixels(BufferedImage image, int num_pixels_threshold){
+        // Pixel value threshold
+        int pixel_value_threshold = 100;//100;//60;
+
+        // White pixel count data
+        int black_pixel_count = 0;
+
+        // Obtain rgb pixel data
+        int[] pixel_arr = get_image_rgb_data(image);
+
+        // Iterate over pixel_array, looking at 3 pixel for white data.
+        for(int idx = 0; idx < pixel_arr.length; idx += 3){
+            if(pixel_arr[idx] < pixel_value_threshold && pixel_arr[idx + 1] < pixel_value_threshold && pixel_arr[idx + 2] < pixel_value_threshold){
+                black_pixel_count += 1;
+            }
+        }
+        // Return boolean, 1 for valid box, 0 for invalid
+        return black_pixel_count >= num_pixels_threshold;
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static ArrayList<Integer> character_segmentation(BufferedImage image, int sw_height, int sw_width, int sw_delta){
+        // Set indices array, max value is image width / (sw_width + char_space_width)
+        int[] spacing_indices = new int[image.getWidth()];
+        int arr_idx = 0;
+
+        // Search image for black columns, if found search for black column 14 spaces away
+        int x_offset = 0;
+        //boolean leading_spaces_removed = false;
+        while(x_offset + 14 < image.getWidth()){
+            // Obtain sliding window edge slices
+            BufferedImage left_column = image.getSubimage(x_offset, 0, 1, sw_height);
+            BufferedImage right_column = image.getSubimage(x_offset + 14, 0, 1, sw_height);
+            BufferedImage full_box = image.getSubimage(x_offset, 0, sw_width, sw_height);
+
+
+            if(num_black_pixels(left_column,(sw_height - 3)) && num_black_pixels(right_column,(sw_height - 2))){
+                spacing_indices[arr_idx] = x_offset;
+                arr_idx += 1;
+            }
+            x_offset += 1;
+        }
+
+        // Process array into new usable array list
+        ArrayList<Integer> char_splits = new ArrayList<Integer>();
+        int idx = 0;
+        while(spacing_indices[idx] != 0 || spacing_indices[idx + 1] !=0){
+            if(spacing_indices[idx + 5] - spacing_indices[idx] == 5){
+                char_splits.add(spacing_indices[idx + 3]);
+                idx += 6;
+            }
+            else if(spacing_indices[idx + 4] - spacing_indices[idx] == 4){
+                char_splits.add(spacing_indices[idx + 3]);
+                idx += 5;
+            }
+            else if(spacing_indices[idx + 3] - spacing_indices[idx] == 3){
+                char_splits.add(spacing_indices[idx + 2]);
+                idx += 4;
+            }
+            else if(spacing_indices[idx + 2] - spacing_indices[idx] == 2){
+                char_splits.add(spacing_indices[idx + 1]);
+                idx += 3;
+            }
+            else if(spacing_indices[idx + 1] - spacing_indices[idx] == 1){
+                char_splits.add(spacing_indices[idx]);
+                idx += 2;
+            }
+            else{
+                char_splits.add(spacing_indices[idx]);
+                idx += 1;
+            }
+        }
+
+        // Return the array list
+        return char_splits;
+    }
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static BufferedImage background_processing(BufferedImage image){
+        int threshold = 140; //150;
+        for(int row = 0; row < image.getWidth(); row++){
+            for(int col = 0; col < image.getHeight(); col++){
+                Color c = new Color(image.getRGB(row, col));
+                int red = c.getRed();
+                int green = c.getGreen();
+                int blue = c.getBlue();
+                if(red <= threshold && green <= threshold && blue <= threshold ) {
+                    image.setRGB(row, col, 0);
+                }
+            }
+        }
+        return image;
+    }
+
 
 
 
@@ -472,7 +611,6 @@ public class ObtainData {
         int sliding_window_height = 18;
         int sliding_window_width =  15;
         int sliding_window_delta = 5;
-        /*
         int class_num = 1;
         int ex_idx = 0;
         int number_examples = 15;
@@ -484,8 +622,9 @@ public class ObtainData {
                 sliding_window_height, sliding_window_width, sliding_window_delta,
                 class_num, ex_idx, number_examples, example_width,
                 input_file_name, output_file_name);
-        */
 
+        int test = 5;
+        /*
         String class_2_base_file_path = "screenshots/class_2_border/class_2_";
         int num_borders_2 = 285;
         try {
@@ -493,12 +632,23 @@ public class ObtainData {
                 String file_path = class_2_base_file_path + Integer.toString(i) + ".jpg";
                 BufferedImage test_image = ImageIO.read(new File(file_path));
                 test_image = test_image.getSubimage(0,16, test_image.getWidth(), test_image.getHeight()-16);
-                text_box_recognition(test_image, sliding_window_height, sliding_window_width, sliding_window_delta);
+
+                // Isolate the text box
+                test_image = text_box_recognition(test_image, sliding_window_height, sliding_window_width, sliding_window_delta);
+
+                // Perform image preprocessing
+                test_image = background_processing(test_image);
+
+                // Isolate the characters/words within the text box
+                character_segmentation(test_image, sliding_window_height, sliding_window_width, sliding_window_delta - 3);
+
             }
         }
         catch (IOException e){
             System.out.println(e);
         }
+
+         */
 
     }
 }

@@ -95,9 +95,12 @@ public class screen_capture {
         int num_classes = 4;
         //boolean timer_flag = false;
 
-
         // Obtain border class base matrix
         double[][] class_border_matrix = ObtainData.average_border_color_per_class(num_classes, border_height, num_features);
+
+        // Create OneVsAll Object and train it
+        OneVsAllChar obj = new OneVsAllChar();
+        obj.top_one_vs_all_training(4215, 810);
 
 
         while(true){
@@ -117,13 +120,16 @@ public class screen_capture {
                 int prediction = ObtainData.average_percent_difference(crop, class_border_matrix, num_classes, border_height, num_features);
 
                 // Set threshold to save if reached
-                if(prediction != 0 && timer_flag == false){
+                if(prediction != 0 && !timer_flag){
                     // Set timer flag high and start the timer
                     timer_flag = true;
                     event_timer.schedule(new FlagSetTask(), 1000);
 
                     // Print out message
                     System.out.println("Notification box found!");
+
+                    // Make prediction on the new found notification box.
+                    obj.test_new_image(obj.characters_list.length, obj.test_learned_parameters, "", obj.characters_list, crop);
 
                     // Generate iterative file path
                     String index = Integer.toString(itr);
@@ -168,7 +174,7 @@ public class screen_capture {
      */
     public static void main(String[] args) {
         String file_name = "temp";
-        boolean active_capture = true;
+        boolean active_capture = false;
 
         if(active_capture) {
             screen_capture.active_capture(file_name, 50);
@@ -180,7 +186,7 @@ public class screen_capture {
             System.out.printf("Ideal program runtime: %.3f seconds\n", run_time);
             screen_capture obj = new screen_capture();
 
-            // Time and execute the funciton
+            // Time and execute the function
             double start = System.currentTimeMillis();
             obj.screenshot(file_name, num_pics, delay_time);
             double end = System.currentTimeMillis();

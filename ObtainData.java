@@ -164,10 +164,10 @@ public class ObtainData {
             if(Math.abs((double) temp[col] - border_data_per_class[1][col]) > 50){
                 ave_class_diff[1] += 1.0;
             }
-            if(Math.abs((double) temp[col] - border_data_per_class[2][col]) > 23){
+            if(Math.abs((double) temp[col] - border_data_per_class[2][col]) > 35){
                 ave_class_diff[2] += 1.0;
             }
-            if(Math.abs((double) temp[col] - border_data_per_class[3][col]) > 23){
+            if(Math.abs((double) temp[col] - border_data_per_class[3][col]) > 35){
                 ave_class_diff[3] += 1.0;
             }
         }
@@ -214,11 +214,11 @@ public class ObtainData {
                 switch (k) {
                     case 0:
                         base_file_path = "screenshots/class_1_border/class_1_";
-                        num_borders = 358;
+                        num_borders = 415;
                         break;
                     case 1:
                         base_file_path = "screenshots/class_2_border/class_2_";
-                        num_borders = 286;
+                        num_borders = 297;
                         break;
                     case 2:
                         base_file_path = "screenshots/class_3_border/class_3_";
@@ -360,98 +360,92 @@ public class ObtainData {
 
         // Determine which class, and set the max number of borders
         String base_file_path = "";
-        int max_num_borders = -1;
-        switch (start_class) {
-            case 1:
-                base_file_path = "screenshots/class_1_border/class_1_";
-                max_num_borders = 358;
-                break;
-            case 2:
-                base_file_path = "screenshots/class_2_border/class_2_";
-                max_num_borders = 285;
-                break;
-            case 3:
-                base_file_path = "screenshots/class_3_border/class_3_";
-                max_num_borders = 112;
-                break;
-            case 4:
-                base_file_path = "screenshots/class_4_border/class_4_";
-                max_num_borders = 22;
-                break;
-        }
+        int num_class_examples = -1;
 
         // Instantiate input data
-        double[][] input_data_class_1 = new double[4215][sw_height * sw_width * pixel_depth];
+        double[][] input_data = new double[7979][sw_height * sw_width * pixel_depth];
 
-
+        for(int i = start_class; i < 3; i++) {
+            switch (i) {
+                case 1:
+                    base_file_path = "screenshots/class_1_border/class_1_";
+                    num_class_examples = 416;
+                    break;
+                case 2:
+                    base_file_path = "screenshots/class_2_border/class_2_";
+                    num_class_examples = 297;
+                    break;
+                case 3:
+                    base_file_path = "screenshots/class_3_border/class_3_";
+                    num_class_examples = 112;
+                    break;
+                case 4:
+                    base_file_path = "screenshots/class_4_border/class_4_";
+                    num_class_examples = 22;
+                    break;
+            }
         /*
          Iterate over images, obtain pixel sub-boxes, prompt for user input
          */
-        try {
-            int char_index = 0;
-            // Select the example image
-            for(int ex_num = start_ex_idx; ex_num < max_num_borders; ex_num++) {
-                // Read in the example image
-                String file_path = base_file_path + Integer.toString(ex_num) + ".jpg";
-                BufferedImage curr_ex_image = ImageIO.read(new File(file_path));
-                curr_ex_image = curr_ex_image.getSubimage(0,16, curr_ex_image.getWidth(), curr_ex_image.getHeight()-16);
+            try {
+                int char_index = 0;
+                // Select the example image
+                for (int ex_num = start_ex_idx; ex_num < num_class_examples; ex_num++) {
+                    // Read in the example image
+                    String file_path = base_file_path + Integer.toString(ex_num) + ".jpg";
+                    BufferedImage curr_ex_image = ImageIO.read(new File(file_path));
+                    curr_ex_image = curr_ex_image.getSubimage(0, 16, curr_ex_image.getWidth(), curr_ex_image.getHeight() - 16);
 
-                // Isolate the text-box
-                curr_ex_image = text_box_recognition(curr_ex_image, sw_height, sw_width, sw_delta);
+                    // Isolate the text-box
+                    curr_ex_image = text_box_recognition(curr_ex_image, sw_height, sw_width, sw_delta);
 
-                // Perform image pre-processing
-                curr_ex_image = background_processing(curr_ex_image);
+                    // Perform image pre-processing
+                    curr_ex_image = background_processing(curr_ex_image);
 
-                // Obtain character segmentation arraylist
-                ArrayList<Integer> char_seg = character_segmentation(curr_ex_image, sw_height, sw_width, sw_delta - 3);
-
-                /*
-                 Use sliding window to obtain sub image
-                 */
-                int x_offset = 0;
-                int y_offset = 16;
-                for(int curr_idx = 0; curr_idx < char_seg.size(); curr_idx++) {
-                    // Obtain a sliding window box
-                    BufferedImage curr_char = curr_ex_image.getSubimage(char_seg.get(curr_idx), 0, sw_width, sw_height);
+                    // Obtain character segmentation arraylist
+                    ArrayList<Integer> char_seg = character_segmentation(curr_ex_image, sw_height, sw_width, sw_delta - 3);
 
                     /*
-                    Write current char to folder, used for testing only
+                     Use sliding window to obtain sub image
                      */
-                    /*
-                    // Generate iterative file path
-                    String index = Integer.toString(char_index);
-                    String cwd = "screenshots/Char_Test_folder/test_";
-                    String test_file_path = cwd + index + ".jpg";
-                    char_index += 1;
+                    int x_offset = 0;
+                    int y_offset = 16;
+                    for (int curr_idx = 0; curr_idx < char_seg.size(); curr_idx++) {
+                        // Obtain a sliding window box
+                        BufferedImage curr_char = curr_ex_image.getSubimage(char_seg.get(curr_idx), 0, sw_width, sw_height);
 
-                    // Write image buffer to file
-                    File output_file = new File(test_file_path);
-                    ImageIO.write(curr_char, "jpg", output_file);
-                    */
+                        /*
+                        Write current char to folder, used for testing only
+                         */
+                        /*
+                        // Generate iterative file path
+                        String index = Integer.toString(char_index);
+                        String cwd = "screenshots/Char_Test_folder/test_";
+                        String test_file_path = cwd + index + ".jpg";
+                        char_index += 1;
 
-                    // Obtain sub-box pixel data
-                    double[] pixel_data = get_image_rgb_data_double(curr_char);
+                        // Write image buffer to file
+                        File output_file = new File(test_file_path);
+                        ImageIO.write(curr_char, "jpg", output_file);
+                        */
 
-                    // Set array data
-                    input_data_class_1[input_data_id] = pixel_data;
-                    input_data_id += 1;
+                        // Obtain sub-box pixel data
+                        double[] pixel_data = get_image_rgb_data_double(curr_char);
 
+                        // Set array data
+                        input_data[input_data_id] = pixel_data;
+                        input_data_id += 1;
+                    }
                 }
+            } catch (IOException e) {
+                System.out.println("IO ERROR");
+                System.out.println(e);
             }
-
-            // Convert input/output data to SimpleMatrix
-            SimpleMatrix input_data_matrix = new SimpleMatrix(input_data_class_1);
-
-            return input_data_matrix;
-            // Write Simple Matrix data to csv
-            //input_data_matrix.loadCSV(input_data_file);
-
         }
-        catch (IOException e){
-            System.out.println("IO ERROR");
-            System.out.println(e);
-        }
-        return null;
+        // Convert input/output data to SimpleMatrix
+        SimpleMatrix input_data_matrix = new SimpleMatrix(input_data);
+
+        return input_data_matrix;
     }
 
     /*

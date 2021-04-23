@@ -91,16 +91,15 @@ public class screen_capture {
 
         // Testing variables
         int border_height = 3;
-        int num_features = 7200;
-        int num_classes = 4;
-        //boolean timer_flag = false;
+        int num_border_features = 7200;
+        int num_border_classes = 4;
 
         // Obtain border class base matrix
-        double[][] class_border_matrix = ObtainData.average_border_color_per_class(num_classes, border_height, num_features);
+        double[][] class_border_matrix = ObtainData.average_border_color_per_class(num_border_classes, border_height, num_border_features);
 
         // Create OneVsAll Object and train it
         OneVsAllChar obj = new OneVsAllChar();
-        obj.top_one_vs_all_training(4215, 810);
+        obj.top_one_vs_all_training(7979, 810);
 
 
         while(true){
@@ -117,13 +116,19 @@ public class screen_capture {
                 // Crop image to new image
                 BufferedImage crop = capture.getSubimage(x_offset, y_offset, width, height);
 
-                int prediction = ObtainData.average_percent_difference(crop, class_border_matrix, num_classes, border_height, num_features);
+                /*
+                Class 3 Test
+                 */
+                //BufferedImage crop = ImageIO.read(new File("screenshots/class_3_border/class_3_0.jpg"));
+
+
+                int prediction = ObtainData.average_percent_difference(crop, class_border_matrix, num_border_classes, border_height, num_border_features);
 
                 // Set threshold to save if reached
                 if(prediction != 0 && !timer_flag){
                     // Set timer flag high and start the timer
                     timer_flag = true;
-                    event_timer.schedule(new FlagSetTask(), 1000);
+                    event_timer.schedule(new FlagSetTask(), 2000);
 
                     // Print out message
                     System.out.println("Notification box found!");
@@ -174,7 +179,7 @@ public class screen_capture {
      */
     public static void main(String[] args) {
         String file_name = "temp";
-        boolean active_capture = false;
+        boolean active_capture = true;
 
         if(active_capture) {
             screen_capture.active_capture(file_name, 50);

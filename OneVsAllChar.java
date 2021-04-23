@@ -26,7 +26,7 @@ public class OneVsAllChar {
         /*
          Letter specific parameters
          */
-        num_examples = 4215;
+        num_examples = 7979;
         num_features = 810;
         int sliding_window_height = 18;
         int sliding_window_width =  15;
@@ -41,7 +41,7 @@ public class OneVsAllChar {
 
         // Basic parameters
         String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
-                "S", "T", "U", "V", "W", "Y", "Z", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
+                "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
                 "ERRAPT"};
         characters_list = characters;
         int num_classes = characters.length;
@@ -76,6 +76,9 @@ public class OneVsAllChar {
         // Test parameters before wirting to file
         test_parameters_vs_training_set(num_examples, num_features, num_classes, input_data, output_data, learned_parameters, characters);
 
+        int test = 5;
+        */
+        /*
         // Test parameter against image
         String test_file_path_0 = "screenshots/temp_/class_1_0.jpg";
         String test_file_path_1 = "screenshots/temp_/class_2_0.jpg";

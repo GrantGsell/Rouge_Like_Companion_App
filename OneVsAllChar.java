@@ -249,8 +249,11 @@ public class OneVsAllChar {
 
             // Assign learned parameters to respective row in  classifiers matrix
             classifiers.insertIntoThis(class_idx, 0, learned_parameters.transpose());
-        }
 
+            // Transform learned_parameter data into a double array and add to MySQL database
+            double[] data = learned_parameters.getDDRM().getData();
+            MySQLAccess.insert_parameter_column_data("parameters", n, data, class_char);
+        }
         return classifiers;
     }
 

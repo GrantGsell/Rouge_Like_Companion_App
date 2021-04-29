@@ -134,7 +134,8 @@ public class screen_capture {
                     System.out.println("Notification box found!");
 
                     // Make prediction on the new found notification box.
-                    obj.test_new_image(obj.characters_list.length, obj.test_learned_parameters, "", obj.characters_list, crop);
+                    String guess = obj.test_new_image(obj.characters_list.length, obj.test_learned_parameters, "", obj.characters_list, crop);
+                    MySQLAccess.read_from_database(guess);
 
                     // Generate iterative file path
                     String index = Integer.toString(itr);

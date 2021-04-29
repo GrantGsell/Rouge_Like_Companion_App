@@ -61,12 +61,21 @@ public class OneVsAllChar {
         String output_file_name = "text_box_recog/output_text_box_recog_data.csv";
         read_data(num_examples, useless_data, output_data, input_file_name_useless, output_file_name);
 
+        // Clear and initialize the MySQL tables before obtaining the necessary data
+        MySQLAccess.clear_and_initialize();
+
         // Normalize the input data
         create_training_data_normalization_arrays(input_data);
 
-        // Normalize the training_data
-        normalize_input_data(input_data, norm_mean, norm_std, norm_constant_columns);
+        // Obtain the normalized ata
+        double[] mean = new double[num_features];
+        double[] std = new double[num_features];
+        ArrayList<Integer> const_cols = new ArrayList<Integer>();
+        MySQLAccess.read_mean_std_const_cols(num_features, mean, std, const_cols);
 
+        // Normalize the training_data
+        //normalize_input_data(input_data, norm_mean, norm_std, norm_constant_columns);
+        normalize_input_data(input_data, mean, std, const_cols);
 
         // Train classifiers for each character
         learned_parameters = one_vs_all(input_data, output_data, learning_constant, alpha, characters.length, characters);
@@ -592,6 +601,15 @@ public class OneVsAllChar {
         norm_constant_columns = constant_columns;
         norm_mean = mean;
         norm_std = std;
+
+        // Create the columns for the MySQL table
+        MySQLAccess.create_constant_column_columns(constant_columns);
+        MySQLAccess.create_parameters_mean_std_table_and_columns(n);
+
+        // Store the mean, std in the MySQL database
+        MySQLAccess.insert_mean_std_column_data("mean", n, mean);
+        MySQLAccess.insert_mean_std_column_data("std", n, std);
+        MySQLAccess.insert_const_cols_data(constant_columns);
     }
 
     /*
@@ -646,7 +664,7 @@ public class OneVsAllChar {
     }
 
 
-    public static void test_new_image(int num_classes, SimpleMatrix learned_parameters, String test_file_path, String[] class_char_arr, BufferedImage new_image){
+    public static String test_new_image(int num_classes, SimpleMatrix learned_parameters, String test_file_path, String[] class_char_arr, BufferedImage new_image){
         try {
             int sw_height = 18;
             int sw_width =  15;
@@ -715,10 +733,12 @@ public class OneVsAllChar {
                 }
             }
             System.out.format("Object Found: %s\n", object_name);
+            return object_name;
         }
         catch (IOException e){
             System.out.println(e);
         }
+        return "";
     }
 
     /*

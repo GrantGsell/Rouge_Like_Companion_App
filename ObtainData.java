@@ -1,7 +1,5 @@
 import com.opencsv.CSVWriter;
 import org.ejml.simple.SimpleMatrix;
-import org.junit.jupiter.api.Assertions;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,6 +8,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+
 
 public class ObtainData {
 
@@ -139,7 +138,8 @@ public class ObtainData {
     }
 
 
-    public static int average_percent_difference(BufferedImage image, double[][] border_data_per_class, int num_classes, int border_height, int num_features){
+    public static int average_percent_difference(BufferedImage image, double[][] border_data_per_class, int num_classes,
+                                                 int border_height, int num_features){
         // Transform the new image into usable data
         int[] temp = new int[num_features];
 
@@ -442,10 +442,9 @@ public class ObtainData {
                 System.out.println(e);
             }
         }
-        // Convert input/output data to SimpleMatrix
-        SimpleMatrix input_data_matrix = new SimpleMatrix(input_data);
 
-        return input_data_matrix;
+        // Convert input data into a SimpleMatrix object
+        return new SimpleMatrix(input_data);
     }
 
     /*
@@ -589,8 +588,6 @@ public class ObtainData {
         }
         return image;
     }
-
-
 
 
     /*

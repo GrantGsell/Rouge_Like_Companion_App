@@ -468,7 +468,7 @@ public class MySQLAccess {
             query = "Select * FROM const_cols";
             rs = stmt.executeQuery(query);
             rs.next();
-            for(int i = 2; i < num_cols + 2; i++) {
+            for(int i = 2; i < num_cols + 1; i++) {
                 int temp = rs.getInt(i);
                 const_cols.add(temp);
             }

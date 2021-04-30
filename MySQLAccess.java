@@ -1,9 +1,12 @@
+import org.ejml.simple.SimpleMatrix;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.SimpleTimeZone;
 
 public class MySQLAccess {
 
@@ -182,15 +185,16 @@ public class MySQLAccess {
             // Step 2. Create a Statement object
             Statement stmt = conn.createStatement();
 
-
-            for(int i = 0; i < num_features; i++) {
+            for(int i = 0; i < num_features + 1; i++) {
                 // Add columns based on the number of features
                 String query = "ALTER TABLE parameters " +
                         "ADD " + "feature_" + Integer.toString(i) + " double";
                 stmt.execute(query);
+            }
 
+            for(int i = 0; i < num_features; i++) {
                 // Add initial column and number of columns based on the number of features
-                query = "ALTER TABLE mean " +
+                String query = "ALTER TABLE mean " +
                         "ADD " + "feature_" + Integer.toString(i) + " double";
                 stmt.execute(query);
 
@@ -490,24 +494,45 @@ public class MySQLAccess {
     Return     :
     Notes      :
      */
-    public static void read_parameter_cols(){
+    public static SimpleMatrix read_parameter_cols(int num_classes, int num_features, String[] characters){
         try {
+            // Step 0. Instantiate temporary 2D array
+            double[][] temp_classifier_matrix = new double[num_classes][num_features];
+
             // Step 1. Open a new connection to the database
             Connection conn = MySQLJDBCUtil.getConnection();
 
             // Step 2. Create a Statement object
             Statement stmt = conn.createStatement();
 
-            // Step 3/4. Create queries to obtain data and execute them
+            int row = 0;
+            for(String curr_char : characters) {
+                // Step 3. Create query to obtain all parameter data
+                String query = "SELECT * FROM parameters WHERE classifier_id = \"" + curr_char + "\"";
 
+                // Step 4. Execute the query
+                ResultSet rs = stmt.executeQuery(query);
+                rs.next();
 
-            // Step 5. Close the Result Set and Statement objects
+                // Step 5. Obtain data from query
+                //System.out.println(rs.getString(1));
+                for (int col = 2; col < num_features + 2; col++) {
+                    temp_classifier_matrix[row][col - 2] = rs.getDouble(col);
+                }
+                row += 1;
+            }
+
+            // Step 6. Close the Result Set and Statement objects
             stmt.close();
             conn.close();
+
+            // Convert the 2D array into a simple matrix and return
+            return new SimpleMatrix(temp_classifier_matrix);
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+        return null;
     }
 
 
@@ -519,20 +544,10 @@ public class MySQLAccess {
     Notes      :
      */
     public static void main(String []args){
-        //MySQLAccess.database_connection_test();
-        //String test = "Rusty_Sidearm";
-        //MySQLAccess.read_from_database(test);
-        clear_and_initialize();
-        create_parameters_mean_std_table_and_columns(810);
-        double[] data = {0.1, 0.2, 0.3};
-        ArrayList<Integer> data_2 = new ArrayList<>();
-        data_2.add(1);
-        data_2.add(2);
-        data_2.add(3);
-        insert_mean_std_column_data("mean", 3, data);
-        insert_mean_std_column_data("std", 3, data);
-        insert_parameter_column_data("parameters", 3, data, "A");
-        create_constant_column_columns(data_2);
-        insert_const_cols_data(data_2);
+        String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
+                "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
+                "ERRAPT"};
+        read_parameter_cols(characters.length, 810, characters);
+        return;
     }
 }

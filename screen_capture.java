@@ -98,9 +98,15 @@ public class screen_capture {
         double[][] class_border_matrix = ObtainData.average_border_color_per_class(num_border_classes, border_height, num_border_features);
 
         // Create OneVsAll Object and train it
-        OneVsAllChar obj = new OneVsAllChar();
-        obj.top_one_vs_all_training(7979, 810);
-
+        //OneVsAllChar obj = new OneVsAllChar();
+        //obj.top_one_vs_all_training(7979, 810);
+        //SimpleMatrix test = obj.test_learned_parameters;
+        //double[] test_2 = obj.norm_mean;
+        String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
+                "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
+                "ERRAPT"};
+        // Read in learned parameters, mean, std, and const_col
+        SimpleMatrix learned_parameters = MySQLAccess.read_parameter_cols(characters.length, 811, characters);
 
         while(true){
             // Screenshot
@@ -134,7 +140,8 @@ public class screen_capture {
                     System.out.println("Notification box found!");
 
                     // Make prediction on the new found notification box.
-                    String guess = obj.test_new_image(obj.characters_list.length, obj.test_learned_parameters, "", obj.characters_list, crop);
+                    //String guess = obj.test_new_image(obj.characters_list.length, obj.test_learned_parameters, "", obj.characters_list, crop);
+                    String guess = OneVsAllChar.test_new_image(characters.length, learned_parameters, "", characters, crop);
                     MySQLAccess.read_from_database(guess);
 
                     // Generate iterative file path

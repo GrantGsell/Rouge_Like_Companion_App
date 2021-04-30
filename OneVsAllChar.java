@@ -252,7 +252,7 @@ public class OneVsAllChar {
 
             // Transform learned_parameter data into a double array and add to MySQL database
             double[] data = learned_parameters.getDDRM().getData();
-            MySQLAccess.insert_parameter_column_data("parameters", n, data, class_char);
+            MySQLAccess.insert_parameter_column_data("parameters", n + 1, data, class_char);
         }
         return classifiers;
     }
@@ -316,12 +316,12 @@ public class OneVsAllChar {
             // Perform Cost function
             double cost = lr_cost_function(initial_parameters, input_data, output_data, lambda);
             double cost_diff = prev_cost - cost;
-            if(iteration % 300 == 0) {
+            if(iteration % 1000 == 0) {
                 System.out.format("Class: %s |Iteration: %d | Cost: %.7e | Prev Cost Diff: %.9f\n", class_char, iteration, cost, cost_diff);
             }
             prev_cost = cost;
             iteration += 1;
-            if(cost <= 1e-5 || iteration > 1500){
+            if(cost <= 1e-5 || iteration > 3000){  //changed from 500 for actual running
                 break;
             }
 
@@ -706,7 +706,12 @@ public class OneVsAllChar {
                 SimpleMatrix new_data_matrix = new SimpleMatrix(new double[][]{pixel_data});
 
                 // Normalize the new example data
-                normalize_input_data(new_data_matrix, norm_mean, norm_std, norm_constant_columns);
+                double[] mean = new double[810];
+                double[] std = new double[810];
+                ArrayList<Integer> const_cols = new ArrayList<Integer>();
+                MySQLAccess.read_mean_std_const_cols(810, mean, std, const_cols);
+                normalize_input_data(new_data_matrix, mean, std, const_cols);
+                //normalize_input_data(new_data_matrix, norm_mean, norm_std, norm_constant_columns);
 
                 // Make new prediction
                 double prediction = predict_one_vs_all(learned_parameters, new_data_matrix, num_classes);

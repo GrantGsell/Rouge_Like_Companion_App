@@ -1,10 +1,14 @@
 import org.ejml.simple.SimpleMatrix;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Properties;
 import java.util.SimpleTimeZone;
 
@@ -36,7 +40,7 @@ public class MySQLAccess {
     Return     :
     Notes      :
      */
-    public static void read_from_database(String object_name){
+    public static void read_from_database(String object_name, Hashtable<Integer, ArrayList<String>> words_ht){
         try {
             // Step 0. Add quotes to object name
             object_name = "\'" + object_name + "\'";
@@ -46,6 +50,13 @@ public class MySQLAccess {
 
             // Step 2. Create a Statement object
             Statement stmt = conn.createStatement();
+
+            // Check to see if the word is not in the objects table
+            if(!word_exists(object_name, stmt)){
+                object_name = find_closest_word(object_name, words_ht);
+                object_name = "\'" + object_name + "\'";
+                int test = 5;
+            }
 
             // Step 3. Create the query string
             String query = "SELECT " +
@@ -67,7 +78,7 @@ public class MySQLAccess {
                 obtain_gun_stats(object_name, conn, stmt);
             }
             else{
-                obtain_item_stats(object_name);
+                obtain_item_stats(object_name, conn, stmt);
             }
 
             // Step 7. Close the Result Set and Statement objects
@@ -131,8 +142,46 @@ public class MySQLAccess {
     Return     :
     Notes      :
      */
-    public static void obtain_item_stats(String object_name){
+    public static void obtain_item_stats(String object_name, Connection conn, Statement stmt){
+        try {
+            // Step 1. Create the query string
+            String query = "SELECT " +
+                    "object_id, object_name, " +
+                    "item_type, quality, effect, img, " +
+                    "quality_letter, quality_image " +
+                    "FROM objects " +
+                    "LEFT JOIN item_stats USING (object_id) " +
+                    "LEFT JOIN object_quality ON quality = quality_letter " +
+                    "WHERE object_name = " + object_name;
 
+            // Step 2. Execute the query
+            ResultSet rs = stmt.executeQuery(query);
+
+            // Step 3. Call the next method, bc the ResultSet is initially located before the first row
+            rs.next();
+
+            // Step 4. Obtain data from the result set
+            String item_name = rs.getString("object_name");
+            String item_type = rs.getString("item_type");
+            String effect = rs.getString("effect");
+            String quality = rs.getString("quality_letter");
+            Blob item_img_blob = rs.getBlob("img");
+            Blob quality_img_blob = rs.getBlob("quality_image");
+
+            // Transform blob data into images
+            InputStream in = item_img_blob.getBinaryStream();
+            BufferedImage item_img = ImageIO.read(in);
+            in = quality_img_blob.getBinaryStream();
+            BufferedImage quality_img = ImageIO.read(in);
+
+            // Step 5. Output the found data
+            System.out.format("\tItem Name: %s\n\tItem Type: %s\n\tEffect: %s\n\tQuality: %s\n",
+                                item_name, item_type, effect, quality);
+
+
+        } catch (SQLException | IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 
@@ -538,12 +587,172 @@ public class MySQLAccess {
 
     /*
     Name       :
+    Purpose    : Check to see if the word exists within the
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static boolean word_exists(String object_name, Statement stmt) {
+        try {
+            // Step 1. Create the query string
+            String query = "SELECT " +
+                    "object_id, object_name " +
+                    "FROM objects " +
+                    "WHERE object_name = " + object_name;
+
+            // Step 2. Execute the query
+            ResultSet rs = stmt.executeQuery(query);
+            rs.next();
+
+            // Check to see if the word returned matches the input name
+            String ret_name = rs.getString("object_name");
+            return ret_name.equals(object_name);
+
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static Hashtable<Integer, ArrayList<String>> generate_word_hash_table() {
+        Hashtable<Integer, ArrayList<String>> words_ht = new Hashtable<>();
+
+        try {
+            // Step 1. Open a new connection to the database
+            Connection conn = MySQLJDBCUtil.getConnection();
+
+            // Step 2. Create a Statement object
+            Statement stmt = conn.createStatement();
+
+            // Step 3. Create the query string
+            String query = "SELECT object_name FROM objects";
+
+            // Step 4. Execute the query
+            ResultSet rs = stmt.executeQuery(query);
+
+            // Step 5. Obtain the data and sort into the hashtable
+            while(rs.next()){
+                // Obtain the current word
+                String curr_word = rs.getString(1);
+
+                // Find the length of the word, add word to ht
+                int word_len = curr_word.length();
+                if(words_ht.containsKey(word_len)){
+                    ArrayList<String> temp_words = words_ht.get(word_len);
+                    temp_words.add(curr_word);
+                }
+                else{
+                    ArrayList<String> temp_words = new ArrayList<String>();
+                    temp_words.add(curr_word);
+                    words_ht.put(word_len, temp_words);
+                }
+            }
+
+            // Step 6. Close the statement, connection objects
+            stmt.close();
+            conn.close();
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return null;
+        }
+        return words_ht;
+    }
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static String find_closest_word(String incorrect_object_name, Hashtable<Integer, ArrayList<String>> word_ht){
+        // Obtain the length of the incorrect word
+        int word_len = incorrect_object_name.length();
+
+        // Obtain all words of similar length, and +- 1 character
+        ArrayList<String> check_words = new ArrayList<>();
+        if(word_ht.containsKey(word_len - 1)){
+            check_words.addAll(word_ht.get(word_len - 1));
+        }
+        if(word_ht.containsKey(word_len)) {
+            check_words.addAll(word_ht.get(word_len));
+        }
+        if(word_ht.containsKey(word_len + 1)){
+            check_words.addAll(word_ht.get(word_len + 1));
+        }
+
+        // Calculate the Levenshtein distance between incorrect word and all potential words
+        int min_lev_dist = 50;
+        String correct_word = "";
+        for(String elem : check_words){
+            int curr_dist = levenshtein_dist(incorrect_object_name, elem);
+            if(min_lev_dist > curr_dist){
+                min_lev_dist = curr_dist;
+                correct_word = elem;
+            }
+        }
+        return correct_word;
+    }
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static int levenshtein_dist(String word_a, String word_b){
+        // Declare Levenshtein distance matrix
+        int[][] lev_matrix = new int[word_b.length() + 1][word_a.length() + 1];
+
+        // Initialize the first row, col of the matrix
+        for(int row = 1; row < word_b.length() + 1; row++){
+            lev_matrix[row][0] = row;
+        }
+        for(int col = 1; col < word_a.length() + 1; col++){
+            lev_matrix[0][col] = col;
+        }
+
+        // Use tabulation to populate the table
+        for(int row = 1; row < word_b.length() + 1; row++){
+            for(int col = 1; col < word_a.length() + 1; col++){
+                int same_char_flag = 1;
+                char a_test = word_a.charAt(col -1);
+                char b_test = word_b.charAt(row - 1);
+                if(word_a.charAt(col -1) == word_b.charAt(row - 1)) {
+                    same_char_flag = 0;
+                }
+                lev_matrix[row][col] = Math.min(
+                            Math.min(lev_matrix[row - 1][col] + 1, lev_matrix[row - 1][col -1] + same_char_flag),
+                            lev_matrix[row][col - 1] + 1
+                );
+            }
+        }
+        return lev_matrix[word_b.length()][word_a.length()];
+    }
+
+
+
+    /*
+    Name       :
     Purpose    :
     Parameters :
     Return     :
     Notes      :
      */
     public static void main(String []args){
+        int test = levenshtein_dist("benyam", "ephrem");
+
+        Hashtable<Integer, ArrayList<String>> words_ht = generate_word_hash_table();
+        read_from_database("Dauma", words_ht);
         String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
                 "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
                 "ERRAPT"};

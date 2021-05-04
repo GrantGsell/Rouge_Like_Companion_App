@@ -725,9 +725,11 @@ public class OneVsAllChar {
 
             // Transform character array into string
             String object_name = "";
+            boolean new_word_flag = false;
             for(int i = 0; i < str_pred.length; i++){
                 if(str_pred[i].equals("SPACE")){
                     object_name += "_";
+                    new_word_flag = true;
                 }
                 else if(str_pred[i].equals("ERRAP") || str_pred[i].equals("ERRAPT")){
                     object_name += "'";
@@ -736,8 +738,12 @@ public class OneVsAllChar {
                         str_pred[i].equals("ERRT") || str_pred[i].equals("ERRU")){
 
                 }
-                else{
+                else if(i == 0 || new_word_flag){
                     object_name += str_pred[i];
+                    new_word_flag = false;
+                }
+                else{
+                    object_name += str_pred[i].toLowerCase();
                 }
             }
             System.out.format("Object Found: %s\n", object_name);

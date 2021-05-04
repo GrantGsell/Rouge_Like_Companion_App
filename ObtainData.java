@@ -574,17 +574,22 @@ public class ObtainData {
     Notes      :
      */
     public static BufferedImage background_processing(BufferedImage image){
-        int threshold = 140; //150;
-        for(int row = 0; row < image.getWidth(); row++){
-            for(int col = 0; col < image.getHeight(); col++){
-                Color c = new Color(image.getRGB(row, col));
-                int red = c.getRed();
-                int green = c.getGreen();
-                int blue = c.getBlue();
-                if(red <= threshold && green <= threshold && blue <= threshold ) {
-                    image.setRGB(row, col, 0);
+        try {
+            int threshold = 140; //150;
+            for (int row = 0; row < image.getWidth(); row++) {
+                for (int col = 0; col < image.getHeight(); col++) {
+                    Color c = new Color(image.getRGB(row, col));
+                    int red = c.getRed();
+                    int green = c.getGreen();
+                    int blue = c.getBlue();
+                    if (red <= threshold && green <= threshold && blue <= threshold) {
+                        image.setRGB(row, col, 0);
+                    }
                 }
             }
+        }
+        catch (Exception e){
+            System.out.println(e);
         }
         return image;
     }

@@ -7,10 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Properties;
-import java.util.SimpleTimeZone;
+import java.util.*;
 
 public class MySQLAccess {
 
@@ -598,7 +595,7 @@ public class MySQLAccess {
             String query = "SELECT " +
                     "object_id, object_name " +
                     "FROM objects " +
-                    "WHERE object_name = \'" + object_name + "\'";
+                    "WHERE object_name = \'" + object_name + "\';";
 
             // Step 2. Execute the query
             ResultSet rs = stmt.executeQuery(query);
@@ -678,15 +675,10 @@ public class MySQLAccess {
         int word_len = incorrect_object_name.length();
 
         // Obtain all words of similar length, and +- 1 character
-        ArrayList<String> check_words = new ArrayList<>();
-        if(word_ht.containsKey(word_len - 1)){
-            check_words.addAll(word_ht.get(word_len - 1));
-        }
-        if(word_ht.containsKey(word_len)) {
-            check_words.addAll(word_ht.get(word_len));
-        }
-        if(word_ht.containsKey(word_len + 1)){
-            check_words.addAll(word_ht.get(word_len + 1));
+
+        List<String> check_words = new ArrayList<String>();
+        for(ArrayList<String> elem : word_ht.values()){
+            check_words.addAll(elem);
         }
 
         // Calculate the Levenshtein distance between incorrect word and all potential words
@@ -725,8 +717,6 @@ public class MySQLAccess {
         for(int row = 1; row < word_b.length() + 1; row++){
             for(int col = 1; col < word_a.length() + 1; col++){
                 int same_char_flag = 1;
-                char a_test = word_a.charAt(col -1);
-                char b_test = word_b.charAt(row - 1);
                 if(word_a.charAt(col -1) == word_b.charAt(row - 1)) {
                     same_char_flag = 0;
                 }
@@ -752,7 +742,7 @@ public class MySQLAccess {
         int test = levenshtein_dist("benyam", "ephrem");
 
         Hashtable<Integer, ArrayList<String>> words_ht = generate_word_hash_table();
-        read_from_database("Gunknight_Armor", words_ht);
+        read_from_database("Ammo", words_ht);
         String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
                 "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
                 "ERRAPT"};

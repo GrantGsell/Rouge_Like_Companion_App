@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -105,8 +107,11 @@ public class screen_capture {
         String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
                 "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
                 "ERRAPT"};
-        // Read in learned parameters, mean, std, and const_col
+        // Read in learned parameters
         SimpleMatrix learned_parameters = MySQLAccess.read_parameter_cols(characters.length, 811, characters);
+
+        // Generate hashtable for incorrect word comparison
+        Hashtable<Integer, ArrayList<String>> word_ht =  MySQLAccess.generate_word_hash_table();
 
         while(true){
             // Screenshot
@@ -142,7 +147,7 @@ public class screen_capture {
                     // Make prediction on the new found notification box.
                     //String guess = obj.test_new_image(obj.characters_list.length, obj.test_learned_parameters, "", obj.characters_list, crop);
                     String guess = OneVsAllChar.test_new_image(characters.length, learned_parameters, "", characters, crop);
-                    MySQLAccess.read_from_database(guess);
+                    MySQLAccess.read_from_database(guess, word_ht);
 
                     // Generate iterative file path
                     String index = Integer.toString(itr);

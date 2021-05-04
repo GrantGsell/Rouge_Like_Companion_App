@@ -43,7 +43,7 @@ public class MySQLAccess {
     public static void read_from_database(String object_name, Hashtable<Integer, ArrayList<String>> words_ht){
         try {
             // Step 0. Add quotes to object name
-            object_name = "\'" + object_name + "\'";
+            String object_name_sql = "\'" + object_name + "\'";
 
             // Step 1. Open a new connection to the database
             Connection conn = MySQLJDBCUtil.getConnection();
@@ -53,16 +53,16 @@ public class MySQLAccess {
 
             // Check to see if the word is not in the objects table
             if(!word_exists(object_name, stmt)){
+                System.out.println("\nWord Not Found: Performing Correction...\n");
                 object_name = find_closest_word(object_name, words_ht);
-                object_name = "\'" + object_name + "\'";
-                int test = 5;
+                object_name_sql = "\'" + object_name + "\'";
             }
 
             // Step 3. Create the query string
             String query = "SELECT " +
                             "object_id, object_name, is_gun " +
                             "FROM objects " +
-                            "WHERE object_name = " + object_name;
+                            "WHERE object_name = " + object_name_sql;
 
             // Step 4. Execute the query
             ResultSet rs = stmt.executeQuery(query);
@@ -75,10 +75,10 @@ public class MySQLAccess {
 
             // Obtain object data
             if(is_gun){
-                obtain_gun_stats(object_name, conn, stmt);
+                obtain_gun_stats(object_name_sql, conn, stmt);
             }
             else{
-                obtain_item_stats(object_name, conn, stmt);
+                obtain_item_stats(object_name_sql, conn, stmt);
             }
 
             // Step 7. Close the Result Set and Statement objects
@@ -598,7 +598,7 @@ public class MySQLAccess {
             String query = "SELECT " +
                     "object_id, object_name " +
                     "FROM objects " +
-                    "WHERE object_name = " + object_name;
+                    "WHERE object_name = \'" + object_name + "\'";
 
             // Step 2. Execute the query
             ResultSet rs = stmt.executeQuery(query);
@@ -752,7 +752,7 @@ public class MySQLAccess {
         int test = levenshtein_dist("benyam", "ephrem");
 
         Hashtable<Integer, ArrayList<String>> words_ht = generate_word_hash_table();
-        read_from_database("Dauma", words_ht);
+        read_from_database("Gunknight_Armor", words_ht);
         String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
                 "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
                 "ERRAPT"};

@@ -132,7 +132,6 @@ public class screen_capture {
                  */
                 //BufferedImage crop = ImageIO.read(new File("screenshots/class_3_border/class_3_0.jpg"));
 
-
                 int prediction = ObtainData.average_percent_difference(crop, class_border_matrix, num_border_classes, border_height, num_border_features);
 
                 // Set threshold to save if reached
@@ -147,7 +146,9 @@ public class screen_capture {
                     // Make prediction on the new found notification box.
                     //String guess = obj.test_new_image(obj.characters_list.length, obj.test_learned_parameters, "", obj.characters_list, crop);
                     String guess = OneVsAllChar.test_new_image(characters.length, learned_parameters, "", characters, crop);
-                    MySQLAccess.read_from_database(guess, word_ht);
+                    if(guess != null) {
+                        MySQLAccess.read_from_database(guess, word_ht);
+                    }
 
                     // Generate iterative file path
                     String index = Integer.toString(itr);

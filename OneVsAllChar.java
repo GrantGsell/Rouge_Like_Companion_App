@@ -747,6 +747,7 @@ public class OneVsAllChar {
                 }
             }
             System.out.format("Object Found: %s\n", object_name);
+            if(object_name.equals("Ammo")) return null;
             return object_name;
         }
         catch (IOException e){

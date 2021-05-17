@@ -230,7 +230,7 @@ public class ObtainData {
                         break;
                 }
                 for (int i = 0; i < num_borders; i++) {
-                    int[] temp = new int[7200];
+                    int[] temp = new int[10800];//int[7200];
                     String file_path = base_file_path + Integer.toString(i) + ".jpg";
                     BufferedImage image = ImageIO.read(new File(file_path));
 
@@ -512,7 +512,13 @@ public class ObtainData {
      */
     public static ArrayList<Integer> character_segmentation(BufferedImage image, int sw_height, int sw_width, int sw_delta){
         // Set indices array, max value is image width / (sw_width + char_space_width)
-        int[] spacing_indices = new int[image.getWidth()];
+        int[] spacing_indices = null;
+        try {
+            spacing_indices = new int[image.getWidth()];
+        }catch(Exception e){
+            System.out.println(e);
+            int temp_break = 5;
+        }
         int arr_idx = 0;
 
         // Search image for black columns, if found search for black column 14 spaces away

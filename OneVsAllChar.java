@@ -74,38 +74,13 @@ public class OneVsAllChar {
         MySQLAccess.read_mean_std_const_cols(num_features, mean, std, const_cols);
 
         // Normalize the training_data
-        //normalize_input_data(input_data, norm_mean, norm_std, norm_constant_columns);
         normalize_input_data(input_data, mean, std, const_cols);
 
         // Train classifiers for each character
         learned_parameters = one_vs_all(input_data, output_data, learning_constant, alpha, characters.length, characters);
-        test_learned_parameters = learned_parameters;
 
-        /*
-        // Test parameters before wirting to file
+        // Test parameters before writing to file
         test_parameters_vs_training_set(num_examples, num_features, num_classes, input_data, output_data, learned_parameters, characters);
-
-        int test = 5;
-        */
-        /*
-        // Test parameter against image
-        String test_file_path_0 = "screenshots/temp_/class_1_0.jpg";
-        String test_file_path_1 = "screenshots/temp_/class_2_0.jpg";
-        String test_file_path_2 = "screenshots/temp_/class_3_0.jpg";
-        String test_file_path_3 = "screenshots/temp_/class_4_0.jpg";
-        test_new_image(num_classes, learned_parameters, test_file_path_0, characters);
-        test_new_image(num_classes, learned_parameters, test_file_path_1, characters);
-        test_new_image(num_classes, learned_parameters, test_file_path_2, characters);
-        test_new_image(num_classes, learned_parameters, test_file_path_3, characters);
-        /*
-        // Write parameters to csv file
-        write_parameters_to_csv(learned_parameters.getDDRM().getData(), "src/logistic_regression_learned_parameters.csv");
-
-        // Write Normalization arrays to separate csv's
-        write_normalization_arrays_to_csv(norm_mean, "src/norm_mean_arr.csv");
-        write_normalization_arrays_to_csv(norm_std, "src/norm_std_arr.csv");
-
-         */
     }
 
 
@@ -254,6 +229,16 @@ public class OneVsAllChar {
             double[] data = learned_parameters.getDDRM().getData();
             MySQLAccess.insert_parameter_column_data("parameters", n + 1, data, class_char);
         }
+
+        // Generate classifiers for each class using multithreading
+        /*
+        try {
+            learn_classifiers_using_multithreading(input_with_bias, output_data, class_char_arr, lambda_const, alpha, n);
+        }
+        catch (InterruptedException e){
+            System.out.println(e);
+        }
+        */
         return classifiers;
     }
 
@@ -305,6 +290,9 @@ public class OneVsAllChar {
             // Calculate Gradient
             SimpleMatrix temp_grad = lr_gradient_regularized(initial_parameters, input_data, output_data, lambda);
 
+            // Calculate Gradient using Multithreading
+            //SimpleMatrix temp_grad = lr_gradient_regularized_multithreading(initial_parameters, input_data, output_data, lambda);
+
             // Sum new gradient values along rows (sum along m)
             double scale_factor = alpha/input_data.numRows();
             SimpleMatrix temp_grad_scale = temp_grad.extractMatrix(1, temp_grad.numRows(), 0, 1).scale(scale_factor);
@@ -321,7 +309,7 @@ public class OneVsAllChar {
             }
             prev_cost = cost;
             iteration += 1;
-            if(cost <= 1e-5 || iteration > 3000){  //changed from 500 for actual running
+            if(cost <= 1e-5 || iteration > 3000){  //changed from 3000 for actual running
                 break;
             }
 
@@ -365,96 +353,6 @@ public class OneVsAllChar {
         return prediction_class_idx;
     }
 
-
-    /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
-     */
-    public static void write_parameters_to_csv(double[] parameters, String file_name){
-        // convert double array to string array
-        String[] str = new String[parameters.length];
-        for(int i = 0; i < parameters.length; i++){
-            str[i] = String.valueOf(parameters[i]);
-        }
-
-        try {
-            // Write data to file
-            String filename = file_name; // "src/parameters.csv";
-            CSVWriter writer = new CSVWriter(new FileWriter(filename), ',', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-                    CSVWriter.DEFAULT_LINE_END);
-            writer.writeNext(str);
-            writer.flush();
-            System.out.println("Parameter Data Written\n");
-        }
-        catch (IOException e){
-            System.out.println(e);
-        }
-
-    }
-
-    /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
-     */
-    public static void write_normalization_arrays_to_csv(double[] norm_array, String file_name){
-        // convert double array to string array
-        String[] str = new String[norm_array.length];
-        for(int i = 0; i < norm_array.length; i++){
-            str[i] = String.valueOf(norm_array[i]);
-        }
-
-        try {
-            // Write data to file
-            String filename = file_name; // "src/parameters.csv";
-            CSVWriter writer = new CSVWriter(new FileWriter(filename), ',', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-                    CSVWriter.DEFAULT_LINE_END);
-            writer.writeNext(str);
-            writer.flush();
-            System.out.println("Normalization Data Written\n");
-        }
-        catch (IOException e){
-            System.out.println(e);
-        }
-
-    }
-
-
-    /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
-     */
-    public static void read_parameter_data(SimpleMatrix parameter_vals, String parameter_file_name){
-        try{
-            // Read in Input data
-            BufferedReader br = new BufferedReader(new FileReader(parameter_file_name));// "src/parameters.csv"));
-            String line = "";
-            int row = 0;
-            while((line = br.readLine()) != null){
-                String[] data = line.split(",");
-                for(int col = 0; col < parameter_vals.numCols(); col++){
-                    String dub_string = data[col];
-                    dub_string = dub_string.replaceAll("\"","");
-                    double new_data = Double.valueOf(dub_string);
-                    parameter_vals.set(row, col, new_data);
-                }
-                row += 1;
-            }
-        }
-        catch(IOException e){
-            System.out.println(e);
-        }
-    }
-
-
     /*
     Name       :
     Purpose    :
@@ -482,11 +380,10 @@ public class OneVsAllChar {
             }
 
             // Read Output data
-            BufferedReader br_y = new BufferedReader(new FileReader(output_file_name)); //"src/output_data_y.csv"));
+            BufferedReader br_y = new BufferedReader(new FileReader(output_file_name));
             int row_y = 0;
             while(row_y < num_examples && (line = br_y.readLine()) != null){
                 String[] data = line.split(",");
-                //double new_data = Double.parseDouble(data[0]);
                 output_data[row_y][0] = data[0];
                 row_y += 1;
             }
@@ -506,7 +403,7 @@ public class OneVsAllChar {
      */
     public static SimpleMatrix turn_image_into_data(BufferedImage image){
         // Transform image into data
-        int[] border_data_array = new int[7200];
+        int[] border_data_array = new int[10800];//int[7200];
 
         // Obtain outline BufferedImage object for both top and bottom
         BufferedImage top_outline = image.getSubimage(0, 0, image.getWidth(), 3);
@@ -711,7 +608,6 @@ public class OneVsAllChar {
                 ArrayList<Integer> const_cols = new ArrayList<Integer>();
                 MySQLAccess.read_mean_std_const_cols(810, mean, std, const_cols);
                 normalize_input_data(new_data_matrix, mean, std, const_cols);
-                //normalize_input_data(new_data_matrix, norm_mean, norm_std, norm_constant_columns);
 
                 // Make new prediction
                 double prediction = predict_one_vs_all(learned_parameters, new_data_matrix, num_classes);
@@ -747,7 +643,7 @@ public class OneVsAllChar {
                 }
             }
             System.out.format("Object Found: %s\n", object_name);
-            if(object_name.equals("Ammo")) return null;
+            if(object_name.equals("Ammo") || object_name.equals("Cell_Key")) return null;
             return object_name;
         }
         catch (IOException e){
@@ -755,6 +651,7 @@ public class OneVsAllChar {
         }
         return "";
     }
+
 
     /*
     Name       :

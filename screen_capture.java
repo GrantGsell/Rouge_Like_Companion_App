@@ -93,7 +93,7 @@ public class screen_capture {
 
         // Testing variables
         int border_height = 3;
-        int num_border_features = 7200;
+        int num_border_features = 10800;//7200;
         int num_border_classes = 4;
 
         // Obtain border class base matrix
@@ -113,6 +113,10 @@ public class screen_capture {
         // Generate hashtable for incorrect word comparison
         Hashtable<Integer, ArrayList<String>> word_ht =  MySQLAccess.generate_word_hash_table();
 
+        // Generate User Interface
+        UserInterface custom_ui = new UserInterface();
+        custom_ui.run_user_interface();
+
         while(true){
             // Screenshot
             try {
@@ -125,17 +129,13 @@ public class screen_capture {
                 int height = 77;
 
                 // Crop image to new image
-                BufferedImage crop = capture.getSubimage(x_offset, y_offset, width, height);
+                BufferedImage crop = capture.getSubimage(x_offset - 25, y_offset, width + 25, height);
+                BufferedImage border_crop = capture.getSubimage(x_offset, y_offset, width, height);
 
-                /*
-                Class 3 Test
-                 */
-                //BufferedImage crop = ImageIO.read(new File("screenshots/class_3_border/class_3_0.jpg"));
-
-                int prediction = ObtainData.average_percent_difference(crop, class_border_matrix, num_border_classes, border_height, num_border_features);
+                int prediction = ObtainData.average_percent_difference(border_crop, class_border_matrix, num_border_classes, border_height, num_border_features);
 
                 // Set threshold to save if reached
-                if(prediction != 0 && !timer_flag){
+                if(prediction != 0 && prediction != 4 && !timer_flag){
                     // Set timer flag high and start the timer
                     timer_flag = true;
                     event_timer.schedule(new FlagSetTask(), 2000);
@@ -144,10 +144,9 @@ public class screen_capture {
                     System.out.println("Notification box found!");
 
                     // Make prediction on the new found notification box.
-                    //String guess = obj.test_new_image(obj.characters_list.length, obj.test_learned_parameters, "", obj.characters_list, crop);
                     String guess = OneVsAllChar.test_new_image(characters.length, learned_parameters, "", characters, crop);
                     if(guess != null) {
-                        MySQLAccess.read_from_database(guess, word_ht);
+                        MySQLAccess.read_from_database(guess, word_ht, custom_ui);
                     }
 
                     // Generate iterative file path

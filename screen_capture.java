@@ -104,8 +104,11 @@ public class screen_capture {
         //obj.top_one_vs_all_training(7979, 810);
         //SimpleMatrix test = obj.test_learned_parameters;
         //double[] test_2 = obj.norm_mean;
+       // String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
+         //       "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
+           //     "ERRAPT"};
         String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
-                "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
+                "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
                 "ERRAPT"};
         // Read in learned parameters
         SimpleMatrix learned_parameters = MySQLAccess.read_parameter_cols(characters.length, 811, characters);
@@ -191,6 +194,7 @@ public class screen_capture {
     Notes      :
      */
     public static void main(String[] args) {
+        // Normal Running code
         String file_name = "temp";
         boolean active_capture = true;
 

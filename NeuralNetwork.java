@@ -2,9 +2,8 @@ import edu.stanford.nlp.optimization.DiffFunction;
 import org.ejml.simple.SimpleMatrix;
 
 import java.io.*;
-import java.util.Random;
+import java.util.*;
 import java.beans.DesignMode;
-import java.util.Scanner;
 import java.io.FileWriter;
 import com.opencsv.CSVWriter;
 import edu.stanford.nlp.optimization.QNMinimizer;
@@ -12,16 +11,7 @@ import com.google.common.primitives.Doubles;
 import edu.stanford.nlp.optimization.Function;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.csv.CsvWriter;
 
-public class NeuralNetwork implements DiffFunction{
-    // Fields for Interface implementation
-    public static SimpleMatrix input_data_f;
-    public static SimpleMatrix output_data_f;
-    public static int input_layer_size_f;
-    public static int hidden_layer_size_f;
-    public static int num_labels_f;
-    public static double lambda_f;
-    public static int num_iterations = 0;
-
+public class NeuralNetwork {
     /*
     Name       : sigmoid
     Purpose    : Computes the sigmoid of z.
@@ -422,6 +412,7 @@ public class NeuralNetwork implements DiffFunction{
                                                 int hidden_layer_size,
                                                 int num_labels,
                                                 double lambda,
+                                                double alpha,
                                                 String file_name){
         // Set initial theta values
         SimpleMatrix initial_theta_1 = random_initialize_weights(input_layer_size, hidden_layer_size);
@@ -430,8 +421,10 @@ public class NeuralNetwork implements DiffFunction{
 
 
         // set alpha
-        double alpha = 10;//0.5;// 1.5;//1.5; //3.0;//1.5; // 0.5
+        //double alpha = 0.5;//0.05;//0.5;// 1.5;//1.5; //3.0;//1.5; // 0.5
         int iteration = 0;
+        double prev_cost = 30;
+
         // Learn parameters
         while(true){
             // Calculate Gradient
@@ -439,104 +432,30 @@ public class NeuralNetwork implements DiffFunction{
 
             // Sum new gradient values along rows (sum along m)
             double scale_factor = alpha/input_data.numRows();
-            temp_grad.scale(scale_factor);
+            SimpleMatrix temp_grad_scale = temp_grad.extractMatrix(1, temp_grad.numRows(), 0, 1).scale(scale_factor);
+            temp_grad.insertIntoThis(1, 0, temp_grad_scale);
 
             // Update theta values
             initial_theta_comb = initial_theta_comb.minus(temp_grad);
 
             // Perform Cost function
             double cost = nn_cost_function(initial_theta_comb, input_data, output_data, input_layer_size, hidden_layer_size, num_labels, lambda);
-            System.out.format("Iteration: %d | Cost: %.7e\n", iteration, cost);
+            double cost_diff = prev_cost - cost;
+            System.out.format("Iteration: %d | Cost: %.7e | Prev Cost Diff: %.9f\n", iteration, cost, cost_diff);
+            prev_cost = cost;
             iteration += 1;
-            if(cost <= 1e-1){
+            if(cost <= 1e-1 || iteration > 150){
                 break;
             }
 
         }
         double[] learned_parameters = initial_theta_comb.getDDRM().data;
         write_parameters_to_csv(learned_parameters, file_name);
+
+        // Write learned parameters to MySQL file
+        //double[] learned_parameters = initial_theta_comb.getDDRM().data;
+        //MySQLAccess.insert_nn_parameter_column_data("parameters", learned_parameters.length, learned_parameters);
     }
-
-    /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
-     */
-    public static void learn_parameters(
-                                        SimpleMatrix input_data,
-                                        SimpleMatrix output_data,
-                                        int input_layer_size,
-                                        int hidden_layer_size,
-                                        int num_labels,
-                                        double lambda,
-                                        String file_name){
-
-        QNMinimizer qn = new QNMinimizer(1,true);
-
-        double tolerance = 1e-5;
-        int max_num_iter = 1500;
-
-        // Set initial theta values
-        SimpleMatrix initial_theta_1 = random_initialize_weights(input_layer_size, hidden_layer_size);
-        SimpleMatrix initial_theta_2 = random_initialize_weights(hidden_layer_size, num_labels);
-        SimpleMatrix initial_theta_comb = unroll_matrices(initial_theta_1, initial_theta_2);
-
-        // Turn initial theta values into double array
-        double[] initial_theta = initial_theta_comb.getDDRM().data;
-
-        // Set values to be used by interface
-        input_data_f = input_data;
-        output_data_f = output_data;
-        input_layer_size_f = input_layer_size;
-        hidden_layer_size_f = hidden_layer_size;
-        num_labels_f = num_labels;
-        lambda_f = lambda;
-
-        // Learn parameters
-        NeuralNetwork obj = new NeuralNetwork();
-        double[] learned_parameters = qn.minimize(obj, tolerance, initial_theta, max_num_iter);
-        write_parameters_to_csv(learned_parameters, file_name);
-    }
-
-    @Override
-    public double[] derivativeAt(double[] doubles) {
-        // Turn doubles (initial_thetas) into a simple matrix
-        SimpleMatrix parameters = new SimpleMatrix(new double[][]{doubles});
-
-        // Feed the new doubles simple matrix into the cost function and obtain result
-        SimpleMatrix grad = NeuralNetwork.nn_gradient(parameters, input_data_f, output_data_f,
-                input_layer_size_f, hidden_layer_size_f, num_labels_f,
-                lambda_f);
-
-        // Turn result back into an array of doubles.
-        double[] grad_arr = grad.getDDRM().getData();
-
-        // Compute the cost using the given parameters
-        double cost = NeuralNetwork.nn_cost_function(grad, input_data_f, output_data_f,
-                input_layer_size_f, hidden_layer_size_f, num_labels_f,
-                lambda_f);
-
-        // Write iteration number ad cost
-        if(num_iterations % 100 == 0){
-            System.out.format("Iteration Number: %d reached | Cost: %.5e\n", num_iterations, cost);
-        }
-        num_iterations += 1;
-
-        return grad_arr;
-    }
-
-    @Override
-    public double valueAt(double[] doubles) {
-        return 0;
-    }
-
-    @Override
-    public int domainDimension() {
-        return 0;
-    }
-
 
     /*
     Name       :
@@ -661,10 +580,10 @@ public class NeuralNetwork implements DiffFunction{
     Return     :
     Notes      :
      */
-    public static void read_parameters(SimpleMatrix parameter_vals){
+    public static void read_parameters(SimpleMatrix parameter_vals, String parameter_file_name){
         try{
             // Read in Input data
-            BufferedReader br = new BufferedReader(new FileReader("src/parameters.csv"));
+            BufferedReader br = new BufferedReader(new FileReader(parameter_file_name));// "src/parameters.csv"));
             String line = "";
             int row = 0;
             while((line = br.readLine()) != null){
@@ -691,34 +610,210 @@ public class NeuralNetwork implements DiffFunction{
     Return     :
     Notes      :
      */
-    public static void main(String[] args){
-        int input_layer_size = 400;
-        int hidden_layer_size = 25;
-        int num_labels = 10;
-        double lambda = 0.09;//0.009;//1;//0.5;//0.009;//0.09;
-        int num_examples = 5000;
-        SimpleMatrix input_data = new SimpleMatrix(num_examples, 400);
-        SimpleMatrix output_data = new SimpleMatrix(num_examples, 1);;
+    public static double test_new_char(SimpleMatrix input_data){
+        /*
+        Testing purposes only
+         */
+        String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
+                "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
+                "ERRAPT"};
+        int input_layer_size = 810;
+        int hidden_layer_size = 100;
+        int num_labels = characters.length;
+        String parameter_file_path = "src/parameters.csv";
+        int theta_size = (hidden_layer_size * (input_layer_size + 1)) + (num_labels * (hidden_layer_size + 1));
+        SimpleMatrix parameter_mat = new SimpleMatrix(1, theta_size);
+        NeuralNetwork.read_parameters(parameter_mat, parameter_file_path);
+        SimpleMatrix prediction_mat = NeuralNetwork.new_prediction(parameter_mat, input_data, input_layer_size, hidden_layer_size, num_labels);
+        double[] prediction_data = prediction_mat.getDDRM().getData();
+        return prediction_data[0];
+    }
 
-        // Read in data
-        String input_file_name = "src/input_data_x.csv";
-        String output_file_name = "src/output_data_y.csv";
-        NeuralNetwork.read_data(num_examples, input_layer_size, input_data, output_data, input_file_name, output_file_name);
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static List<double[]> metrics(int[] predicted_output, String[][] actual_output, String[] class_char_arr, int num_classes){
+        // Precision, recall, accuracy, f score array initializations
+        double[] precision_arr = new double[num_classes];
+        double[] recall_arr = new double[num_classes];
+        double[] accuracy_arr = new double[num_classes];
+        double[] f_score_arr = new double[num_classes];
+
+        // Find the precision and recall for each class
+        for(int i = 0; i < num_classes; i++){
+            double tp, fp, fn, tn;
+            tp = fp = fn = tn = 0;
+
+            // Tabulate tp, fp, fn, and tn for each class i
+            for(int j = 0; j < predicted_output.length; j++){
+                if(predicted_output[j] == i && actual_output[j][0].equals(class_char_arr[i])){
+                    tp += 1;
+                }
+                else if(predicted_output[j] == i && !actual_output[j][0].equals(class_char_arr[i])){
+                    fp += 1;
+                }
+                else if(predicted_output[j] != i && actual_output[j][0].equals(class_char_arr[i])){
+                    fn += 1;
+                }
+                else if(predicted_output[j] != i && !actual_output[j][0].equals(class_char_arr[i])){
+                    tn += 1;
+                }
+            }
+
+            // Calculate the precision and recall for class i
+            if(tp + tp != 0){
+                precision_arr[i] = tp / (tp + fp);
+            } else{
+                precision_arr[i] = 0;
+            }
+            if(tp + fn != 0){
+                recall_arr[i] = tp / (tp + fn);
+            } else{
+                recall_arr[i] = 0;
+            }
+
+            // Calculate accuracy for the given class
+            accuracy_arr[i] = (tp + tn) / (tp + fp + fn + tn);
+
+            // Calculate F_score for the given class
+            if(precision_arr[i] + recall_arr[i] != 0) {
+                f_score_arr[i] = (2 * precision_arr[i] * recall_arr[i]) / (precision_arr[i] + recall_arr[i]);
+            }else{
+                f_score_arr[i] = 0;
+            }
+        }
+
+        // Add all lists to the return array list
+        List<double[]> metric_arrays = new ArrayList<>();
+        metric_arrays.add(precision_arr);
+        metric_arrays.add(recall_arr);
+        metric_arrays.add(accuracy_arr);
+        metric_arrays.add(f_score_arr);
+        return metric_arrays;
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static double[] multi_f_score(double[] f_score_arr, int[] output_data, int num_classes){
+        // Count the number for examples in each class
+        double[] class_counts = new double[num_classes];
+        for(int i = 0; i < output_data.length; i++){
+            class_counts[output_data[i]] += 1;
+        }
+
+        // Calculate the Macro F1 Score
+        double macro_f1_score = Arrays.stream(f_score_arr).sum() / (double) num_classes;
+
+        // Calculate the weighted F1 Score
+        double total_num_examples = output_data.length;
+        double weighted_f1_score = 0;
+        for(int j = 0; j < num_classes; j++){
+            weighted_f1_score += (class_counts[j] * f_score_arr[j]);
+        }
+        weighted_f1_score /= total_num_examples;
+        return new double[] {macro_f1_score, weighted_f1_score};
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static void main(String[] args){
+        // Basic parameters
+        String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
+                "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
+                "ERRAPT"};
+        int num_examples = 7979;
+        int num_features = 810;
+        int sliding_window_height = 18;
+        int sliding_window_width =  15;
+        int sliding_window_delta = 5;
+        int class_num = 1;
+        int ex_idx = 0;
+        int example_width = 400;
+        double lambda = 0.05;//0.09;//0.009;//1;//0.5;//0.009;//0.09;
+        double alpha = 10000;
+        int input_layer_size = num_features;
+        int hidden_layer_size = 100;
+        int num_labels = characters.length;
+
+        String input_file_name = "text_box_recog/input_text_box_recog_data.csv";
+
+
+        int num_classes = characters.length;
+
+        // Initialize input/output matrices
+        SimpleMatrix input_data = ObtainData.obtain_sliding_window_data(sliding_window_height, sliding_window_width, sliding_window_delta,
+                class_num, ex_idx, num_examples, example_width,
+                input_file_name, "");
+        String[][] output_data = new String[num_examples][1];
+        SimpleMatrix learned_parameters = new SimpleMatrix(num_classes, num_features + 1);
+
+        // Read input/output data
+        SimpleMatrix useless_data = new SimpleMatrix(num_examples, 1);
+        String input_file_name_useless = "";
+        String output_file_name = "text_box_recog/output_text_box_recog_data.csv";
+        OneVsAllChar.read_data(num_examples, useless_data, output_data, input_file_name_useless, output_file_name);
+
+        // Transform the output data from strings into integers
+        Hashtable<String, Integer> char_to_int_map = new Hashtable<>();
+        for(int i = 0; i < characters.length; i++){
+            char_to_int_map.put(characters[i], i);
+        }
+        double[] output_nums = new double[input_data.numRows()];
+        int[] output_nums_int = new int[input_data.numRows()];
+        for(int i = 0; i < output_nums.length; i++){
+            output_nums[i] = (double) char_to_int_map.get(output_data[i][0]);
+            output_nums_int[i] = char_to_int_map.get(output_data[i][0]);
+        }
+
+        // Transform output data into a simple matrix
+        SimpleMatrix output_mat = new SimpleMatrix(new double[][]{output_nums});
+        output_mat = output_mat.transpose();
+
+        // Clear and initialize the MySQL tables before obtaining the necessary data
+        //MySQLAccess.clear_and_initialize();
+
+        // Normalize the input data
+        //OneVsAllChar.create_training_data_normalization_arrays(input_data);
+
+        // Obtain the normalized data
+        double[] mean = new double[num_features];
+        double[] std = new double[num_features];
+        ArrayList<Integer> const_cols = new ArrayList<Integer>();
+        MySQLAccess.read_mean_std_const_cols(num_features, mean, std, const_cols);
+
+        // Normalize the training_data
+        OneVsAllChar.normalize_input_data(input_data, mean, std, const_cols);
 
         // Learn the parameters
         String parameter_file_path = "src/parameters.csv";
-        NeuralNetwork.learn_parameters_via_gd(input_data, output_data, input_layer_size, hidden_layer_size, num_labels, lambda, parameter_file_path);
+        NeuralNetwork.learn_parameters_via_gd(input_data, output_mat, input_layer_size, hidden_layer_size, num_labels, lambda, alpha, parameter_file_path);
         //NeuralNetwork.learn_parameters(input_data, output_data, input_layer_size, hidden_layer_size, num_labels, lambda);
 
         // Read in parameter data
         int theta_size = (hidden_layer_size * (input_layer_size + 1)) + (num_labels * (hidden_layer_size + 1));
         SimpleMatrix parameter_mat = new SimpleMatrix(1, theta_size);
-        read_parameters(parameter_mat);
+        read_parameters(parameter_mat, parameter_file_path);
         SimpleMatrix prediction_mat = NeuralNetwork.new_prediction(parameter_mat, input_data, input_layer_size, hidden_layer_size, num_labels);
 
         // Display predictions/actual values
         double[] prediction_data = prediction_mat.getDDRM().getData();
-        double[] actual_data = output_data.getDDRM().getData();
+        double[] actual_data = output_mat.getDDRM().getData();
         int total_correct = 0;
         for(int i = 0; i < prediction_data.length; i++){
             if(actual_data[i] == prediction_data[i]){
@@ -726,12 +821,22 @@ public class NeuralNetwork implements DiffFunction{
             }
             else{
                 System.out.print("Wrong");
+                System.out.format("Actual: %s | %s : Predicted\n", characters[(int)actual_data[i]], characters[(int)prediction_data[i]]);
             }
-            System.out.format("Actual: %.2f | %.2f : Predicted\n", actual_data[i], prediction_data[i]);
+            //System.out.format("Actual: %.2f | %.2f : Predicted\n", actual_data[i], prediction_data[i]);
         }
         double percent_correct = ((double)total_correct/ (double)num_examples) * 100;
         System.out.format("Percentage Correct: %.2f%%\n", percent_correct);
 
+        // Perform metrics
+        int[] prediction_data_int = new int[prediction_data.length];
+        for(int i = 0; i < prediction_data_int.length; i++){
+            prediction_data_int[i] = (int) prediction_data[i];
+        }
+
+        List<double[]> metric_arrays = metrics(prediction_data_int, output_data, characters, characters.length);
+        double[] new_scores = multi_f_score(metric_arrays.get(3), output_nums_int, num_classes);
+        return;
     }
 
 }

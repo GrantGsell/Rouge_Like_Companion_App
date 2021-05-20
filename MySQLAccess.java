@@ -545,6 +545,52 @@ public class MySQLAccess {
     Return     :
     Notes      :
      */
+    /*
+    public static void insert_nn_parameter_column_data(String table_name, int num_features, double[] data){
+        try {
+            // Step 1. Open a new connection to the database
+            Connection conn = MySQLJDBCUtil.getConnection();
+
+            // Step 2. Create a Statement object
+            Statement stmt = conn.createStatement();
+
+            // If table_name is parameters insert classifier_id
+            if(table_name.equals("parameters")){
+                // Step 3 Create the query data
+                String query = "INSERT INTO parameters(classifier_id) " +
+                        "VALUES(\"" + classifier_id + "\")";
+
+                // Step 4. Execute the query
+                stmt.execute(query);
+            }
+
+            for(int i = 0; i < num_features; i++) {
+                // Step 3 Create the query data
+                String query = "UPDATE " + table_name +
+                        " SET feature_" + Integer.toString(i) + " =" + Double.toString(data[i]) +
+                        " WHERE classifier_id = \"" + classifier_id + "\"";
+
+                // Step 4. Execute the query
+                stmt.execute(query);
+            }
+
+            // Step 5. Close the Result Set and Statement objects
+            conn.close();
+            stmt.close();
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    */
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
     public static void clear_and_initialize(){
         try {
             // Step 1. Open a new connection to the database

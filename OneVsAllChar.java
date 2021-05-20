@@ -4,8 +4,7 @@ import org.ejml.simple.SimpleMatrix;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 public class OneVsAllChar {
     // Data Normalization variables
@@ -36,17 +35,18 @@ public class OneVsAllChar {
         int number_examples = 15;
         int example_width = 400;
         String input_file_name = "text_box_recog/input_text_box_recog_data.csv";
-        //String output_file_name = "text_box_recog/output_text_box_recog_data.csv";
-
 
         // Basic parameters
+        // String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
+        //       "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
+        //     "ERRAPT"};
         String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
-                "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
+                "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
                 "ERRAPT"};
         characters_list = characters;
         int num_classes = characters.length;
-        double learning_constant = 0.05;//1;//0.1;
-        double alpha = 30;//10;//2;//1;//0.5;
+        double learning_constant = 0.15;
+        double alpha = 250;
 
         // Initialize input/output matrices
         SimpleMatrix input_data = ObtainData.obtain_sliding_window_data(sliding_window_height, sliding_window_width, sliding_window_delta,
@@ -67,7 +67,7 @@ public class OneVsAllChar {
         // Normalize the input data
         create_training_data_normalization_arrays(input_data);
 
-        // Obtain the normalized ata
+        // Obtain the normalized data
         double[] mean = new double[num_features];
         double[] std = new double[num_features];
         ArrayList<Integer> const_cols = new ArrayList<Integer>();
@@ -76,8 +76,39 @@ public class OneVsAllChar {
         // Normalize the training_data
         normalize_input_data(input_data, mean, std, const_cols);
 
+        // Split the input/output data into 3 data sets
+        ArrayList<Object> split_data = new ArrayList<>();
+        split_original_training_set(input_data, output_data, split_data);
+
+        // Obtain the data from the split data arraylist
+        SimpleMatrix train_set_input = (SimpleMatrix) split_data.get(0);
+        SimpleMatrix cv_set_input = (SimpleMatrix) split_data.get(1);
+        SimpleMatrix test_set_input = (SimpleMatrix) split_data.get(2);
+        String[][] train_set_output = (String[][]) split_data.get(3);
+        String[][] cv_set_output = (String[][]) split_data.get(4);
+        String[][] test_set_output = (String[][]) split_data.get(5);
+
+        // Constant value optimal selection
+        //int max_iterations = 100;
+        //double[] optimized_constants = constant_selection(train_set_input, train_set_output, cv_set_input, cv_set_output, num_classes, characters, max_iterations);
+        //learning_constant = optimized_constants[0];
+        //alpha = optimized_constants[1];
+
         // Train classifiers for each character
-        learned_parameters = one_vs_all(input_data, output_data, learning_constant, alpha, characters.length, characters);
+        learned_parameters = one_vs_all(input_data, output_data, learning_constant, alpha, characters.length, characters, 3000, true);
+
+        // Test prediction and run metrics
+        int[] prediction = test_parameters_vs_cv_set(input_data, learned_parameters);
+        List<double[]> metric_arrays = metrics(prediction, output_data, characters, num_classes);// Transform the cv_set_output data from strings into integers
+        Hashtable<String, Integer> char_to_int_map = new Hashtable<>();
+        for(int i = 0; i < characters.length; i++){
+            char_to_int_map.put(characters[i], i);
+        }
+        int[] output_nums = new int[cv_set_input.numRows()];
+        for(int i = 0; i < output_nums.length; i++){
+            output_nums[i] = char_to_int_map.get(cv_set_output[i][0]);
+        }
+        double[] metrics = multi_f_score(metric_arrays.get(3), output_nums, num_classes);
 
         // Test parameters before writing to file
         test_parameters_vs_training_set(num_examples, num_features, num_classes, input_data, output_data, learned_parameters, characters);
@@ -195,7 +226,7 @@ public class OneVsAllChar {
                                           String[][] output_data,
                                           double lambda_const,
                                           double alpha,
-                                          int num_classes, String[] class_char_arr){
+                                          int num_classes, String[] class_char_arr, int max_iterations, boolean write_data){
         // m: number of examples, n: number of features
         int m = input_data.numRows();
         int n = input_data.numCols();
@@ -220,14 +251,16 @@ public class OneVsAllChar {
             SimpleMatrix temp_output = logical_array(output_data, class_char);
 
             // Run gradient descent or other optimization function
-            SimpleMatrix learned_parameters = gradient_descent(initial_theta, input_with_bias, temp_output, lambda_const, alpha, class_char);
+            SimpleMatrix learned_parameters = gradient_descent(initial_theta, input_with_bias, temp_output, lambda_const, alpha, class_char, max_iterations);
 
             // Assign learned parameters to respective row in  classifiers matrix
             classifiers.insertIntoThis(class_idx, 0, learned_parameters.transpose());
 
             // Transform learned_parameter data into a double array and add to MySQL database
-            double[] data = learned_parameters.getDDRM().getData();
-            MySQLAccess.insert_parameter_column_data("parameters", n + 1, data, class_char);
+            if(write_data == true) {
+                double[] data = learned_parameters.getDDRM().getData();
+                MySQLAccess.insert_parameter_column_data("parameters", n + 1, data, class_char);
+            }
         }
 
         // Generate classifiers for each class using multithreading
@@ -280,7 +313,7 @@ public class OneVsAllChar {
             SimpleMatrix output_data,
             double lambda,
             double alpha,
-            String class_char){
+            String class_char, int max_iterations){
         // Console parameters
         int iteration = 0;
         double prev_cost = 3;
@@ -304,12 +337,12 @@ public class OneVsAllChar {
             // Perform Cost function
             double cost = lr_cost_function(initial_parameters, input_data, output_data, lambda);
             double cost_diff = prev_cost - cost;
-            if(iteration % 1000 == 0) {
+            if(iteration % (max_iterations / 2) == 0) {
                 System.out.format("Class: %s |Iteration: %d | Cost: %.7e | Prev Cost Diff: %.9f\n", class_char, iteration, cost, cost_diff);
             }
             prev_cost = cost;
             iteration += 1;
-            if(cost <= 1e-5 || iteration > 3000){  //changed from 3000 for actual running
+            if(cost <= 1e-5 || iteration > max_iterations){  //changed from 3000 for actual running
                 break;
             }
 
@@ -329,7 +362,7 @@ public class OneVsAllChar {
                  X has dimensions: (number of examples x number of features)
                  predict had dimensions: (number of examples x 1)
     */
-    public static double predict_one_vs_all(SimpleMatrix learned_parameters, SimpleMatrix new_image, int num_classes){
+    public static double predict_one_vs_all(SimpleMatrix learned_parameters, SimpleMatrix new_image){
         // Create bias unit matrix
         SimpleMatrix bias_units = new SimpleMatrix(1, 1);
         bias_units = bias_units.plus(1.0);
@@ -537,6 +570,13 @@ public class OneVsAllChar {
     }
 
 
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
     public static void test_parameters_vs_training_set(int num_examples, int num_features, int num_classes,
                                                        SimpleMatrix input_data, String[][] output_data,
                                                        SimpleMatrix learned_parameters, String[] class_char_arr){
@@ -545,7 +585,7 @@ public class OneVsAllChar {
         int num_correct_predictions = 0;
         for(int i = 0; i < num_examples; i++){
             SimpleMatrix example = input_data.rows(i, i + 1);
-            double predict = predict_one_vs_all(learned_parameters, example, num_classes);
+            double predict = predict_one_vs_all(learned_parameters, example);
             int predict_idx = (int) predict;
             if(class_char_arr[predict_idx].equals(output_data[i][0])){
                 num_correct_predictions += 1;
@@ -564,6 +604,36 @@ public class OneVsAllChar {
     }
 
 
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static int[] test_parameters_vs_cv_set(SimpleMatrix input_data, SimpleMatrix learned_parameters){
+
+        // Make a prediction on each training example
+        int num_examples = input_data.numRows();
+        int[] prediction_arr = new int[num_examples];
+        for(int i = 0; i < num_examples; i++){
+            SimpleMatrix example = input_data.rows(i, i + 1);
+            double predict = predict_one_vs_all(learned_parameters, example);
+            prediction_arr[i] = (int) predict;
+        }
+
+        // Return the prediction array
+        return prediction_arr;
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
     public static String test_new_image(int num_classes, SimpleMatrix learned_parameters, String test_file_path, String[] class_char_arr, BufferedImage new_image){
         try {
             int sw_height = 18;
@@ -610,7 +680,8 @@ public class OneVsAllChar {
                 normalize_input_data(new_data_matrix, mean, std, const_cols);
 
                 // Make new prediction
-                double prediction = predict_one_vs_all(learned_parameters, new_data_matrix, num_classes);
+                //double prediction = predict_one_vs_all(learned_parameters, new_data_matrix);
+                double prediction = NeuralNetwork.test_new_char(new_data_matrix);
 
                 // Translate prediction into associated character
                 int predict_idx = (int) prediction;
@@ -620,31 +691,31 @@ public class OneVsAllChar {
             }
 
             // Transform character array into string
-            String object_name = "";
+            StringBuilder object_name = new StringBuilder();
             boolean new_word_flag = false;
             for(int i = 0; i < str_pred.length; i++){
                 if(str_pred[i].equals("SPACE")){
-                    object_name += "_";
+                    object_name.append("_");
                     new_word_flag = true;
                 }
                 else if(str_pred[i].equals("ERRAP") || str_pred[i].equals("ERRAPT")){
-                    object_name += "'";
+                    object_name.append("'");
                 }
                 else if(str_pred[i].equals("ERRL") || str_pred[i].equals("ERRN") || str_pred[i].equals("ERRM") ||
                         str_pred[i].equals("ERRT") || str_pred[i].equals("ERRU")){
 
                 }
                 else if(i == 0 || new_word_flag){
-                    object_name += str_pred[i];
+                    object_name.append(str_pred[i]);
                     new_word_flag = false;
                 }
                 else{
-                    object_name += str_pred[i].toLowerCase();
+                    object_name.append(str_pred[i].toLowerCase());
                 }
             }
-            System.out.format("Object Found: %s\n", object_name);
-            if(object_name.equals("Ammo") || object_name.equals("Cell_Key")) return null;
-            return object_name;
+            System.out.format("Object Found: %s\n", object_name.toString());
+            if(object_name.toString().equals("Ammo") || object_name.toString().equals("Cell_Key")) return null;
+            return object_name.toString();
         }
         catch (IOException e){
             System.out.println(e);
@@ -660,7 +731,229 @@ public class OneVsAllChar {
     Return     :
     Notes      :
      */
-    public static void main(String args[]){
+    public static void split_original_training_set(SimpleMatrix input_data, String[][] output_data,
+                                                   ArrayList<Object> split_data){
+        // Relevant variables
+        int num_examples = input_data.numRows();
+
+        // Index variables for training set (train), cross validation set(cv) and test set (test)
+        int train_lower = 0;
+        int train_upper = (int) Math.floor(num_examples * 0.6);
+        int cv_lower = train_upper;
+        int cv_upper = cv_lower + (int) Math.floor(num_examples * 0.2);
+        int test_lower = cv_upper;
+        int test_upper = cv_upper + (int) Math.floor(num_examples * 0.2);
+
+        // Determine if any examples were missed
+        if(num_examples - test_upper > 0){
+            int delta = num_examples - test_upper;
+            train_upper += delta;
+            cv_lower += delta;
+            cv_upper += delta;
+            test_lower += delta;
+            test_upper += delta;
+        }
+
+        // Split the original input matrix
+        SimpleMatrix train_set_input = input_data.extractMatrix(train_lower, train_upper, 0, input_data.numCols());
+        SimpleMatrix cv_set_input = input_data.extractMatrix(cv_lower, cv_upper, 0, input_data.numCols());
+        SimpleMatrix test_set_input = input_data.extractMatrix(test_lower, test_upper, 0, input_data.numCols());
+
+        // Split the original output matrix
+        String[][] train_set_output = new String[train_upper - train_lower][1];
+        String[][] cv_set_output = new String[cv_upper - cv_lower][1];
+        String[][] test_set_output = new String[test_upper - test_lower][1];
+        for(int row = 0; row < num_examples; row++){
+            if(row < train_upper){
+                train_set_output[row][0] = output_data[row][0];
+            }else if(row >= cv_lower && row < cv_upper){
+                cv_set_output[row - cv_lower][0] = output_data[row][0];
+            }else if(row >= test_lower && row < test_upper){
+                test_set_output[row - test_lower][0] = output_data[row][0];
+            }
+        }
+
+        // Add the split data to an object list
+        split_data.add(train_set_input);
+        split_data.add(cv_set_input);
+        split_data.add(test_set_input);
+        split_data.add(train_set_output);
+        split_data.add(cv_set_output);
+        split_data.add(test_set_output);
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static double[] constant_selection(SimpleMatrix train_set_input, String[][] train_set_output,
+                                          SimpleMatrix cv_set_input, String[][] cv_set_output, int num_classes,
+                                          String[] class_char_arr, int max_iterations){
+        // Create Alpha and Lambda constant arrays
+        double[] lambda_vals = new double[10];
+        double[] alpha_vals = new double[10];
+        double start = 0.01;
+        lambda_vals[0] = alpha_vals[0] = start;
+        for(int i = 1; i < lambda_vals.length; i++){
+            lambda_vals[i] = lambda_vals[i - 1] * 3;
+            alpha_vals[i] = alpha_vals[i - 1] * 3;
+        }
+
+        // Transform the cv_set_output data from strings into integers
+        Hashtable<String, Integer> char_to_int_map = new Hashtable<>();
+        for(int i = 0; i < class_char_arr.length; i++){
+            char_to_int_map.put(class_char_arr[i], i);
+        }
+        int[] cv_set_output_nums = new int[cv_set_input.numRows()];
+        for(int i = 0; i < cv_set_output_nums.length; i++){
+            cv_set_output_nums[i] = char_to_int_map.get(cv_set_output[i][0]);
+        }
+
+        // F score array initialization
+        HashMap<double[], double[]> multi_cv_f_scores = new HashMap<>();
+
+        // Generate error values, and run metrics for all combinations of lambda and alpha
+        for(int l_idx = 0; l_idx < lambda_vals.length; l_idx++){
+            for(int a_idx = 0; a_idx < alpha_vals.length; a_idx++){
+                // Obtain the optimized parameters using the current alpha/lambda pair and the training set data
+                SimpleMatrix optimized_thetas = one_vs_all(train_set_input, train_set_output, lambda_vals[l_idx],
+                        alpha_vals[a_idx], num_classes, class_char_arr, max_iterations, false);
+
+                // Make predictions for the cross validation set
+                int[] prediction_cv = test_parameters_vs_cv_set(cv_set_input, optimized_thetas);
+
+                // Run the metrics for the cross validation set
+                List<double[]> metric_arrays = metrics(prediction_cv, cv_set_output, class_char_arr, num_classes);
+
+                // Calculate the Macro F1 score and the weighted f1 score
+                double[] new_scores = multi_f_score(metric_arrays.get(3), cv_set_output_nums, num_classes);
+                double[] curr_keys = {lambda_vals[l_idx], alpha_vals[a_idx]};
+                multi_cv_f_scores.put(curr_keys, new_scores);
+            }
+        }
+
+        // Find the lambda/alpha pair associated with the highest weighted F1 score
+        double max_f1_score = 0;
+        double[] best_const_pair = new double[2];
+        for(double[] key : multi_cv_f_scores.keySet()){
+            //if(multi_cv_f_scores.get(key) > max_f1_score){
+           //     max_f1_score = multi_cv_f_scores.get(key);
+           //     best_const_pair = key;
+           //     System.out.format("Lambda: %0.4f, Alpha:  %0.4f, F Score: %0.4f", key[0], key[1], multi_cv_f_scores.get(key));
+            //}
+        }
+        return best_const_pair;
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static List<double[]> metrics(int[] predicted_output, String[][] actual_output, String[] class_char_arr, int num_classes){
+        // Precision, recall, accuracy, f score array initializations
+        double[] precision_arr = new double[num_classes];
+        double[] recall_arr = new double[num_classes];
+        double[] accuracy_arr = new double[num_classes];
+        double[] f_score_arr = new double[num_classes];
+
+        // Find the precision and recall for each class
+        for(int i = 0; i < num_classes; i++){
+            double tp, fp, fn, tn;
+            tp = fp = fn = tn = 0;
+
+            // Tabulate tp, fp, fn, and tn for each class i
+            for(int j = 0; j < predicted_output.length; j++){
+                if(predicted_output[j] == i && actual_output[j][0].equals(class_char_arr[i])){
+                    tp += 1;
+                }
+                else if(predicted_output[j] == i && !actual_output[j][0].equals(class_char_arr[i])){
+                    fp += 1;
+                }
+                else if(predicted_output[j] != i && actual_output[j][0].equals(class_char_arr[i])){
+                    fn += 1;
+                }
+                else if(predicted_output[j] != i && !actual_output[j][0].equals(class_char_arr[i])){
+                    tn += 1;
+                }
+            }
+
+            // Calculate the precision and recall for class i
+            if(tp + tp != 0){
+                precision_arr[i] = tp / (tp + fp);
+            } else{
+                precision_arr[i] = 0;
+            }
+            if(tp + fn != 0){
+                recall_arr[i] = tp / (tp + fn);
+            } else{
+                recall_arr[i] = 0;
+            }
+
+            // Calculate accuracy for the given class
+            accuracy_arr[i] = (tp + tn) / (tp + fp + fn + tn);
+
+            // Calculate F_score for the given class
+            if(precision_arr[i] + recall_arr[i] != 0) {
+                f_score_arr[i] = (2 * precision_arr[i] * recall_arr[i]) / (precision_arr[i] + recall_arr[i]);
+            }else{
+                f_score_arr[i] = 0;
+            }
+        }
+
+        // Add all lists to the return array list
+        List<double[]> metric_arrays = new ArrayList<>();
+        metric_arrays.add(precision_arr);
+        metric_arrays.add(recall_arr);
+        metric_arrays.add(accuracy_arr);
+        metric_arrays.add(f_score_arr);
+        return metric_arrays;
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static double[] multi_f_score(double[] f_score_arr, int[] output_data, int num_classes){
+        // Count the number for examples in each class
+        double[] class_counts = new double[num_classes];
+        for(int i = 0; i < output_data.length; i++){
+            class_counts[output_data[i]] += 1;
+        }
+
+        // Calculate the Macro F1 Score
+        double macro_f1_score = Arrays.stream(f_score_arr).sum() / (double) num_classes;
+
+        // Calculate the weighted F1 Score
+        double total_num_examples = output_data.length;
+        double weighted_f1_score = 0;
+        for(int j = 0; j < num_classes; j++){
+            weighted_f1_score += (class_counts[j] * f_score_arr[j]);
+        }
+        weighted_f1_score /= total_num_examples;
+        return new double[] {macro_f1_score, weighted_f1_score};
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static void main(String[] args){
         int number_examples = 989;
         int number_features = 7200;
         top_one_vs_all_training(number_examples, number_features);

@@ -1,17 +1,55 @@
-import edu.stanford.nlp.optimization.DiffFunction;
 import org.ejml.simple.SimpleMatrix;
-
 import java.io.*;
 import java.util.*;
-import java.beans.DesignMode;
 import java.io.FileWriter;
 import com.opencsv.CSVWriter;
-import edu.stanford.nlp.optimization.QNMinimizer;
 import com.google.common.primitives.Doubles;
-import edu.stanford.nlp.optimization.Function;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.csv.CsvWriter;
+
 
 public class NeuralNetwork {
+    // Basic parameters
+    private static final String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+            "O", "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE",
+            "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP", "ERRAPT"};
+    private static final int num_examples = 7979;
+    private static final int num_features = 810;
+    private static final int sliding_window_height = 18;
+    private static final int sliding_window_width =  15;
+    private static final int sliding_window_delta = 5;
+    private static final int class_num = 1;
+    private static final int ex_idx = 0;
+    private static final int example_width = 400;
+    private static final int input_layer_size = num_features;
+    private static final int hidden_layer_size = 100;
+    private static final int num_labels = characters.length;
+    private static final double lambda = 0.05;
+    private static final double alpha = 10000;
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static void top_neural_network(){
+
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static void learn_parameters(){
+
+    }
+
+
     /*
     Name       : sigmoid
     Purpose    : Computes the sigmoid of z.
@@ -451,10 +489,6 @@ public class NeuralNetwork {
         }
         double[] learned_parameters = initial_theta_comb.getDDRM().data;
         write_parameters_to_csv(learned_parameters, file_name);
-
-        // Write learned parameters to MySQL file
-        //double[] learned_parameters = initial_theta_comb.getDDRM().data;
-        //MySQLAccess.insert_nn_parameter_column_data("parameters", learned_parameters.length, learned_parameters);
     }
 
     /*
@@ -733,35 +767,14 @@ public class NeuralNetwork {
     Notes      :
      */
     public static void main(String[] args){
-        // Basic parameters
-        String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
-                "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
-                "ERRAPT"};
-        int num_examples = 7979;
-        int num_features = 810;
-        int sliding_window_height = 18;
-        int sliding_window_width =  15;
-        int sliding_window_delta = 5;
-        int class_num = 1;
-        int ex_idx = 0;
-        int example_width = 400;
-        double lambda = 0.05;//0.09;//0.009;//1;//0.5;//0.009;//0.09;
-        double alpha = 10000;
-        int input_layer_size = num_features;
-        int hidden_layer_size = 100;
-        int num_labels = characters.length;
-
         String input_file_name = "text_box_recog/input_text_box_recog_data.csv";
-
-
-        int num_classes = characters.length;
 
         // Initialize input/output matrices
         SimpleMatrix input_data = ObtainData.obtain_sliding_window_data(sliding_window_height, sliding_window_width, sliding_window_delta,
                 class_num, ex_idx, num_examples, example_width,
                 input_file_name, "");
         String[][] output_data = new String[num_examples][1];
-        SimpleMatrix learned_parameters = new SimpleMatrix(num_classes, num_features + 1);
+        SimpleMatrix learned_parameters = new SimpleMatrix(num_labels, num_features + 1);
 
         // Read input/output data
         SimpleMatrix useless_data = new SimpleMatrix(num_examples, 1);
@@ -786,10 +799,10 @@ public class NeuralNetwork {
         output_mat = output_mat.transpose();
 
         // Clear and initialize the MySQL tables before obtaining the necessary data
-        //MySQLAccess.clear_and_initialize();
+        MySQLAccess.clear_and_initialize();
 
         // Normalize the input data
-        //OneVsAllChar.create_training_data_normalization_arrays(input_data);
+        OneVsAllChar.create_training_data_normalization_arrays(input_data);
 
         // Obtain the normalized data
         double[] mean = new double[num_features];
@@ -809,6 +822,7 @@ public class NeuralNetwork {
         int theta_size = (hidden_layer_size * (input_layer_size + 1)) + (num_labels * (hidden_layer_size + 1));
         SimpleMatrix parameter_mat = new SimpleMatrix(1, theta_size);
         read_parameters(parameter_mat, parameter_file_path);
+
         SimpleMatrix prediction_mat = NeuralNetwork.new_prediction(parameter_mat, input_data, input_layer_size, hidden_layer_size, num_labels);
 
         // Display predictions/actual values
@@ -835,7 +849,7 @@ public class NeuralNetwork {
         }
 
         List<double[]> metric_arrays = metrics(prediction_data_int, output_data, characters, characters.length);
-        double[] new_scores = multi_f_score(metric_arrays.get(3), output_nums_int, num_classes);
+        double[] new_scores = multi_f_score(metric_arrays.get(3), output_nums_int, num_labels);
         return;
     }
 

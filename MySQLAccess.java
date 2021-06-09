@@ -545,33 +545,62 @@ public class MySQLAccess {
     Return     :
     Notes      :
      */
-    /*
-    public static void insert_nn_parameter_column_data(String table_name, int num_features, double[] data){
+    public static void write_input_data(SimpleMatrix input_data){
+        // Transform the input data into a 2D array
+        double[][] input_data_array = new double[input_data.numRows()][input_data.numCols()];
+        for(int i = 0; i < input_data.numRows(); i++){
+            double[] curr_row_data = input_data.extractMatrix(i, i+1, 0, input_data.numCols()).getDDRM().getData();
+            input_data_array[i] = curr_row_data;
+        }
+
+        // Create input data table and write data to the table
         try {
+            int num_features = 810;
+            int num_examples = 7979;
+
             // Step 1. Open a new connection to the database
             Connection conn = MySQLJDBCUtil.getConnection();
 
             // Step 2. Create a Statement object
             Statement stmt = conn.createStatement();
 
-            // If table_name is parameters insert classifier_id
-            if(table_name.equals("parameters")){
-                // Step 3 Create the query data
-                String query = "INSERT INTO parameters(classifier_id) " +
-                        "VALUES(\"" + classifier_id + "\")";
+            /*
+             Step 3. Create and Execute Queries
+             */
+            // Clear the input data table
+            String query = "DROP TABLE IF EXISTS input_data";
+            stmt.execute(query);
 
-                // Step 4. Execute the query
+            // Create the input data table
+            query = "CREATE TABLE IF NOT EXISTS input_data (example_number int primary key)";
+            stmt.execute(query);
+
+            // Insert the appropriate number of columns based on the number of features
+            for(int i = 0; i < num_features + 1; i++) {
+                // Add columns based on the number of features
+                query = "ALTER TABLE input_data " +
+                        "ADD " + "feature_" + Integer.toString(i) + " double";
                 stmt.execute(query);
             }
 
-            for(int i = 0; i < num_features; i++) {
-                // Step 3 Create the query data
-                String query = "UPDATE " + table_name +
-                        " SET feature_" + Integer.toString(i) + " =" + Double.toString(data[i]) +
-                        " WHERE classifier_id = \"" + classifier_id + "\"";
-
-                // Step 4. Execute the query
+            // Insert a new row of data for each example
+            for(int i = 0; i < num_examples; i++){
+                // Add a new example identifier
+                query = "INSERT INTO input_data(example_number) " +
+                        "VALUES(\"" + Integer.toString(i) + "\")";
                 stmt.execute(query);
+
+                // Add feature data for the example
+                double[] data = input_data_array[i];
+                for(int j = 0; j < num_features + 1; j++){
+                    // Step 3 Create the query data
+                    query = "UPDATE " + "input_data " +
+                            "SET feature_" + Integer.toString(j) + " = " + Double.toString(data[j]) +
+                            " WHERE example_number = \"" + Integer.toString(i) + "\"";
+
+                    // Step 4. Execute the query
+                    stmt.execute(query);
+                }
             }
 
             // Step 5. Close the Result Set and Statement objects
@@ -582,7 +611,7 @@ public class MySQLAccess {
             System.out.println(e.getMessage());
         }
     }
-    */
+
 
     /*
     Name       :
@@ -716,7 +745,7 @@ public class MySQLAccess {
     Return     :
     Notes      :
      */
-    public static SimpleMatrix read_parameter_cols(int num_classes, int num_features, String[] characters){
+    public static SimpleMatrix read_parameter_cols(int num_classes, int num_features, String[] characters, boolean nn_params){
         try {
             // Step 0. Instantiate temporary 2D array
             double[][] temp_classifier_matrix = new double[num_classes][num_features];
@@ -729,8 +758,13 @@ public class MySQLAccess {
 
             int row = 0;
             for(String curr_char : characters) {
+                String query = "";
                 // Step 3. Create query to obtain all parameter data
-                String query = "SELECT * FROM parameters WHERE classifier_id = \"" + curr_char + "\"";
+                if(nn_params){
+                    query = "SELECT * FROM nn_parameters WHERE classifier_id = \"" + curr_char + "\"";
+                }else {
+                    query = "SELECT * FROM parameters WHERE classifier_id = \"" + curr_char + "\"";
+                }
 
                 // Step 4. Execute the query
                 ResultSet rs = stmt.executeQuery(query);
@@ -924,7 +958,7 @@ public class MySQLAccess {
                 "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
                 "ERRAPT"};
 
-        read_parameter_cols(characters.length, 810, characters);
+        read_parameter_cols(characters.length, 810, characters, false);
         return;
     }
 }

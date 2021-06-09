@@ -305,7 +305,7 @@ public class ObtainData {
             // Obtain a sliding window box
             BufferedImage curr_box = image.getSubimage(x_offset, y_offset, sw_width, sw_height);
 
-            // Run the current box image through ML algorithm and return class number (0/1)
+            // Run the current box image through ML algorithm and return class number (0/1) <-- old comment need to change
             int curr_box_class = 0;
             if(num_white_pixels(curr_box)){
                 curr_box_class = 1;

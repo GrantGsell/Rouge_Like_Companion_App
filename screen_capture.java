@@ -1,5 +1,4 @@
 import org.ejml.simple.SimpleMatrix;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -111,7 +110,7 @@ public class screen_capture {
                 "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
                 "ERRAPT"};
         // Read in learned parameters
-        SimpleMatrix learned_parameters = MySQLAccess.read_parameter_cols(characters.length, 811, characters);
+        SimpleMatrix learned_parameters = MySQLAccess.read_parameter_cols(characters.length, 811, characters, false);
 
         // Generate hashtable for incorrect word comparison
         Hashtable<Integer, ArrayList<String>> word_ht =  MySQLAccess.generate_word_hash_table();
@@ -180,10 +179,19 @@ public class screen_capture {
         public void run(){
             System.out.println("Timer Stopped, Imaging Resuming!");
             timer_flag = false;
-            //event_timer.cancel();
         }
     }
 
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    private static void image_method(){
+
+    }
 
 
     /*
@@ -202,7 +210,7 @@ public class screen_capture {
             screen_capture.active_capture(file_name, 50);
         }
         else{
-            int num_pics = 50;
+            int num_pics = 100;
             int delay_time = 250;
             double run_time = (delay_time / 1000.0) * num_pics;
             System.out.printf("Ideal program runtime: %.3f seconds\n", run_time);

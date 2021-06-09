@@ -92,23 +92,17 @@ public class screen_capture {
 
         // Testing variables
         int border_height = 3;
-        int num_border_features = 10800;//7200;
+        int num_border_features = 7200; //10800;
         int num_border_classes = 4;
 
         // Obtain border class base matrix
         double[][] class_border_matrix = ObtainData.average_border_color_per_class(num_border_classes, border_height, num_border_features);
 
-        // Create OneVsAll Object and train it
-        //OneVsAllChar obj = new OneVsAllChar();
-        //obj.top_one_vs_all_training(7979, 810);
-        //SimpleMatrix test = obj.test_learned_parameters;
-        //double[] test_2 = obj.norm_mean;
-       // String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
-         //       "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "0", "4", "7", "'", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
-           //     "ERRAPT"};
+        // Set all possible characters string
         String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
-                "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
-                "ERRAPT"};
+                "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL",
+                "ERRM", "ERRT", "ERRU", "ERRAP", "ERRAPT"};
+
         // Read in learned parameters
         SimpleMatrix learned_parameters = MySQLAccess.read_parameter_cols(characters.length, 811, characters, false);
 
@@ -122,19 +116,10 @@ public class screen_capture {
         while(true){
             // Screenshot
             try {
-                // Obtain image
-                Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-                BufferedImage capture = new Robot().createScreenCapture(screenRect);
-                int x_offset = 592;
-                int width = 400;
-                int y_offset = 767;
-                int height = 77;
+                // Obtain full screen image then cropped images
+                ArrayList<BufferedImage> image_crop = image_method();
 
-                // Crop image to new image
-                BufferedImage crop = capture.getSubimage(x_offset - 25, y_offset, width + 25, height);
-                BufferedImage border_crop = capture.getSubimage(x_offset, y_offset, width, height);
-
-                int prediction = ObtainData.average_percent_difference(border_crop, class_border_matrix, num_border_classes, border_height, num_border_features);
+                int prediction = ObtainData.average_percent_difference(image_crop.get(1), class_border_matrix, num_border_classes, border_height, num_border_features);
 
                 // Set threshold to save if reached
                 if(prediction != 0 && prediction != 4 && !timer_flag){
@@ -146,7 +131,7 @@ public class screen_capture {
                     System.out.println("Notification box found!");
 
                     // Make prediction on the new found notification box.
-                    String guess = OneVsAllChar.test_new_image(characters.length, learned_parameters, "", characters, crop);
+                    String guess = OneVsAllChar.test_new_image(characters.length, learned_parameters, "", characters, image_crop.get(0));
                     if(guess != null) {
                         MySQLAccess.read_from_database(guess, word_ht, custom_ui);
                     }
@@ -158,15 +143,14 @@ public class screen_capture {
 
                     // Write image buffer to file
                     File outputfile = new File(file_path);
-                    ImageIO.write(crop, "jpg", outputfile);
+                    ImageIO.write(image_crop.get(0), "jpg", outputfile);
 
                 }
-                //
 
                 // Time delay between screenshots
                 Thread.sleep(delay_time_ms);
             }
-            catch (AWTException | IOException | InterruptedException e) {
+            catch (IOException | InterruptedException e) {
                 System.out.println(e);
             }
         }
@@ -189,8 +173,27 @@ public class screen_capture {
     Return     :
     Notes      :
      */
-    private static void image_method(){
+    private static ArrayList<BufferedImage> image_method(){
+        ArrayList<BufferedImage> cropped_images = new ArrayList<>();
+        try {
+            // Obtain image
+            Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+            BufferedImage capture = new Robot().createScreenCapture(screenRect);
+            int x_offset = 592;
+            int width = 400;
+            int y_offset = 767;
+            int height = 77;
 
+            // Crop original image to new image
+            BufferedImage crop = capture.getSubimage(x_offset - 25, y_offset, width + 25, height);
+            BufferedImage border_crop = capture.getSubimage(x_offset, y_offset, width, height);
+            cropped_images.add(crop);
+            cropped_images.add(border_crop);
+
+        }catch(AWTException e){
+            System.out.println(e);
+        }
+        return cropped_images;
     }
 
 

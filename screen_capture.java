@@ -92,7 +92,7 @@ public class screen_capture {
 
         // Testing variables
         int border_height = 3;
-        int num_border_features = 7200; //10800;
+        int num_border_features = 7200;
         int num_border_classes = 4;
 
         // Obtain border class base matrix
@@ -117,9 +117,9 @@ public class screen_capture {
             // Screenshot
             try {
                 // Obtain full screen image then cropped images
-                ArrayList<BufferedImage> image_crop = image_method();
-
-                int prediction = ObtainData.average_percent_difference(image_crop.get(1), class_border_matrix, num_border_classes, border_height, num_border_features);
+                BufferedImage image_crop = image_method();
+                BufferedImage border_crop = image_crop.getSubimage( 25, 0, image_crop.getWidth() - 25, image_crop.getHeight());
+                int prediction = ObtainData.average_percent_difference(border_crop, class_border_matrix, num_border_classes, border_height, num_border_features);
 
                 // Set threshold to save if reached
                 if(prediction != 0 && prediction != 4 && !timer_flag){
@@ -131,7 +131,7 @@ public class screen_capture {
                     System.out.println("Notification box found!");
 
                     // Make prediction on the new found notification box.
-                    String guess = OneVsAllChar.test_new_image(characters.length, learned_parameters, "", characters, image_crop.get(0));
+                    String guess = OneVsAllChar.test_new_image(characters.length, learned_parameters, "", characters, image_crop);
                     if(guess != null) {
                         MySQLAccess.read_from_database(guess, word_ht, custom_ui);
                     }
@@ -143,7 +143,7 @@ public class screen_capture {
 
                     // Write image buffer to file
                     File outputfile = new File(file_path);
-                    ImageIO.write(image_crop.get(0), "jpg", outputfile);
+                    ImageIO.write(border_crop, "jpg", outputfile);
 
                 }
 
@@ -173,8 +173,8 @@ public class screen_capture {
     Return     :
     Notes      :
      */
-    private static ArrayList<BufferedImage> image_method(){
-        ArrayList<BufferedImage> cropped_images = new ArrayList<>();
+    private static BufferedImage image_method(){
+        BufferedImage crop = null;
         try {
             // Obtain image
             Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
@@ -185,15 +185,12 @@ public class screen_capture {
             int height = 77;
 
             // Crop original image to new image
-            BufferedImage crop = capture.getSubimage(x_offset - 25, y_offset, width + 25, height);
-            BufferedImage border_crop = capture.getSubimage(x_offset, y_offset, width, height);
-            cropped_images.add(crop);
-            cropped_images.add(border_crop);
+            crop = capture.getSubimage(x_offset - 25, y_offset, width + 25, height);
 
         }catch(AWTException e){
             System.out.println(e);
         }
-        return cropped_images;
+        return crop;
     }
 
 

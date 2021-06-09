@@ -230,7 +230,7 @@ public class ObtainData {
                         break;
                 }
                 for (int i = 0; i < num_borders; i++) {
-                    int[] temp = new int[10800];//int[7200];
+                    int[] temp = new int[7200];
                     String file_path = base_file_path + Integer.toString(i) + ".jpg";
                     BufferedImage image = ImageIO.read(new File(file_path));
 

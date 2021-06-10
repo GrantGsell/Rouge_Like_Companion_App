@@ -1,9 +1,13 @@
 import org.ejml.simple.SimpleMatrix;
+
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 import java.io.FileWriter;
 import com.opencsv.CSVWriter;
 import com.google.common.primitives.Doubles;
+
+import javax.imageio.ImageIO;
 
 
 public class NeuralNetwork {
@@ -24,6 +28,9 @@ public class NeuralNetwork {
     private static final int num_labels = characters.length;
     private static final double lambda = 0.05;
     private static final double alpha = 10000;
+    public static double[] norm_mean;
+    public static double[] norm_std;
+    public static ArrayList<Integer> norm_constant_columns;
 
 
     /*
@@ -758,6 +765,252 @@ public class NeuralNetwork {
         return new double[] {macro_f1_score, weighted_f1_score};
     }
 
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static String test_new_image(String test_file_path, String[] class_char_arr, BufferedImage new_image){
+        try {
+            int sw_height = 18;
+            int sw_width =  15;
+            int sw_delta = 5;
+
+            // Obtain new image
+            BufferedImage curr_ex_image;
+            if(test_file_path.equals("")){
+                curr_ex_image = new_image;
+            }else{
+                curr_ex_image = ImageIO.read(new File(test_file_path));
+            }
+
+            curr_ex_image = curr_ex_image.getSubimage(0,16, curr_ex_image.getWidth(), curr_ex_image.getHeight()-16);
+
+            // Isolate the text-box
+            curr_ex_image = ObtainData.text_box_recognition(curr_ex_image, sw_height, sw_width, sw_delta);
+
+            // Perform image pre-processing
+            curr_ex_image = ObtainData.background_processing(curr_ex_image);
+
+            // Obtain character segmentation arraylist
+            ArrayList<Integer> char_seg = ObtainData.character_segmentation(curr_ex_image, sw_height, sw_width, sw_delta - 3);
+
+            // Set String array for prediction results
+            String[] str_pred = new String[char_seg.size()];
+            int str_arr_idx = 0;
+            for(int curr_idx = 0; curr_idx < char_seg.size(); curr_idx++) {
+                // Obtain a sliding window box
+                BufferedImage curr_char = curr_ex_image.getSubimage(char_seg.get(curr_idx), 0, sw_width, sw_height);
+
+                // Obtain sub-box pixel data
+                double[] pixel_data = ObtainData.get_image_rgb_data_double(curr_char);
+
+                // Transform the data into a Simple Matrix object
+                SimpleMatrix new_data_matrix = new SimpleMatrix(new double[][]{pixel_data});
+
+                // Normalize the new example data
+                double[] mean = new double[810];
+                double[] std = new double[810];
+                ArrayList<Integer> const_cols = new ArrayList<Integer>();
+                MySQLAccess.read_mean_std_const_cols(810, mean, std, const_cols);
+                normalize_input_data(new_data_matrix, mean, std, const_cols);
+
+                // Make new prediction
+                //double prediction = predict_one_vs_all(learned_parameters, new_data_matrix);
+                double prediction = NeuralNetwork.test_new_char(new_data_matrix);
+
+                // Translate prediction into associated character
+                int predict_idx = (int) prediction;
+                String char_prediction = class_char_arr[predict_idx];
+                str_pred[str_arr_idx] = char_prediction;
+                str_arr_idx += 1;
+            }
+
+            // Transform character array into string
+            StringBuilder object_name = new StringBuilder();
+            boolean new_word_flag = false;
+            for(int i = 0; i < str_pred.length; i++){
+                if(str_pred[i].equals("SPACE")){
+                    object_name.append("_");
+                    new_word_flag = true;
+                }
+                else if(str_pred[i].equals("ERRAP") || str_pred[i].equals("ERRAPT")){
+                    object_name.append("'");
+                }
+                else if(str_pred[i].equals("ERRL") || str_pred[i].equals("ERRN") || str_pred[i].equals("ERRM") ||
+                        str_pred[i].equals("ERRT") || str_pred[i].equals("ERRU")){
+
+                }
+                else if(i == 0 || new_word_flag){
+                    object_name.append(str_pred[i]);
+                    new_word_flag = false;
+                }
+                else{
+                    object_name.append(str_pred[i].toLowerCase());
+                }
+            }
+            System.out.format("Object Found: %s\n", object_name.toString());
+            if(object_name.toString().equals("Ammo") || object_name.toString().equals("Cell_Key")) return null;
+            return object_name.toString();
+        }
+        catch (IOException e){
+            System.out.println(e);
+        }
+        return "";
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+    */
+    public static void read_data(int num_examples, SimpleMatrix input_data, String[][] output_data, String input_file_name, String output_file_name){
+        try{
+            String line = "";
+            if (input_file_name != "") {
+                // Read in Input data
+                BufferedReader br = new BufferedReader(new FileReader(input_file_name)); //"src/input_data_x.csv"));
+                int row = 0;
+                while (row < num_examples && (line = br.readLine()) != null) {
+                    //line = br.readLine();
+                    String[] data = line.split(",");
+                    for (int col = 0; col < data.length; col++) {
+                        double new_data = Double.parseDouble(data[col]);
+                        input_data.set(row, col, new_data);
+                    }
+                    row += 1;
+
+                }
+            }
+
+            // Read Output data
+            BufferedReader br_y = new BufferedReader(new FileReader(output_file_name));
+            int row_y = 0;
+            while(row_y < num_examples && (line = br_y.readLine()) != null){
+                String[] data = line.split(",");
+                output_data[row_y][0] = data[0];
+                row_y += 1;
+            }
+        }
+        catch(IOException e){
+            System.out.println(e);
+        }
+
+    }
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static void create_training_data_normalization_arrays(SimpleMatrix input_data){
+        // Relevant variables
+        int m = input_data.numRows();
+        int n = input_data.numCols();
+
+        // Mean and standard deviation arrays
+        double[] mean = new double[n];
+        double[] std = new double[n];
+        ArrayList<Integer> constant_columns = new ArrayList<Integer>();
+
+        // Find the mean value for each feature
+        for(int col = 0; col < n; col++){
+            // Obtain column matrix
+            SimpleMatrix curr_column = input_data.extractMatrix(0, m, col, col + 1);
+
+            // Calculate total sum of feature column
+            double curr_column_sum =  curr_column.elementSum();
+            if(curr_column_sum == 0.0) {
+                constant_columns.add(col);
+            }
+
+            // Calculate mean of feature column
+            mean[col] = curr_column_sum / (double) m;
+
+            // Obtain column data in array form
+            double[] curr_column_arr =  curr_column.getDDRM().data;
+
+            // Calculate the standard deviation of the current column
+            std[col] = standard_deviation(curr_column_arr);
+        }
+
+        // Store the mean,std in the object fields
+        norm_constant_columns = constant_columns;
+        norm_mean = mean;
+        norm_std = std;
+
+        // Create the columns for the MySQL table
+        MySQLAccess.create_constant_column_columns(constant_columns);
+        MySQLAccess.create_parameters_mean_std_table_and_columns(n);
+
+        // Store the mean, std in the MySQL database
+        MySQLAccess.insert_mean_std_column_data("mean", n, mean);
+        MySQLAccess.insert_mean_std_column_data("std", n, std);
+        MySQLAccess.insert_const_cols_data(constant_columns);
+    }
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static double standard_deviation(double[] array) {
+        double sum = 0.0, standardDeviation = 0.0;
+        int length = array.length;
+
+        for(double num : array) {
+            sum += num;
+        }
+
+        double mean = sum/length;
+
+        for(double num: array) {
+            standardDeviation += Math.pow(num - mean, 2);
+        }
+
+        return Math.sqrt(standardDeviation/ (length-1));
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static void normalize_input_data(SimpleMatrix input_data, double[] mean_arr, double[] std_arr, ArrayList<Integer> constant_columns){
+        // Relevant variables
+        int m = input_data.numRows();
+        int n = input_data.numCols();
+
+        // Apply data normalization to the input data matrix
+        for(int col = 0; col < n; col++){
+            if(!constant_columns.contains(col)) {
+                // Obtain column matrix
+                SimpleMatrix curr_column = input_data.extractMatrix(0, m, col, col + 1);
+
+                // Subtract the mean from each element
+                curr_column = curr_column.minus(mean_arr[col]);
+
+                // Divide each element by the standard deviation of the column
+                curr_column = curr_column.divide(std_arr[col]);
+
+                // Replace the normalized data back into the input data matrix
+                input_data.insertIntoThis(0, col, curr_column);
+            }
+        }
+    }
+
 
     /*
     Name       :
@@ -780,7 +1033,7 @@ public class NeuralNetwork {
         SimpleMatrix useless_data = new SimpleMatrix(num_examples, 1);
         String input_file_name_useless = "";
         String output_file_name = "text_box_recog/output_text_box_recog_data.csv";
-        OneVsAllChar.read_data(num_examples, useless_data, output_data, input_file_name_useless, output_file_name);
+        read_data(num_examples, useless_data, output_data, input_file_name_useless, output_file_name);
 
         // Transform the output data from strings into integers
         Hashtable<String, Integer> char_to_int_map = new Hashtable<>();
@@ -802,7 +1055,7 @@ public class NeuralNetwork {
         MySQLAccess.clear_and_initialize();
 
         // Normalize the input data
-        OneVsAllChar.create_training_data_normalization_arrays(input_data);
+        create_training_data_normalization_arrays(input_data);
 
         // Obtain the normalized data
         double[] mean = new double[num_features];
@@ -811,7 +1064,7 @@ public class NeuralNetwork {
         MySQLAccess.read_mean_std_const_cols(num_features, mean, std, const_cols);
 
         // Normalize the training_data
-        OneVsAllChar.normalize_input_data(input_data, mean, std, const_cols);
+        normalize_input_data(input_data, mean, std, const_cols);
 
         // Learn the parameters
         String parameter_file_path = "src/parameters.csv";

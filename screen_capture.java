@@ -153,6 +153,13 @@ public class screen_capture {
     }
 
 
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
     static class FlagSetTask extends TimerTask{
         public void run(){
             System.out.println("Timer Stopped, Imaging Resuming!");
@@ -160,6 +167,7 @@ public class screen_capture {
         }
     }
 
+    
     /*
     Name       :
     Purpose    :

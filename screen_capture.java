@@ -52,22 +52,17 @@ public class screen_capture {
             // Screenshot
             try {
                 // Obtain image
-                Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-                BufferedImage capture = new Robot().createScreenCapture(screenRect);
-                int x_offset = 592;
-                int width = 400;
-                int y_offset = 767;
-                int height = 77;
-                BufferedImage crop = capture.getSubimage(x_offset, y_offset, width, height);
+                BufferedImage image_crop = image_method();
+                image_crop = image_crop.getSubimage( 25, 0, image_crop.getWidth() - 25, image_crop.getHeight());
 
                 // Write image buffer to file
                 File outputfile = new File(file_path);
-                ImageIO.write(crop, "jpg", outputfile);
+                ImageIO.write(image_crop, "jpg", outputfile);
 
                 // Time delay between screenshots
                 Thread.sleep(delay_time_ms);
             }
-            catch (AWTException | IOException | InterruptedException e) {
+            catch (IOException | InterruptedException e) {
                 System.out.println(e);
             }
         }
@@ -81,7 +76,7 @@ public class screen_capture {
     Return     :
     Notes      :
      */
-    public static void active_capture(String file_name, int delay_time_ms){
+    public static void active_capture(String file_name, int delay_time_ms, boolean collect_data){
         // Obtain the cwd
         String cwd = System.getProperty("user.dir") + "\\screenshots\\" + file_name + "_";
 
@@ -126,21 +121,17 @@ public class screen_capture {
                         MySQLAccess.read_from_database(guess, word_ht, custom_ui);
                     }
 
-                    // Generate iterative file path
-                    String index = Integer.toString(itr);
-                    String file_path = cwd + index + ".jpg";
-                    itr += 1;
-
-                    // Write image buffer to file
-                    File outputfile = new File(file_path);
-                    ImageIO.write(border_crop, "jpg", outputfile);
-
+                    // Collect notification box examples
+                    if(collect_data) {
+                        image_data_collection(itr, image_crop);
+                        itr += 1;
+                    }
                 }
 
                 // Time delay between screenshots
                 Thread.sleep(delay_time_ms);
             }
-            catch (IOException | InterruptedException e) {
+            catch (InterruptedException e) {
                 System.out.println(e);
             }
         }
@@ -161,6 +152,31 @@ public class screen_capture {
             System.out.println("Timer Stopped, Imaging Resuming!");
             timer_flag = false;
         }
+    }
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    private static void image_data_collection(int file_number, BufferedImage notification_box) {
+        try {
+            // Obtain the cwd and add file name
+            String cwd = System.getProperty("user.dir") + "\\screenshots\\temp_";
+
+            // Generate iterative file path
+            String index = Integer.toString(file_number);
+            String file_path = cwd + index + ".jpg";
+
+            // Write image buffer to file
+            File outputfile = new File(file_path);
+            ImageIO.write(notification_box, "jpg", outputfile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     
@@ -236,7 +252,7 @@ public class screen_capture {
         boolean active_capture = true;
 
         if(active_capture) {
-            screen_capture.active_capture(file_name, 50);
+            screen_capture.active_capture(file_name, 50, false);
         }
         else{
             // Passive screen captures for data collection

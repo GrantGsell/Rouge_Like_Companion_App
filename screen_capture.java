@@ -103,9 +103,6 @@ public class screen_capture {
                 "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL",
                 "ERRM", "ERRT", "ERRU", "ERRAP", "ERRAPT"};
 
-        // Read in learned parameters
-        SimpleMatrix learned_parameters = MySQLAccess.read_parameter_cols(characters.length, 811, characters, false);
-
         // Generate hashtable for incorrect word comparison
         Hashtable<Integer, ArrayList<String>> word_ht =  MySQLAccess.generate_word_hash_table();
 
@@ -127,11 +124,8 @@ public class screen_capture {
                     timer_flag = true;
                     event_timer.schedule(new FlagSetTask(), 2000);
 
-                    // Print out message
-                    System.out.println("Notification box found!");
-
                     // Make prediction on the new found notification box.
-                    String guess = OneVsAllChar.test_new_image(characters.length, learned_parameters, "", characters, image_crop);
+                    String guess = NeuralNetwork.test_new_image("", characters, image_crop);
                     if(guess != null) {
                         MySQLAccess.read_from_database(guess, word_ht, custom_ui);
                     }
@@ -175,22 +169,53 @@ public class screen_capture {
      */
     private static BufferedImage image_method(){
         BufferedImage crop = null;
+
+        // Crop rectangle variables
+        int x_offset = 567;
+        int width = 425;
+        int y_offset = 767;
+        int height = 77;
+        int ideal_img_height = 864;
+        int ideal_img_width = 1536;
+
         try {
             // Obtain image
             Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
             BufferedImage capture = new Robot().createScreenCapture(screenRect);
-            int x_offset = 592;
-            int width = 400;
-            int y_offset = 767;
-            int height = 77;
 
-            // Crop original image to new image
-            crop = capture.getSubimage(x_offset - 25, y_offset, width + 25, height);
+            // Resize image to fit crop offsets
+            if(capture.getWidth() != ideal_img_width && capture.getHeight() != ideal_img_height) {
+                capture = image_resize(capture, ideal_img_width, ideal_img_height);
+            }
+
+            // Crop original image to isolate notification box
+            crop = capture.getSubimage(x_offset, y_offset, width, height);
 
         }catch(AWTException e){
             System.out.println(e);
         }
         return crop;
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    private static BufferedImage image_resize(BufferedImage img, int width, int height){
+        // Set new image containers
+        Image temp = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        BufferedImage img_resize = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        // Resize old image into new image
+        Graphics2D g2d = img_resize.createGraphics();
+        g2d.drawImage(temp, 0, 0, null);
+        g2d.dispose();
+
+        return img_resize;
     }
 
 

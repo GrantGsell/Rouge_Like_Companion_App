@@ -1,5 +1,6 @@
 import org.ejml.simple.SimpleMatrix;
 import javax.imageio.ImageIO;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -25,7 +26,7 @@ public class screen_capture {
                  delay_time_ms, a integer denoting the time interval between
                     screen captures in milliseconds.
     Return     : None
-    Notes      : None
+    Notes      : This method is used to collect border data for when its known that an item will be picked up.
      */
     public static void screenshot(String file_name, int num_screenshots, int delay_time_ms) {
         // Obtain the cwd
@@ -37,9 +38,8 @@ public class screen_capture {
         // Take n screenshots
         for(int i = 0; i < num_screenshots; i++){
             if(i % 100 == 0 && i != 0){
-                int temp_break_point = 5;
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(300);
                 }
                 catch (Exception e){
                     System.out.println(e);
@@ -73,6 +73,7 @@ public class screen_capture {
         }
     }
 
+
     /*
     Name       : active_capture
     Purpose    : To actively take screenshots and look for notification boxes.
@@ -90,13 +91,8 @@ public class screen_capture {
         // Iterative file index
         int itr = 0;
 
-        // Testing variables
-        int border_height = 3;
-        int num_border_features = 7200;
-        int num_border_classes = 4;
-
         // Obtain border class base matrix
-        double[][] class_border_matrix = ObtainData.average_border_color_per_class(num_border_classes, border_height, num_border_features);
+        double[][] class_border_matrix = BorderData.average_border_values_per_class();
 
         // Set all possible characters string
         String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
@@ -116,10 +112,10 @@ public class screen_capture {
                 // Obtain full screen image then cropped images
                 BufferedImage image_crop = image_method();
                 BufferedImage border_crop = image_crop.getSubimage( 25, 0, image_crop.getWidth() - 25, image_crop.getHeight());
-                int prediction = ObtainData.average_percent_difference(border_crop, class_border_matrix, num_border_classes, border_height, num_border_features);
+                int border_class = BorderData.get_border_class(border_crop, class_border_matrix);
 
                 // Set threshold to save if reached
-                if(prediction != 0 && prediction != 4 && !timer_flag){
+                if(border_class != 0 && border_class != 4 && !timer_flag){
                     // Set timer flag high and start the timer
                     timer_flag = true;
                     event_timer.schedule(new FlagSetTask(), 2000);
@@ -243,22 +239,11 @@ public class screen_capture {
             screen_capture.active_capture(file_name, 50);
         }
         else{
+            // Passive screen captures for data collection
             int num_pics = 100;
             int delay_time = 250;
-            double run_time = (delay_time / 1000.0) * num_pics;
-            System.out.printf("Ideal program runtime: %.3f seconds\n", run_time);
             screen_capture obj = new screen_capture();
-
-            // Time and execute the function
-            double start = System.currentTimeMillis();
             obj.screenshot(file_name, num_pics, delay_time);
-            double end = System.currentTimeMillis();
-            double time_delta = ((end - start) / 1000.0);
-            System.out.printf("Actual program runtime: %.3f seconds\n", time_delta);
-
-            // Determine time taken for one screenshot
-            double screenshot_overhead = (time_delta - run_time) / num_pics;
-            System.out.printf("Time for 1 screenshot: %.3f seconds\n", screenshot_overhead);
         }
     }
 }

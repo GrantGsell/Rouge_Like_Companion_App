@@ -1,6 +1,4 @@
-import org.ejml.simple.SimpleMatrix;
 import javax.imageio.ImageIO;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -13,6 +11,9 @@ import java.util.TimerTask;
 public class screen_capture {
     public static boolean timer_flag = false;
     public static Timer event_timer = new Timer();
+    private static final String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+            "O", "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE",
+            "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP", "ERRAPT"};
 
     /*
     Name       : screenshot
@@ -28,10 +29,7 @@ public class screen_capture {
     Return     : None
     Notes      : This method is used to collect border data for when its known that an item will be picked up.
      */
-    public static void screenshot(String file_name, int num_screenshots, int delay_time_ms) {
-        // Obtain the cwd
-        String cwd = System.getProperty("user.dir") + "\\screenshots\\" + file_name + "_";
-
+    public static void screenshot(int num_screenshots, int delay_time_ms) {
         // Take infinite screenshots
         System.out.println("Imaging Started");
 
@@ -42,12 +40,9 @@ public class screen_capture {
                     Thread.sleep(300);
                 }
                 catch (Exception e){
-                    System.out.println(e);
+                    e.printStackTrace();
                 }
             }
-            // Generate iterative file path
-            String index = Integer.toString(i);
-            String file_path = cwd + index + ".jpg";
 
             // Screenshot
             try {
@@ -56,14 +51,13 @@ public class screen_capture {
                 image_crop = image_crop.getSubimage( 25, 0, image_crop.getWidth() - 25, image_crop.getHeight());
 
                 // Write image buffer to file
-                File outputfile = new File(file_path);
-                ImageIO.write(image_crop, "jpg", outputfile);
+                image_data_collection(i, image_crop);
 
                 // Time delay between screenshots
                 Thread.sleep(delay_time_ms);
             }
-            catch (IOException | InterruptedException e) {
-                System.out.println(e);
+            catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -73,13 +67,14 @@ public class screen_capture {
     Name       : active_capture
     Purpose    : To actively take screenshots and look for notification boxes.
     Parameters :
-    Return     :
-    Notes      :
+                 delay_time_ms, an int denoting the time between each screenshot being taken.
+                 collect_data, a boolean denoting if the image should be saved to a file location so it can be used as
+                    a training example.
+    Return     : None.
+    Notes      : This imaging function will continue as long as the application is active. Additionally, images taken
+                    outside of the game have not affected the application.
      */
-    public static void active_capture(String file_name, int delay_time_ms, boolean collect_data){
-        // Obtain the cwd
-        String cwd = System.getProperty("user.dir") + "\\screenshots\\" + file_name + "_";
-
+    public static void active_capture(int delay_time_ms, boolean collect_data){
         // Take infinite screenshots
         System.out.println("Imaging Started");
 
@@ -88,11 +83,6 @@ public class screen_capture {
 
         // Obtain border class base matrix
         double[][] class_border_matrix = BorderData.average_border_values_per_class();
-
-        // Set all possible characters string
-        String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
-                "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL",
-                "ERRM", "ERRT", "ERRU", "ERRAP", "ERRAPT"};
 
         // Generate hashtable for incorrect word comparison
         Hashtable<Integer, ArrayList<String>> word_ht =  MySQLAccess.generate_word_hash_table();
@@ -107,6 +97,8 @@ public class screen_capture {
                 // Obtain full screen image then cropped images
                 BufferedImage image_crop = image_method();
                 BufferedImage border_crop = image_crop.getSubimage( 25, 0, image_crop.getWidth() - 25, image_crop.getHeight());
+
+                // Determine if the current image contains a notification box
                 int border_class = BorderData.get_border_class(border_crop, class_border_matrix);
 
                 // Set threshold to save if reached
@@ -132,7 +124,7 @@ public class screen_capture {
                 Thread.sleep(delay_time_ms);
             }
             catch (InterruptedException e) {
-                System.out.println(e);
+                e.printStackTrace();
             }
         }
 
@@ -141,11 +133,12 @@ public class screen_capture {
 
 
     /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
+    Name       : FlagSetTask (class), run (method)
+    Purpose    : To set a timer task that will delay another image from being processed for 2 second intervals.
+    Parameters : None
+    Return     : None
+    Notes      : The 2 second length is determined in the class call. Additionally, once completed the timer flag will
+                    be set low, thus allowing another image to be processed.
      */
     static class FlagSetTask extends TimerTask{
         public void run(){
@@ -155,11 +148,13 @@ public class screen_capture {
     }
 
     /*
-    Name       :
-    Purpose    :
+    Name       : image_data_collection
+    Purpose    : To take the notification box images and write them to a file location to be used to collect examples.
     Parameters :
-    Return     :
-    Notes      :
+                 file_number, an int that is used to generate an iterative file path name.
+                 notification_box, the BufferedImage object that is written to the file location.
+    Return     : None.
+    Notes      : None.
      */
     private static void image_data_collection(int file_number, BufferedImage notification_box) {
         try {
@@ -182,10 +177,13 @@ public class screen_capture {
     
     /*
     Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
+    Purpose    : To take a screenshot of the users game and crop the image to obtain only the area in which a
+                    notification box would appear.
+    Parameters : None
+    Return     : A BufferedImage object containing only the portions of the original image that correspond to where a
+                    notification box would appear.
+    Notes      : If the screen capture does not have the dimensions of 1536 x 864, the image is resized to fit those
+                    dimensions.
      */
     private static BufferedImage image_method(){
         BufferedImage crop = null;
@@ -212,18 +210,22 @@ public class screen_capture {
             crop = capture.getSubimage(x_offset, y_offset, width, height);
 
         }catch(AWTException e){
-            System.out.println(e);
+            e.printStackTrace();
         }
         return crop;
     }
 
 
     /*
-    Name       :
-    Purpose    :
+    Name       : image_resize
+    Purpose    : To resize a screen capture to have the dimensions width x height, which is necessary based on the
+                    platform the training data was derived from.
     Parameters :
-    Return     :
-    Notes      :
+                 img, a BufferedImage object denoting the original screen capture that needs to be resized.
+                 width, an int denoting the new width the image will be scaled to.
+                 height, an int denoting the new height the image will be scaled to.
+    Return     : A BufferedImage object denoting the resized old image.
+    Notes      : None.
      */
     private static BufferedImage image_resize(BufferedImage img, int width, int height){
         // Set new image containers
@@ -240,26 +242,25 @@ public class screen_capture {
 
 
     /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
+    Name       : main
+    Purpose    : Client testing code.
+    Parameters : Standard main arguments.
+    Return     : None
+    Notes      : Set active capture to true to perform continuous imaging, set to false to perform border data
+                    collection.
      */
     public static void main(String[] args) {
         // Normal Running code
-        String file_name = "temp";
         boolean active_capture = true;
 
         if(active_capture) {
-            screen_capture.active_capture(file_name, 50, false);
+            screen_capture.active_capture(50, false);
         }
         else{
             // Passive screen captures for data collection
             int num_pics = 100;
             int delay_time = 250;
-            screen_capture obj = new screen_capture();
-            obj.screenshot(file_name, num_pics, delay_time);
+            screen_capture.screenshot(num_pics, delay_time);
         }
     }
 }

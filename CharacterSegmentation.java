@@ -1,3 +1,5 @@
+
+import edu.stanford.nlp.util.Pair;
 import org.ejml.simple.SimpleMatrix;
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -7,6 +9,31 @@ import java.util.ArrayList;
 
 
 public class CharacterSegmentation {
+
+    /*
+    Name       : top_character_segmentation
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static Pair<ArrayList<Integer>, BufferedImage> top_character_segmentation(BufferedImage image){
+        // Sliding window dimensions and step size
+        int sw_height = 18, sw_width = 15, sw_delta = 5;
+
+        // Isolate text line from notification box
+        image = image.getSubimage(0,16, image.getWidth(), image.getHeight()-16);
+
+        // Isolate the text-box
+        image = isolate_text_box(image, sw_height, sw_width, sw_delta);
+
+        // Perform image pre-processing
+        background_processing(image);
+
+        // Obtain character segmentation arraylist
+        return new Pair<ArrayList<Integer>, BufferedImage> (character_segmentation(image, sw_height), image);
+    }
+
 
     /*
     Name       : get_image_rgb_data_double

@@ -1,3 +1,4 @@
+import edu.stanford.nlp.util.Pair;
 import org.ejml.simple.SimpleMatrix;
 
 import java.awt.image.BufferedImage;
@@ -786,16 +787,10 @@ public class NeuralNetwork {
                 curr_ex_image = ImageIO.read(new File(test_file_path));
             }
 
-            curr_ex_image = curr_ex_image.getSubimage(0,16, curr_ex_image.getWidth(), curr_ex_image.getHeight()-16);
-
-            // Isolate the text-box
-            curr_ex_image = CharacterSegmentation.isolate_text_box(curr_ex_image, sw_height, sw_width, sw_delta);
-
-            // Perform image pre-processing
-            CharacterSegmentation.background_processing(curr_ex_image);
-
-            // Obtain character segmentation arraylist
-            ArrayList<Integer> char_seg = CharacterSegmentation.character_segmentation(curr_ex_image, sw_height);
+            // Perform Character Segmentation
+            Pair<ArrayList<Integer>, BufferedImage> pair =  CharacterSegmentation.top_character_segmentation(curr_ex_image);
+            ArrayList<Integer> char_seg = pair.first();
+            curr_ex_image = pair.second();
 
             // Set String array for prediction results
             String[] str_pred = new String[char_seg.size()];
@@ -818,8 +813,7 @@ public class NeuralNetwork {
                 normalize_input_data(new_data_matrix, mean, std, const_cols);
 
                 // Make new prediction
-                //double prediction = predict_one_vs_all(learned_parameters, new_data_matrix);
-                double prediction = NeuralNetwork.test_new_char(new_data_matrix);
+                double prediction = test_new_char(new_data_matrix);
 
                 // Translate prediction into associated character
                 int predict_idx = (int) prediction;

@@ -1,4 +1,3 @@
-
 import edu.stanford.nlp.util.Pair;
 import org.ejml.simple.SimpleMatrix;
 import javax.imageio.ImageIO;
@@ -12,10 +11,12 @@ public class CharacterSegmentation {
 
     /*
     Name       : top_character_segmentation
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
+    Purpose    : To isolate the objects title text via crop, and determine the column indices for character
+                    segmentation.
+    Parameters : image, a BufferedImage object denoting a valid notification box.
+    Return     : A pair, whose key is an ArrayList of column indices, and whose value is the cropped image that isolated
+                    the objects title text.
+    Notes      : None.
      */
     public static Pair<ArrayList<Integer>, BufferedImage> top_character_segmentation(BufferedImage image){
         // Sliding window dimensions and step size

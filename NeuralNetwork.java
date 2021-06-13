@@ -789,13 +789,13 @@ public class NeuralNetwork {
             curr_ex_image = curr_ex_image.getSubimage(0,16, curr_ex_image.getWidth(), curr_ex_image.getHeight()-16);
 
             // Isolate the text-box
-            curr_ex_image = ObtainData.text_box_recognition(curr_ex_image, sw_height, sw_width, sw_delta);
+            curr_ex_image = CharacterSegmentation.isolate_text_box(curr_ex_image, sw_height, sw_width, sw_delta);
 
             // Perform image pre-processing
-            curr_ex_image = ObtainData.background_processing(curr_ex_image);
+            CharacterSegmentation.background_processing(curr_ex_image);
 
             // Obtain character segmentation arraylist
-            ArrayList<Integer> char_seg = ObtainData.character_segmentation(curr_ex_image, sw_height, sw_width, sw_delta - 3);
+            ArrayList<Integer> char_seg = CharacterSegmentation.character_segmentation(curr_ex_image, sw_height);
 
             // Set String array for prediction results
             String[] str_pred = new String[char_seg.size()];
@@ -805,7 +805,7 @@ public class NeuralNetwork {
                 BufferedImage curr_char = curr_ex_image.getSubimage(char_seg.get(curr_idx), 0, sw_width, sw_height);
 
                 // Obtain sub-box pixel data
-                double[] pixel_data = ObtainData.get_image_rgb_data_double(curr_char);
+                double[] pixel_data = CharacterSegmentation.get_image_rgb_data_double(curr_char);
 
                 // Transform the data into a Simple Matrix object
                 SimpleMatrix new_data_matrix = new SimpleMatrix(new double[][]{pixel_data});
@@ -1023,9 +1023,8 @@ public class NeuralNetwork {
         String input_file_name = "text_box_recog/input_text_box_recog_data.csv";
 
         // Initialize input/output matrices
-        SimpleMatrix input_data = ObtainData.obtain_sliding_window_data(sliding_window_height, sliding_window_width, sliding_window_delta,
-                class_num, ex_idx, num_examples, example_width,
-                input_file_name, "");
+        SimpleMatrix input_data = CharacterSegmentation.obtain_sliding_window_data(sliding_window_height, sliding_window_width, sliding_window_delta,
+                class_num, ex_idx);
         String[][] output_data = new String[num_examples][1];
         SimpleMatrix learned_parameters = new SimpleMatrix(num_labels, num_features + 1);
 

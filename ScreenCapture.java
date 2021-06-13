@@ -8,7 +8,7 @@ import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class screen_capture {
+public class ScreenCapture {
     public static boolean timer_flag = false;
     public static Timer event_timer = new Timer();
     private static final String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
@@ -245,7 +245,7 @@ public class screen_capture {
     Name       : main
     Purpose    : Client testing code.
     Parameters : Standard main arguments.
-    Return     : None
+    Return     : None.
     Notes      : Set active capture to true to perform continuous imaging, set to false to perform border data
                     collection.
      */
@@ -254,13 +254,13 @@ public class screen_capture {
         boolean active_capture = true;
 
         if(active_capture) {
-            screen_capture.active_capture(50, false);
+            ScreenCapture.active_capture(50, false);
         }
         else{
             // Passive screen captures for data collection
             int num_pics = 100;
             int delay_time = 250;
-            screen_capture.screenshot(num_pics, delay_time);
+            ScreenCapture.screenshot(num_pics, delay_time);
         }
     }
 }

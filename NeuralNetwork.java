@@ -1,6 +1,5 @@
 import edu.stanford.nlp.util.Pair;
 import org.ejml.simple.SimpleMatrix;
-
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
@@ -53,8 +52,52 @@ public class NeuralNetwork {
     Return     :
     Notes      :
      */
-    public static void learn_parameters(){
+    public static void top_learn_parameters(){
+        // Initialize input/output matrices
+        SimpleMatrix input_data = CharacterSegmentation.obtain_sliding_window_data(sliding_window_height, sliding_window_width, sliding_window_delta,
+                class_num, ex_idx);
+        String[][] output_data = new String[num_examples][1];
 
+        // Read input/output data
+        SimpleMatrix useless_data = new SimpleMatrix(num_examples, 1);
+        String input_file_name_useless = "";
+        String output_file_name = "text_box_recog/output_text_box_recog_data.csv";
+        read_data(num_examples, useless_data, output_data, input_file_name_useless, output_file_name);
+
+        // Transform the output data from strings into integers
+        Hashtable<String, Integer> char_to_int_map = new Hashtable<>();
+        for(int i = 0; i < characters.length; i++){
+            char_to_int_map.put(characters[i], i);
+        }
+        double[] output_nums = new double[input_data.numRows()];
+        int[] output_nums_int = new int[input_data.numRows()];
+        for(int i = 0; i < output_nums.length; i++){
+            output_nums[i] = (double) char_to_int_map.get(output_data[i][0]);
+            output_nums_int[i] = char_to_int_map.get(output_data[i][0]);
+        }
+
+        // Transform output data into a simple matrix
+        SimpleMatrix output_mat = new SimpleMatrix(new double[][]{output_nums});
+        output_mat = output_mat.transpose();
+
+        // Clear and initialize the MySQL tables before obtaining the necessary data
+        MySQLAccess.clear_and_initialize();
+
+        // Normalize the input data
+        create_training_data_normalization_arrays(input_data);
+
+        // Obtain the normalized data
+        double[] mean = new double[num_features];
+        double[] std = new double[num_features];
+        ArrayList<Integer> const_cols = new ArrayList<Integer>();
+        MySQLAccess.read_mean_std_const_cols(num_features, mean, std, const_cols);
+
+        // Normalize the training_data
+        normalize_input_data(input_data, mean, std, const_cols);
+
+        // Learn the parameters
+        String parameter_file_path = "src/parameters.csv";
+        NeuralNetwork.learn_parameters_via_gd(input_data, output_mat, input_layer_size, hidden_layer_size, num_labels, lambda, alpha, parameter_file_path);
     }
 
 
@@ -465,9 +508,7 @@ public class NeuralNetwork {
         SimpleMatrix initial_theta_2 = random_initialize_weights(hidden_layer_size, num_labels);
         SimpleMatrix initial_theta_comb = unroll_matrices(initial_theta_1, initial_theta_2);
 
-
-        // set alpha
-        //double alpha = 0.5;//0.05;//0.5;// 1.5;//1.5; //3.0;//1.5; // 0.5
+        // Set variables for console printing
         int iteration = 0;
         double prev_cost = 30;
 
@@ -1014,13 +1055,10 @@ public class NeuralNetwork {
     Notes      :
      */
     public static void main(String[] args){
-        String input_file_name = "text_box_recog/input_text_box_recog_data.csv";
-
         // Initialize input/output matrices
         SimpleMatrix input_data = CharacterSegmentation.obtain_sliding_window_data(sliding_window_height, sliding_window_width, sliding_window_delta,
                 class_num, ex_idx);
         String[][] output_data = new String[num_examples][1];
-        SimpleMatrix learned_parameters = new SimpleMatrix(num_labels, num_features + 1);
 
         // Read input/output data
         SimpleMatrix useless_data = new SimpleMatrix(num_examples, 1);
@@ -1053,7 +1091,7 @@ public class NeuralNetwork {
         // Obtain the normalized data
         double[] mean = new double[num_features];
         double[] std = new double[num_features];
-        ArrayList<Integer> const_cols = new ArrayList<Integer>();
+        ArrayList<Integer> const_cols = new ArrayList<>();
         MySQLAccess.read_mean_std_const_cols(num_features, mean, std, const_cols);
 
         // Normalize the training_data
@@ -1062,7 +1100,6 @@ public class NeuralNetwork {
         // Learn the parameters
         String parameter_file_path = "src/parameters.csv";
         NeuralNetwork.learn_parameters_via_gd(input_data, output_mat, input_layer_size, hidden_layer_size, num_labels, lambda, alpha, parameter_file_path);
-        //NeuralNetwork.learn_parameters(input_data, output_data, input_layer_size, hidden_layer_size, num_labels, lambda);
 
         // Read in parameter data
         int theta_size = (hidden_layer_size * (input_layer_size + 1)) + (num_labels * (hidden_layer_size + 1));
@@ -1083,7 +1120,6 @@ public class NeuralNetwork {
                 System.out.print("Wrong");
                 System.out.format("Actual: %s | %s : Predicted\n", characters[(int)actual_data[i]], characters[(int)prediction_data[i]]);
             }
-            //System.out.format("Actual: %.2f | %.2f : Predicted\n", actual_data[i], prediction_data[i]);
         }
         double percent_correct = ((double)total_correct/ (double)num_examples) * 100;
         System.out.format("Percentage Correct: %.2f%%\n", percent_correct);
@@ -1096,8 +1132,5 @@ public class NeuralNetwork {
 
         List<double[]> metric_arrays = metrics(prediction_data_int, output_data, characters, characters.length);
         double[] new_scores = multi_f_score(metric_arrays.get(3), output_nums_int, num_labels);
-        return;
     }
-
 }
-

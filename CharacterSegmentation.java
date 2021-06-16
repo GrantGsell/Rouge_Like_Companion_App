@@ -25,14 +25,14 @@ public class CharacterSegmentation {
         // Isolate text line from notification box
         image = image.getSubimage(0,16, image.getWidth(), image.getHeight()-16);
 
-        // Isolate the text-box
-        image = isolate_text_box(image, sw_height, sw_width, sw_delta);
+        // Isolate the text
+        image = isolate_text(image, sw_height, sw_width, sw_delta);
 
         // Perform image pre-processing
         background_processing(image);
 
         // Obtain character segmentation arraylist
-        return new Pair<ArrayList<Integer>, BufferedImage> (character_segmentation(image, sw_height), image);
+        return new Pair<>(character_segmentation(image, sw_height), image);
     }
 
 
@@ -76,7 +76,7 @@ public class CharacterSegmentation {
     Notes      : This is a 1D sliding window method, and isolates the object text by finding teh first and last boxes
                     that set the the num_bw_pixels true for the number of white pixels.
      */
-    public static BufferedImage isolate_text_box(BufferedImage image, int sw_height, int sw_width, int sw_delta){
+    public static BufferedImage isolate_text(BufferedImage image, int sw_height, int sw_width, int sw_delta){
         // Text box column variables
         int num_boxes = Math.floorDiv(image.getWidth() - sw_width, sw_delta);
         int text_box_start = -1;
@@ -177,10 +177,9 @@ public class CharacterSegmentation {
                     curr_ex_image = curr_ex_image.getSubimage(0, 16, curr_ex_image.getWidth(), curr_ex_image.getHeight() - 16);
 
                     // Isolate the text-box
-                    curr_ex_image = isolate_text_box(curr_ex_image, sw_height, sw_width, sw_delta);
+                    curr_ex_image = isolate_text(curr_ex_image, sw_height, sw_width, sw_delta);
 
                     // Perform image background pre-processing
-                    //curr_ex_image = background_processing(curr_ex_image);
                     background_processing(curr_ex_image);
 
                     // Obtain character segmentation arraylist
@@ -319,7 +318,6 @@ public class CharacterSegmentation {
                 idx += 1;
             }
         }
-        // Return the array list
         return char_splits;
     }
 
@@ -386,13 +384,11 @@ public class CharacterSegmentation {
     Notes      : None.
      */
     public static void main(String[] args) {
-
         int sliding_window_height = 18;
         int sliding_window_width =  15;
         int sliding_window_delta = 5;
         int class_num = 1;
         int ex_idx = 0;
-
         obtain_sliding_window_data(sliding_window_height, sliding_window_width, sliding_window_delta, class_num,
                 ex_idx);
 

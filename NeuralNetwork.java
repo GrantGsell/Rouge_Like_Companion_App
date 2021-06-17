@@ -6,7 +6,6 @@ import java.util.*;
 import java.io.FileWriter;
 import com.opencsv.CSVWriter;
 import com.google.common.primitives.Doubles;
-
 import javax.imageio.ImageIO;
 
 
@@ -515,6 +514,7 @@ public class NeuralNetwork {
         return unrolled_matrix;
     }
 
+
     /*
     Name       : learn_parameters_via_gd
     Purpose    : To optimize the theta parameters using gradient descent.
@@ -577,19 +577,23 @@ public class NeuralNetwork {
         write_parameters_to_csv(learned_parameters, file_name);
     }
 
+
     /*
-    Name       : new_prediction
-    Purpose    : To predict which character the input_data matrix represents.
+    Name       : new_predictions
+    Purpose    : To predict which character each example in the input_data matrix represents.
     Parameters :
                  parameters, a SimpleMatrix denoting the learned theta parameters.
-                 input_data, a SimpleMatrix denoting the character image in a matrix data format.
+                 input_data, a SimpleMatrix denoting the character image data for each example.
                  input_layer_size, an int denoting the number of nodes in the first layer.
                  hidden_layer_size, an int denoting the number of nodes in the hidden layer.
                  num_labels, an int denoting the number of nodes in the output layer (number of classes).
-    Return     : A SimpleMatrix denoting the character prediction for the input_data image.
-    Notes      : None.
+    Return     : A SimpleMatrix denoting the character prediction for each example in the the input_data matrix.
+    Notes      :
+                 This is for testing multiple examples, not just one.
+                 input_data has dimensions (number of examples x number of features)
+
      */
-    public static SimpleMatrix new_prediction(SimpleMatrix parameters, SimpleMatrix input_data,
+    public static SimpleMatrix new_predictions(SimpleMatrix parameters, SimpleMatrix input_data,
                                               int input_layer_size, int hidden_layer_size, int num_labels){
         // Number of examples
         int m = input_data.numRows();
@@ -631,6 +635,49 @@ public class NeuralNetwork {
 
 
     /*
+    Name       : new_prediction
+    Purpose    : To predict which character the input_data matrix represents.
+    Parameters :
+                 parameters, a SimpleMatrix denoting the learned theta parameters.
+                 input_data, a SimpleMatrix denoting the character image in a matrix data format.
+                 input_layer_size, an int denoting the number of nodes in the first layer.
+                 hidden_layer_size, an int denoting the number of nodes in the hidden layer.
+                 num_labels, an int denoting the number of nodes in the output layer (number of classes).
+    Return     : A double denoting the character prediction index for the input_data image.
+    Notes      : This if for predicting one example.
+     */
+    public static double new_prediction(SimpleMatrix parameters, SimpleMatrix input_data,
+                                              int input_layer_size, int hidden_layer_size, int num_labels){
+        // Number of examples
+        int m = input_data.numRows();
+
+        // Obtain theta values from parameters
+        SimpleMatrix theta_1 = new SimpleMatrix(hidden_layer_size, input_layer_size+1);
+        SimpleMatrix theta_2 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
+        copy_parameters(theta_1, parameters, 0);
+        copy_parameters(theta_2, parameters, theta_1.getNumElements());
+
+        // Bias unit matrix
+        SimpleMatrix bias_units = new SimpleMatrix(m, 1);
+        bias_units = bias_units.plus(1.0);
+
+        // Calculate predictions
+        SimpleMatrix input_1 = bias_units.concatColumns(input_data).mult(theta_1.transpose());
+        SimpleMatrix h1 = sigmoid(input_1);
+        SimpleMatrix input_2 = bias_units.concatColumns(h1).mult(theta_2.transpose());
+        SimpleMatrix h2 = sigmoid(input_2);
+
+        // Obtain row data in array form
+        double[] row_data = h2.rows(0, 1).getDDRM().getData();
+
+        // Find the max value in the row and its corresponding index
+        double max_val = Doubles.max(row_data);
+
+        return Doubles.indexOf(row_data, max_val);
+    }
+
+
+    /*
     Name       : write_parameters_to_csv
     Purpose    : To write the learned parameters to a cvs file.
     Parameters :
@@ -656,7 +703,7 @@ public class NeuralNetwork {
             System.out.println("Parameter Data Written\n");
         }
         catch (IOException e){
-            System.out.println(e);
+            e.printStackTrace();
         }
 
     }
@@ -688,7 +735,7 @@ public class NeuralNetwork {
             }
         }
         catch(IOException e){
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -713,9 +760,7 @@ public class NeuralNetwork {
         int theta_size = (hidden_layer_size * (input_layer_size + 1)) + (num_labels * (hidden_layer_size + 1));
         SimpleMatrix parameter_mat = new SimpleMatrix(1, theta_size);
         NeuralNetwork.read_parameters(parameter_mat, parameter_file_path);
-        SimpleMatrix prediction_mat = NeuralNetwork.new_prediction(parameter_mat, input_data, input_layer_size, hidden_layer_size, num_labels);
-        double[] prediction_data = prediction_mat.getDDRM().getData();
-        return prediction_data[0];
+        return NeuralNetwork.new_prediction(parameter_mat, input_data, input_layer_size, hidden_layer_size, num_labels);
     }
 
     /*
@@ -904,7 +949,7 @@ public class NeuralNetwork {
             return object_name.toString();
         }
         catch (IOException e){
-            System.out.println(e);
+            e.printStackTrace();
         }
         return "";
     }
@@ -950,7 +995,7 @@ public class NeuralNetwork {
             }
         }
         catch(IOException e){
-            System.out.println(e);
+            e.printStackTrace();
         }
 
     }
@@ -1130,7 +1175,7 @@ public class NeuralNetwork {
         SimpleMatrix parameter_mat = new SimpleMatrix(1, theta_size);
         read_parameters(parameter_mat, parameter_file_path);
 
-        SimpleMatrix prediction_mat = NeuralNetwork.new_prediction(parameter_mat, input_data, input_layer_size, hidden_layer_size, num_labels);
+        SimpleMatrix prediction_mat = NeuralNetwork.new_predictions(parameter_mat, input_data, input_layer_size, hidden_layer_size, num_labels);
 
         // Display predictions/actual values
         double[] prediction_data = prediction_mat.getDDRM().getData();

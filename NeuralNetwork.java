@@ -130,11 +130,11 @@ public class NeuralNetwork {
                  output data has dimensions of (number of examples x 1).
      */
     public static double nn_cost_function(SimpleMatrix parameters,
-                                        SimpleMatrix input_data,
-                                        SimpleMatrix output_data,
-                                        int input_layer_size,
-                                        int hidden_layer_size,
-                                        int num_labels, double lambda){
+                                          SimpleMatrix input_data,
+                                          SimpleMatrix output_data,
+                                          int input_layer_size,
+                                          int hidden_layer_size,
+                                          int num_labels, double lambda){
 
         // Num examples
         int m = input_data.numRows();
@@ -239,11 +239,11 @@ public class NeuralNetwork {
                  output data has dimensions of (number of examples x 1).
      */
     public static SimpleMatrix nn_gradient(SimpleMatrix parameters,
-                                   SimpleMatrix input_data,
-                                   SimpleMatrix output_data,
-                                   int input_layer_size,
-                                   int hidden_layer_size,
-                                   int num_labels, double lambda){
+                                           SimpleMatrix input_data,
+                                           SimpleMatrix output_data,
+                                           int input_layer_size,
+                                           int hidden_layer_size,
+                                           int num_labels, double lambda){
         // Num examples, num features
         int m = input_data.numRows();
 
@@ -532,14 +532,14 @@ public class NeuralNetwork {
                  output data has dimensions of (number of examples x 1).
      */
     public static void learn_parameters_via_gd(
-                                                SimpleMatrix input_data,
-                                                SimpleMatrix output_data,
-                                                int input_layer_size,
-                                                int hidden_layer_size,
-                                                int num_labels,
-                                                double lambda,
-                                                double alpha,
-                                                String file_name){
+            SimpleMatrix input_data,
+            SimpleMatrix output_data,
+            int input_layer_size,
+            int hidden_layer_size,
+            int num_labels,
+            double lambda,
+            double alpha,
+            String file_name){
         // Set initial theta values
         SimpleMatrix initial_theta_1 = random_initialize_weights(input_layer_size, hidden_layer_size);
         SimpleMatrix initial_theta_2 = random_initialize_weights(hidden_layer_size, num_labels);
@@ -591,10 +591,9 @@ public class NeuralNetwork {
     Notes      :
                  This is for testing multiple examples, not just one.
                  input_data has dimensions (number of examples x number of features)
-
      */
     public static SimpleMatrix new_predictions(SimpleMatrix parameters, SimpleMatrix input_data,
-                                              int input_layer_size, int hidden_layer_size, int num_labels){
+                                               int input_layer_size, int hidden_layer_size, int num_labels){
         // Number of examples
         int m = input_data.numRows();
 
@@ -647,7 +646,7 @@ public class NeuralNetwork {
     Notes      : This if for predicting one example.
      */
     public static double new_prediction(SimpleMatrix parameters, SimpleMatrix input_data,
-                                              int input_layer_size, int hidden_layer_size, int num_labels){
+                                        int input_layer_size, int hidden_layer_size, int num_labels){
         // Number of examples
         int m = input_data.numRows();
 

@@ -405,7 +405,7 @@ public class NeuralNetwork {
     Return     :
     Notes      :
      */
-    public static void check_nn_gradients(double lambda){
+    public static boolean check_nn_gradients(double lambda){
         // Neural Network variables
         int input_layer_size = 3;
         int hidden_layer_size = 5;
@@ -449,8 +449,13 @@ public class NeuralNetwork {
         System.out.println(line);
         for(int i = 0; i < analytical_grad.getNumElements(); i++) {
             double difference = Math.abs(analytical_grad.get(i, 0) - numerical_grad.get(i, 0));
+            if(difference > 1e-9){
+                System.out.println("Algorithmic Error");
+                return false;
+            }
             System.out.format(format_data, analytical_grad.get(i, 0), numerical_grad.get(i, 0), difference);
         }
+        return true;
     }
 
 
@@ -1055,6 +1060,11 @@ public class NeuralNetwork {
     Notes      :
      */
     public static void main(String[] args){
+        // Run gradient check before learning
+        if(!check_nn_gradients(lambda)){
+            return;
+        }
+
         // Initialize input/output matrices
         SimpleMatrix input_data = CharacterSegmentation.obtain_sliding_window_data(sliding_window_height, sliding_window_width, sliding_window_delta,
                 class_num, ex_idx);

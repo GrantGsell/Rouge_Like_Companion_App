@@ -62,7 +62,7 @@ public class NeuralNetwork {
         SimpleMatrix useless_data = new SimpleMatrix(num_examples, 1);
         String input_file_name_useless = "";
         String output_file_name = "text_box_recog/output_text_box_recog_data.csv";
-        read_data(num_examples, useless_data, output_data, input_file_name_useless, output_file_name);
+        read_data(useless_data, output_data, input_file_name_useless, output_file_name);
 
         // Transform the output data from strings into integers
         Hashtable<String, Integer> char_to_int_map = new Hashtable<>();
@@ -117,16 +117,18 @@ public class NeuralNetwork {
     Purpose    : To calculate the regularized cost of the neural network based
                     on the given parameters.
     Parameters :
-                 parameters
-                 input_data
-                 output_data
-                 input_layer_size
-                 hidden_layer_size
-                 num_labels
-                 lambda
-    Return     : cost a double denoting the cost the nn should pay for
-                    obtaining incorrect values.
+                 parameters, a SimpleMatrix object containing the parameter constants.
+                 input_data, a SimpleMatrix object containing the input data.
+                 output_data, a SimpleMatrix object containing the output data.
+                 input_layer_size, an int denoting the number of nodes in the input layer.
+                 hidden_layer_size, an int denoting the number of nodes in the hidden layer.
+                 num_labels, an int denoting the number of output nodes.
+                 lambda, an int denoting the regularization parameter.
+    Return     : cost a double denoting the cost the nn should pay for obtaining incorrect values.
     Notes      :
+                 parameters has dimensions of
+                 input_data has dimensions of (number of examples x number of features).
+                 output data has dimensions of (number of examples x 1).
      */
     public static double nn_cost_function(SimpleMatrix parameters,
                                         SimpleMatrix input_data,
@@ -135,9 +137,8 @@ public class NeuralNetwork {
                                         int hidden_layer_size,
                                         int num_labels, double lambda){
 
-        // Num examples, num features
+        // Num examples
         int m = input_data.numRows();
-        int n = input_data.numCols();
 
         // Reshape the nn parameters back into the weights for each layer.
         SimpleMatrix theta_1 = new SimpleMatrix(hidden_layer_size, input_layer_size+1);
@@ -171,8 +172,7 @@ public class NeuralNetwork {
 
         // Activation units for layer 3 (output layer)
         SimpleMatrix z_3 = a_2.mult(theta_2.transpose());
-        SimpleMatrix a_3 = sigmoid(z_3);            // hypothesis == a_3 (for this specific netowrk)
-
+        SimpleMatrix a_3 = sigmoid(z_3);                        // hypothesis == a_3 (for this specific network)
 
         // Inner Cost Function Calculation
         SimpleMatrix term_1 = y_matrix.negative().elementMult(a_3.elementLog());
@@ -194,6 +194,18 @@ public class NeuralNetwork {
         return cost;
     }
 
+
+    /*
+    Name       : copy_parameters
+    Purpose    : To turn the parameter vector into parameter matrices.
+    Parameters :
+                 inp_matrix, a SimpleMatrix object that is being populated with the vector parameter data.
+                 inp_vector, a SimpleMatrix object containing the parameter data in a vector format.
+                 vect_idx, an int denoting the starting point for the data being read from the inp_vector into the
+                    inp_matrix.
+    Return     : None.
+    Notes      : None.
+     */
     public static void copy_parameters(SimpleMatrix inp_matrix, SimpleMatrix inp_vector, int vect_idx){
         // Check to see if the input_vector is a column vector or row vector
         if(inp_vector.numCols() == 1){
@@ -209,12 +221,23 @@ public class NeuralNetwork {
         }
     }
 
+
     /*
     Name       : nn_gradient
     Purpose    : To calculate the gradient of the neural network.
     Parameters :
-    Return     :
+                 parameters, a SimpleMatrix object containing the parameter constants.
+                 input_data, a SimpleMatrix object containing the input data.
+                 output_data, a SimpleMatrix object containing the output data.
+                 input_layer_size, an int denoting the number of nodes in the input layer.
+                 hidden_layer_size, an int denoting the number of nodes in the hidden layer.
+                 num_labels, an int denoting the number of output nodes.
+                 lambda, an int denoting the regularization parameter.
+    Return     : A SimpleMatrix object denoting the gradient values.
     Notes      :
+                 parameters has dimensions of
+                 input_data has dimensions of (number of examples x number of features).
+                 output data has dimensions of (number of examples x 1).
      */
     public static SimpleMatrix nn_gradient(SimpleMatrix parameters,
                                    SimpleMatrix input_data,
@@ -224,7 +247,6 @@ public class NeuralNetwork {
                                    int num_labels, double lambda){
         // Num examples, num features
         int m = input_data.numRows();
-        int n = input_data.numCols();
 
         // Reshape the nn parameters back into the weights for each layer.
         SimpleMatrix theta_1 = new SimpleMatrix(hidden_layer_size, input_layer_size+1);
@@ -270,6 +292,7 @@ public class NeuralNetwork {
             theta_1_grad = theta_1_grad.plus(delta_2.transpose().mult(a_1));
             theta_2_grad = theta_2_grad.plus(delta_3.transpose().mult(a_2));
         }
+
         // Obtain the unregularized gradient
         theta_1_grad = theta_1_grad.divide(m);
         theta_2_grad = theta_2_grad.divide(m);
@@ -304,17 +327,16 @@ public class NeuralNetwork {
 
     /*
     Name       : random_initialize_weights
-    Purpose    : To randomly initialize the weights of a layer with l_in
-                    incoming connections, and l_out outgoing connections.
+    Purpose    : To randomly initialize the weights of a layer with l_in incoming connections, and l_out outgoing
+                    connections.
     Parameters :
                  l_in, an integer denoting the number of incoming connections.
                  l_out, an integer denoting the number of outgoing connections.
     Return     : rand_weights a simple matrix of dimensions (l_out x l_in + 1)
-    Notes      :
+    Notes      : None.
      */
     public static SimpleMatrix random_initialize_weights(int l_in, int l_out){
         SimpleMatrix rand_weights = SimpleMatrix.random_DDRM(l_out, l_in + 1, 0, 1,  new Random());
-        //double epsilon = Math.sqrt(6) / Math.sqrt(l_in + l_out);
         double epsilon = 0.12;
         rand_weights = rand_weights.scale(2);
         rand_weights = rand_weights.scale(epsilon);
@@ -325,9 +347,8 @@ public class NeuralNetwork {
 
     /*
     Name       : debug_initialize_weights
-    Purpose    : To initialize the weights of a layer with l_in incoming
-                    connections, and l_out outgoing connections using a fixed
-                    strategy (the same weight values each time).
+    Purpose    : To initialize the weights of a layer with l_in incoming connections, and l_out outgoing connections
+                    using a fixed strategy (the same weight values each time).
     Parameters :
                  l_in, an integer denoting the number of incoming connections.
                  l_out, an integer denoting the number of outgoing connections.
@@ -350,18 +371,18 @@ public class NeuralNetwork {
 
     /*
     Name       : compute_numerical_gradient
-    Purpose    : To perform numerical gradient checking
+    Purpose    : To perform a numerical gradient check.
     Parameters :
-                 parameters
-                 input_data
-                 output_data
-                 input_layer_size
-                 hidden_layer_size
-                 num_labels
-                 lambda
-    Return     :
-    Notes      :
-     */
+                 parameters, a SimpleMatrix object containing the parameter constants.
+                 input_data, a SimpleMatrix object containing the input data.
+                 output_data, a SimpleMatrix object containing the output data.
+                 input_layer_size, an int denoting the number of nodes in the input layer.
+                 hidden_layer_size, an int denoting the number of nodes in the hidden layer.
+                 num_labels, an int denoting the number of output nodes.
+                 lambda, an int denoting the regularization parameter.
+    Return     : A SimpleMatrix denoting the numerical gradient that has been calculated.
+    Notes      : None.
+    */
     public static SimpleMatrix compute_numerical_gradient(SimpleMatrix theta,
                                                           SimpleMatrix input_data,
                                                           SimpleMatrix output_data,
@@ -369,9 +390,14 @@ public class NeuralNetwork {
                                                           int hidden_layer_size,
                                                           int num_labels,
                                                           double lambda){
+        // Declare matrices
         SimpleMatrix numerical_gradient = new SimpleMatrix(theta.numRows(), theta.numCols());
         SimpleMatrix perturb = new SimpleMatrix(theta.numRows(), theta.numCols());
+
+        // Declare epsilon value
         double epsilon = 1e-4;
+
+        // Calculate numerical gradients
         for(int i = 0; i < theta.getNumElements(); i++){
             // Set perturbation vector
             perturb.set(i, 0, epsilon);
@@ -393,19 +419,18 @@ public class NeuralNetwork {
 
     /*
     Name       : check_nn_gradients
-    Purpose    : To create a small neural network to check the backpropagation
-                    gradients. This occurs by obtaining the analytical
-                    gradients produced by the backpropagation code, and
-                    obtaining the numerical gradients from the numerical
-                    gradient code. The values for both are compared
-                    respectively to one another and if backpropagation was
-                    implemented correctly the two gradients should be near
-                    identical.
-    Parameters :
-    Return     :
-    Notes      :
+    Purpose    : To create a small neural network to check the backpropagation gradients. This occurs by obtaining the
+                    analytical gradients produced by the backpropagation code, and obtaining the numerical gradients
+                    from the numerical gradient code. The values for both are compared respectively to one another and
+                    if backpropagation was implemented correctly the two gradients should be near identical.
+    Parameters : None.
+    Return     : A boolean value denoting if the numerical gradients and analytical gradients have a relative difference
+                    of less than 1e-9.
+    Notes      : A small neural network with a relatively small number of input units and hidden units is used, thus
+                    resulting in a relative small number of parameters. This is done because each dimension of the
+                    parameters requires two evaluations of the cost function and can become very costly.
      */
-    public static boolean check_nn_gradients(double lambda){
+    public static boolean check_nn_gradients(){
         // Neural Network variables
         int input_layer_size = 3;
         int hidden_layer_size = 5;
@@ -433,8 +458,7 @@ public class NeuralNetwork {
 
         // Compute analytical gradients
         SimpleMatrix analytical_grad = nn_gradient(nn_parameters, input_data,
-                output_data, input_layer_size, hidden_layer_size, num_labels,
-                lambda);
+                output_data, input_layer_size, hidden_layer_size, num_labels, lambda);
 
         // Compute numerical gradients
         SimpleMatrix numerical_grad = compute_numerical_gradient(nn_parameters,
@@ -461,14 +485,13 @@ public class NeuralNetwork {
 
     /*
     Name       : unroll_matrices
-    Purpose    : To unroll two matrices into one matrix with n rows and one
-                    column where n denotes the total number of elements in both
-                    matrices.
+    Purpose    : To unroll two matrices into one matrix with n rows and one column where n denotes the total number of
+                    elements in both matrices.
     Parameters :
                  matrix_1, a simple matrix.
                  matrix_2, a simple matrix.
-    Return     : unrolled_matrices, a simple matrix denoting the unrolled matrix
-                    containing all elements of the two matrices.
+    Return     : unrolled_matrices, a simple matrix denoting the unrolled matrix containing all elements of the two
+                    matrices.
     Notes      : unrolled column first
      */
     public static SimpleMatrix unroll_matrices(SimpleMatrix matrix_1, SimpleMatrix matrix_2){
@@ -493,11 +516,20 @@ public class NeuralNetwork {
     }
 
     /*
-    Name       :
-    Purpose    :
+    Name       : learn_parameters_via_gd
+    Purpose    : To optimize the theta parameters using gradient descent.
     Parameters :
-    Return     :
+                 input_data, a SimpleMatrix object containing the input data.
+                 output_data, a SimpleMatrix object containing the output data.
+                 input_layer_size, an int denoting the number of nodes in the input layer.
+                 hidden_layer_size, an int denoting the number of nodes in the hidden layer.
+                 num_labels, an int denoting the number of output nodes.
+                 lambda, an int denoting the regularization parameter.
+                 file_name, a string denoting the csv file to write the parameters to.
+    Return     : None.
     Notes      :
+                 input_data has dimensions of (number of examples x number of features).
+                 output data has dimensions of (number of examples x 1).
      */
     public static void learn_parameters_via_gd(
                                                 SimpleMatrix input_data,
@@ -546,11 +578,16 @@ public class NeuralNetwork {
     }
 
     /*
-    Name       :
-    Purpose    :
+    Name       : new_prediction
+    Purpose    : To predict which character the input_data matrix represents.
     Parameters :
-    Return     :
-    Notes      :
+                 parameters, a SimpleMatrix denoting the learned theta parameters.
+                 input_data, a SimpleMatrix denoting the character image in a matrix data format.
+                 input_layer_size, an int denoting the number of nodes in the first layer.
+                 hidden_layer_size, an int denoting the number of nodes in the hidden layer.
+                 num_labels, an int denoting the number of nodes in the output layer (number of classes).
+    Return     : A SimpleMatrix denoting the character prediction for the input_data image.
+    Notes      : None.
      */
     public static SimpleMatrix new_prediction(SimpleMatrix parameters, SimpleMatrix input_data,
                                               int input_layer_size, int hidden_layer_size, int num_labels){
@@ -592,52 +629,15 @@ public class NeuralNetwork {
         return predictions;
     }
 
-    /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
-     */
-    public static void read_data(int num_examples, int num_features, SimpleMatrix input_data, SimpleMatrix output_data, String input_file_name, String output_file_name){
-        try{
-            // Read in Input data
-            BufferedReader br = new BufferedReader(new FileReader(input_file_name)); //"src/input_data_x.csv"));
-            String line = "";
-            int row = 0;
-            while(row < num_examples && (line = br.readLine()) != null){
-                //line = br.readLine();
-                String[] data = line.split(",");
-                for(int col = 0; col < data.length; col++){
-                    double new_data = Double.parseDouble(data[col]);
-                    input_data.set(row, col, new_data);
-                }
-                row += 1;
-
-            }
-
-            // Read Output data
-            BufferedReader br_y = new BufferedReader(new FileReader(output_file_name)); //"src/output_data_y.csv"));
-            int row_y = 0;
-            while(row_y < num_examples && (line = br_y.readLine()) != null){
-                String[] data = line.split(",");
-                double new_data = Double.parseDouble(data[0]);
-                output_data.set(row_y, 0, new_data);
-                row_y += 1;
-            }
-        }
-        catch(IOException e){
-            System.out.println(e);
-        }
-
-    }
 
     /*
-    Name       :
-    Purpose    :
+    Name       : write_parameters_to_csv
+    Purpose    : To write the learned parameters to a cvs file.
     Parameters :
-    Return     :
-    Notes      :
+                 parameters, a double array denoting the learned parameters theta.
+                 file_name, a String denoting the csv file name.
+    Return     : None.
+    Notes      : None.
      */
     public static void write_parameters_to_csv(double[] parameters, String file_name){
         // convert double array to string array
@@ -662,11 +662,13 @@ public class NeuralNetwork {
     }
 
     /*
-    Name       :
-    Purpose    :
+    Name       : read_parameters
+    Purpose    : To read in the parameter values from the csv file into a matrix format.
     Parameters :
-    Return     :
-    Notes      :
+                 parameter_vals, a SimpleMatrix object where the read in parameter will be stored.
+                 parameter_file_name, a String denoting the name of the csv file containing the parameter values.
+    Return     : None.
+    Notes      : None.
      */
     public static void read_parameters(SimpleMatrix parameter_vals, String parameter_file_name){
         try{
@@ -692,19 +694,18 @@ public class NeuralNetwork {
 
 
     /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
+    Name       : test_new_char
+    Purpose    : To determine which character the input_data matrix represents.
+    Parameters : input_data, a SimpleMatrix denoting a character image that has been transformed into a matrix data
+                    format.
+    Return     : A double denoting the class number prediction for the input_data, that corresponds to a specific
+                    character in the characters field.
+    Notes      : None.
      */
     public static double test_new_char(SimpleMatrix input_data){
         /*
         Testing purposes only
          */
-        String[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "R",
-                "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE", "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP",
-                "ERRAPT"};
         int input_layer_size = 810;
         int hidden_layer_size = 100;
         int num_labels = characters.length;
@@ -718,36 +719,38 @@ public class NeuralNetwork {
     }
 
     /*
-    Name       :
-    Purpose    :
+    Name       : metrics
+    Purpose    : To calculate the precision, recall, accuracy and f_score of each class.
     Parameters :
-    Return     :
-    Notes      :
+                 predicted_output, an int array denoting the prediction for each example.
+                 actual_output, a 2D string array denoting the correct values for each example.
+    Return     : A list of double arrays denoting the metric values for each class.
+    Notes      : None.
      */
-    public static List<double[]> metrics(int[] predicted_output, String[][] actual_output, String[] class_char_arr, int num_classes){
+    public static List<double[]> metrics(int[] predicted_output, String[][] actual_output){
         // Precision, recall, accuracy, f score array initializations
-        double[] precision_arr = new double[num_classes];
-        double[] recall_arr = new double[num_classes];
-        double[] accuracy_arr = new double[num_classes];
-        double[] f_score_arr = new double[num_classes];
+        double[] precision_arr = new double[characters.length];
+        double[] recall_arr = new double[characters.length];
+        double[] accuracy_arr = new double[characters.length];
+        double[] f_score_arr = new double[characters.length];
 
         // Find the precision and recall for each class
-        for(int i = 0; i < num_classes; i++){
+        for(int i = 0; i < characters.length; i++){
             double tp, fp, fn, tn;
             tp = fp = fn = tn = 0;
 
             // Tabulate tp, fp, fn, and tn for each class i
             for(int j = 0; j < predicted_output.length; j++){
-                if(predicted_output[j] == i && actual_output[j][0].equals(class_char_arr[i])){
+                if(predicted_output[j] == i && actual_output[j][0].equals(characters[i])){
                     tp += 1;
                 }
-                else if(predicted_output[j] == i && !actual_output[j][0].equals(class_char_arr[i])){
+                else if(predicted_output[j] == i && !actual_output[j][0].equals(characters[i])){
                     fp += 1;
                 }
-                else if(predicted_output[j] != i && actual_output[j][0].equals(class_char_arr[i])){
+                else if(predicted_output[j] != i && actual_output[j][0].equals(characters[i])){
                     fn += 1;
                 }
-                else if(predicted_output[j] != i && !actual_output[j][0].equals(class_char_arr[i])){
+                else if(predicted_output[j] != i && !actual_output[j][0].equals(characters[i])){
                     tn += 1;
                 }
             }
@@ -786,44 +789,49 @@ public class NeuralNetwork {
 
 
     /*
-    Name       :
-    Purpose    :
+    Name       : multi_f_score
+    Purpose    : To calculate the weighted F-score and macro F-score given the F-score for each class.
     Parameters :
-    Return     :
-    Notes      :
+                 f_score_arr, a double array denoting the f score values for each class.
+                 output_data, an int array denoting the numerical representation for the correct output values.
+    Return     : A double array, with the first element containing the macro F-score and the second element containing
+                    the weighted F-score.
+    Notes      : None.
      */
-    public static double[] multi_f_score(double[] f_score_arr, int[] output_data, int num_classes){
+    public static double[] multi_f_score(double[] f_score_arr, int[] output_data){
         // Count the number for examples in each class
-        double[] class_counts = new double[num_classes];
+        double[] class_counts = new double[characters.length];
         for(int i = 0; i < output_data.length; i++){
             class_counts[output_data[i]] += 1;
         }
 
         // Calculate the Macro F1 Score
-        double macro_f1_score = Arrays.stream(f_score_arr).sum() / (double) num_classes;
+        double macro_f1_score = Arrays.stream(f_score_arr).sum() / (double) characters.length;
 
         // Calculate the weighted F1 Score
         double total_num_examples = output_data.length;
         double weighted_f1_score = 0;
-        for(int j = 0; j < num_classes; j++){
+        for(int j = 0; j < characters.length; j++){
             weighted_f1_score += (class_counts[j] * f_score_arr[j]);
         }
         weighted_f1_score /= total_num_examples;
         return new double[] {macro_f1_score, weighted_f1_score};
     }
 
+
     /*
-    Name       :
-    Purpose    :
+    Name       : test_new_image
+    Purpose    : To construct a String word prediction for an objects name text within an image.
     Parameters :
-    Return     :
-    Notes      :
+                 test_file_path, a String denoting the file path location for a test image. Only used for testing.
+                 new_image, a BufferedImage object denoting an image containing an objects name text.
+    Return     : A String denoting a prediction for the name of the name text within the image.
+    Notes      : None.
      */
-    public static String test_new_image(String test_file_path, String[] class_char_arr, BufferedImage new_image){
+    public static String test_new_image(String test_file_path, BufferedImage new_image){
         try {
             int sw_height = 18;
             int sw_width =  15;
-            int sw_delta = 5;
 
             // Obtain new image
             BufferedImage curr_ex_image;
@@ -854,7 +862,7 @@ public class NeuralNetwork {
                 // Normalize the new example data
                 double[] mean = new double[810];
                 double[] std = new double[810];
-                ArrayList<Integer> const_cols = new ArrayList<Integer>();
+                ArrayList<Integer> const_cols = new ArrayList<>();
                 MySQLAccess.read_mean_std_const_cols(810, mean, std, const_cols);
                 normalize_input_data(new_data_matrix, mean, std, const_cols);
 
@@ -863,7 +871,7 @@ public class NeuralNetwork {
 
                 // Translate prediction into associated character
                 int predict_idx = (int) prediction;
-                String char_prediction = class_char_arr[predict_idx];
+                String char_prediction = characters[predict_idx];
                 str_pred[str_arr_idx] = char_prediction;
                 str_arr_idx += 1;
             }
@@ -903,13 +911,17 @@ public class NeuralNetwork {
 
 
     /*
-    Name       :
-    Purpose    :
+    Name       : read_data
+    Purpose    : Read the input data from a csv file and transform it into a matrix data format.
     Parameters :
-    Return     :
-    Notes      :
+                 input_data, a SimpleMatrix denoting the matrix for the input data to be read into.
+                 output_data, a 2D string array denoting the array for the output data to be read into.
+                 input_file_name, a String denoting the csv file name containing the input data.
+                 output_file_name, a String denoting the csv file containing the output data.
+    Return     : None.
+    Notes      : None.
     */
-    public static void read_data(int num_examples, SimpleMatrix input_data, String[][] output_data, String input_file_name, String output_file_name){
+    public static void read_data(SimpleMatrix input_data, String[][] output_data, String input_file_name, String output_file_name){
         try{
             String line = "";
             if (input_file_name != "") {
@@ -944,14 +956,14 @@ public class NeuralNetwork {
     }
 
     /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
+    Name       : create_training_data_normalization_arrays
+    Purpose    : To create the mean and standard deviation arrays for each feature (column) in the input data matrix.
+    Parameters : input_data, a SimpleMatrix object denoting the input data matrix.
+    Return     : None.
+    Notes      : None.
      */
     public static void create_training_data_normalization_arrays(SimpleMatrix input_data){
-        // Relevant variables
+        // The number of examples and features respectively
         int m = input_data.numRows();
         int n = input_data.numCols();
 
@@ -997,11 +1009,11 @@ public class NeuralNetwork {
     }
 
     /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
+    Name       : standard_deviation
+    Purpose    : To calculate the standard deviation for an array.
+    Parameters : array, a double array denoting the array which we want to calculate the standard deviation for.
+    Return     : None.
+    Notes      : None.
      */
     public static double standard_deviation(double[] array) {
         double sum = 0.0, standardDeviation = 0.0;
@@ -1010,9 +1022,7 @@ public class NeuralNetwork {
         for(double num : array) {
             sum += num;
         }
-
         double mean = sum/length;
-
         for(double num: array) {
             standardDeviation += Math.pow(num - mean, 2);
         }
@@ -1022,11 +1032,15 @@ public class NeuralNetwork {
 
 
     /*
-    Name       :
-    Purpose    :
+    Name       : normalize_input_data
+    Purpose    : To normalize the entire input_data set column-wise with each column having a zero mean unit variance.
     Parameters :
-    Return     :
-    Notes      :
+                 input_data, a SimpleMatrix denoting the input data to be normalized.
+                 mean_arr, a double array denoting the mean value for each column.
+                 std_arr, a double array denoting the standard deviation for each column.
+                 constant_columns, an ArrayList denoting the columns in which all elements are the same.
+    Return     : None.
+    Notes      : If all elements within a column are the same value, the column is not normalized.
      */
     public static void normalize_input_data(SimpleMatrix input_data, double[] mean_arr, double[] std_arr, ArrayList<Integer> constant_columns){
         // Relevant variables
@@ -1053,15 +1067,15 @@ public class NeuralNetwork {
 
 
     /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
-    Notes      :
+    Name       : main
+    Purpose    : Client testing code.
+    Parameters : Standard main arguments.
+    Return     : None.
+    Notes      : None.
      */
     public static void main(String[] args){
         // Run gradient check before learning
-        if(!check_nn_gradients(lambda)){
+        if(!check_nn_gradients()){
             return;
         }
 
@@ -1074,7 +1088,7 @@ public class NeuralNetwork {
         SimpleMatrix useless_data = new SimpleMatrix(num_examples, 1);
         String input_file_name_useless = "";
         String output_file_name = "text_box_recog/output_text_box_recog_data.csv";
-        read_data(num_examples, useless_data, output_data, input_file_name_useless, output_file_name);
+        read_data(useless_data, output_data, input_file_name_useless, output_file_name);
 
         // Transform the output data from strings into integers
         Hashtable<String, Integer> char_to_int_map = new Hashtable<>();
@@ -1140,7 +1154,7 @@ public class NeuralNetwork {
             prediction_data_int[i] = (int) prediction_data[i];
         }
 
-        List<double[]> metric_arrays = metrics(prediction_data_int, output_data, characters, characters.length);
-        double[] new_scores = multi_f_score(metric_arrays.get(3), output_nums_int, num_labels);
+        List<double[]> metric_arrays = metrics(prediction_data_int, output_data);
+        double[] new_scores = multi_f_score(metric_arrays.get(3), output_nums_int);
     }
 }

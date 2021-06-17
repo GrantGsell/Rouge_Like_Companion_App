@@ -108,7 +108,7 @@ public class ScreenCapture {
                     event_timer.schedule(new FlagSetTask(), 2000);
 
                     // Make prediction on the new found notification box.
-                    String guess = NeuralNetwork.test_new_image("", characters, image_crop);
+                    String guess = NeuralNetwork.test_new_image("", image_crop);
                     if(guess != null) {
                         MySQLAccess.read_from_database(guess, word_ht, custom_ui);
                     }

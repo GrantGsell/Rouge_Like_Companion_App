@@ -6,6 +6,10 @@ import java.util.*;
 import java.io.FileWriter;
 import com.opencsv.CSVWriter;
 import com.google.common.primitives.Doubles;
+import org.knowm.xchart.QuickChart;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XYChart;
+
 import javax.imageio.ImageIO;
 
 
@@ -26,7 +30,7 @@ public class NeuralNetwork {
     private static final int hidden_layer_size = 100;
     private static final int num_labels = characters.length;
     private static final double lambda = 0.05;
-    private static final double alpha = 10000;
+    private static final double alpha = 20000;
     public static double[] norm_mean;
     public static double[] norm_std;
     public static ArrayList<Integer> norm_constant_columns;
@@ -141,14 +145,16 @@ public class NeuralNetwork {
 
         // Reshape the nn parameters back into the weights for each layer.
         SimpleMatrix theta_1 = new SimpleMatrix(hidden_layer_size, input_layer_size+1);
-        SimpleMatrix theta_2 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
+        SimpleMatrix theta_2 = new SimpleMatrix(hidden_layer_size, hidden_layer_size + 1);
+        SimpleMatrix theta_3 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
         copy_parameters(theta_1, parameters, 0);
         copy_parameters(theta_2, parameters, theta_1.getNumElements());
+        copy_parameters(theta_3, parameters, theta_1.getNumElements() + theta_2.getNumElements());
 
         /*
         Forward Propagation
          */
-        // Expand the y output values into a maxtrix of single values
+        // Expand the y output values into a matrix of single values
         SimpleMatrix eye_matrix = SimpleMatrix.identity(num_labels);
         SimpleMatrix y_matrix = new SimpleMatrix(m, num_labels);
         for(int i = 0; i < m; i++){
@@ -164,18 +170,23 @@ public class NeuralNetwork {
         // Activation units for layer 1, add bias unit to the input layer
         SimpleMatrix a_1 = bias_units.concatColumns(input_data);
 
-        // Activation units for layer 2
+        // Activation units for layer 2 (Hidden layer 1)
         SimpleMatrix z_2 = a_1.mult(theta_1.transpose());
         SimpleMatrix a_2 = sigmoid(z_2);
         a_2 = bias_units.concatColumns(a_2);
 
-        // Activation units for layer 3 (output layer)
+        // Activation units for layer 3 (Hidden layer 2)
         SimpleMatrix z_3 = a_2.mult(theta_2.transpose());
-        SimpleMatrix a_3 = sigmoid(z_3);                        // hypothesis == a_3 (for this specific network)
+        SimpleMatrix a_3 = sigmoid(z_3);
+        a_3 = bias_units.concatColumns(a_3);
+
+        // Activation units for layer 4 (output layer)
+        SimpleMatrix z_4 = a_3.mult(theta_3.transpose());
+        SimpleMatrix a_4 = sigmoid(z_4);                        // hypothesis == a_4 (for this specific network)
 
         // Inner Cost Function Calculation
-        SimpleMatrix term_1 = y_matrix.negative().elementMult(a_3.elementLog());
-        SimpleMatrix term_2 = y_matrix.negative().plus(1).elementMult(a_3.negative().plus(1).elementLog());
+        SimpleMatrix term_1 = y_matrix.negative().elementMult(a_4.elementLog());
+        SimpleMatrix term_2 = y_matrix.negative().plus(1).elementMult(a_4.negative().plus(1).elementLog());
         SimpleMatrix inner_term = term_1.minus(term_2);
         double inner_sum = inner_term.elementSum();
         double cost = inner_sum / m;
@@ -183,9 +194,11 @@ public class NeuralNetwork {
         // Regularization Term Calculation
         SimpleMatrix temp_theta_1 =  theta_1.extractMatrix(0, theta_1.numRows(), 1, theta_1.numCols());
         SimpleMatrix temp_theta_2 =  theta_2.extractMatrix(0, theta_2.numRows(), 1, theta_2.numCols());
+        SimpleMatrix temp_theta_3 =  theta_3.extractMatrix(0, theta_3.numRows(), 1, theta_3.numCols());
         double theta_1_const = temp_theta_1.elementPower(2.0).elementSum();
         double theta_2_const = temp_theta_2.elementPower(2.0).elementSum();
-        double reg_term = (lambda / (2 * m)) * (theta_1_const + theta_2_const);
+        double theta_3_const = temp_theta_3.elementPower(2.0).elementSum();
+        double reg_term = (lambda / (2 * m)) * (theta_1_const + theta_2_const + theta_3_const);
 
         // Cost Function Recalculation with Regularization
         cost += reg_term;
@@ -249,13 +262,16 @@ public class NeuralNetwork {
 
         // Reshape the nn parameters back into the weights for each layer.
         SimpleMatrix theta_1 = new SimpleMatrix(hidden_layer_size, input_layer_size+1);
-        SimpleMatrix theta_2 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
+        SimpleMatrix theta_2 = new SimpleMatrix(hidden_layer_size, hidden_layer_size + 1);
+        SimpleMatrix theta_3 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
         copy_parameters(theta_1, parameters, 0);
         copy_parameters(theta_2, parameters, theta_1.getNumElements());
+        copy_parameters(theta_3, parameters, theta_1.getNumElements() + theta_2.getNumElements());
 
         // Return matrices
         SimpleMatrix theta_1_grad = new SimpleMatrix(theta_1.numRows(), theta_1.numCols());
         SimpleMatrix theta_2_grad = new SimpleMatrix(theta_2.numRows(), theta_2.numCols());
+        SimpleMatrix theta_3_grad = new SimpleMatrix(theta_3.numRows(), theta_3.numCols());
 
         // Expand the y output values into a maxtrix of single values
         SimpleMatrix eye_matrix = SimpleMatrix.identity(num_labels);
@@ -274,39 +290,55 @@ public class NeuralNetwork {
             // Forward Feed
             SimpleMatrix a_1 = input_data.extractMatrix(t, t + 1, 0, input_data.numCols());
             a_1 = bias_unit.concatColumns(a_1);
+
             SimpleMatrix z_2 = a_1.mult(theta_1.transpose());
             SimpleMatrix a_2 = sigmoid(z_2);
             a_2 = bias_unit.concatColumns(a_2);
+
             SimpleMatrix z_3 = a_2.mult(theta_2.transpose());
             SimpleMatrix a_3 = sigmoid(z_3);
+            a_3 = bias_unit.concatColumns(a_3);
+
+            SimpleMatrix z_4 = a_3.mult(theta_3.transpose());
+            SimpleMatrix a_4 = sigmoid(z_4);
 
             // Output Layer Delta
-            SimpleMatrix delta_3 = (a_3.minus(y_matrix.extractMatrix(t, t + 1, 0, y_matrix.numCols())));
+            SimpleMatrix delta_4 = (a_4.minus(y_matrix.extractMatrix(t, t + 1, 0, y_matrix.numCols())));
 
-            // Hidden Layer Delta
+            // Hidden Layer 2 Delta
+            SimpleMatrix delta_3 = delta_4.mult(theta_3);
+            delta_3 = delta_3.extractMatrix(0, delta_3.numRows(), 1, delta_3.numCols()).elementMult(sigmoid_gradient(z_3));
+
+            // Hidden Layer 1 Delta
             SimpleMatrix delta_2 = delta_3.mult(theta_2);
             delta_2 = delta_2.extractMatrix(0, delta_2.numRows(), 1, delta_2.numCols()).elementMult(sigmoid_gradient(z_2));
+
 
             // Accumulation for Theta gradients
             theta_1_grad = theta_1_grad.plus(delta_2.transpose().mult(a_1));
             theta_2_grad = theta_2_grad.plus(delta_3.transpose().mult(a_2));
+            theta_3_grad = theta_3_grad.plus(delta_4.transpose().mult(a_3));
         }
 
         // Obtain the unregularized gradient
         theta_1_grad = theta_1_grad.divide(m);
         theta_2_grad = theta_2_grad.divide(m);
+        theta_3_grad = theta_3_grad.divide(m);
 
         // Gradient Regularization Term calculation
         double scale_term = lambda / m;
         SimpleMatrix reg_term_theta_1 = theta_1.extractMatrix(0, theta_1.numRows(), 1, theta_1.numCols()).scale(scale_term);
         SimpleMatrix reg_term_theta_2 = theta_2.extractMatrix(0, theta_2.numRows(), 1, theta_2.numCols()).scale(scale_term);
+        SimpleMatrix reg_term_theta_3 = theta_3.extractMatrix(0, theta_3.numRows(), 1, theta_3.numCols()).scale(scale_term);
 
         // Gradient Regularization
         theta_1_grad.insertIntoThis(0, 1, theta_1_grad.extractMatrix(0, theta_1_grad.numRows(), 1, theta_1_grad.numCols()).plus(reg_term_theta_1));
         theta_2_grad.insertIntoThis(0, 1, theta_2_grad.extractMatrix(0, theta_2_grad.numRows(), 1, theta_2_grad.numCols()).plus(reg_term_theta_2));
+        theta_3_grad.insertIntoThis(0, 1, theta_3_grad.extractMatrix(0, theta_3_grad.numRows(), 1, theta_3_grad.numCols()).plus(reg_term_theta_3));
+
 
         // Unroll gradients (column wise)
-        SimpleMatrix grad = unroll_matrices(theta_1_grad, theta_2_grad);
+        SimpleMatrix grad = unroll_matrices(theta_1_grad, theta_2_grad, theta_3_grad);
         return grad;
     }
 
@@ -438,7 +470,8 @@ public class NeuralNetwork {
 
         // Generate pseudo-random weights
         SimpleMatrix theta_1 = debug_initialize_weights(hidden_layer_size, input_layer_size);
-        SimpleMatrix theta_2 = debug_initialize_weights(num_labels, hidden_layer_size);
+        SimpleMatrix theta_2 = debug_initialize_weights(hidden_layer_size, hidden_layer_size);
+        SimpleMatrix theta_3 = debug_initialize_weights(num_labels, hidden_layer_size);
 
         // Generate input, output data
         SimpleMatrix input_data = debug_initialize_weights(num_examples, input_layer_size -1);
@@ -453,7 +486,7 @@ public class NeuralNetwork {
         );
 
         // Unroll parameters
-        SimpleMatrix nn_parameters = unroll_matrices(theta_1, theta_2);
+        SimpleMatrix nn_parameters = unroll_matrices(theta_1, theta_2, theta_3);
 
         // Compute analytical gradients
         SimpleMatrix analytical_grad = nn_gradient(nn_parameters, input_data,
@@ -516,6 +549,46 @@ public class NeuralNetwork {
 
 
     /*
+    Name       : unroll_matrices
+    Purpose    : To unroll two matrices into one matrix with n rows and one column where n denotes the total number of
+                    elements in both matrices.
+    Parameters :
+                 matrix_1, a simple matrix.
+                 matrix_2, a simple matrix.
+    Return     : unrolled_matrices, a simple matrix denoting the unrolled matrix containing all elements of the two
+                    matrices.
+    Notes      : unrolled column first
+     */
+    public static SimpleMatrix unroll_matrices(SimpleMatrix matrix_1, SimpleMatrix matrix_2, SimpleMatrix matrix_3){
+        int total_number_elements = matrix_1.getNumElements() + matrix_2.getNumElements() + matrix_3.getNumElements();
+        SimpleMatrix unrolled_matrix = new SimpleMatrix(total_number_elements, 1);
+        int unroll_index = 0;
+        for(int col_1 = 0; col_1 < matrix_1.numCols(); col_1++){
+            for(int row_1 = 0; row_1 < matrix_1.numRows(); row_1++){
+                double temp_val = matrix_1.get(row_1, col_1);
+                unrolled_matrix.set(unroll_index, 0, temp_val);
+                unroll_index += 1;
+            }
+        }
+        for(int col_2 = 0; col_2 < matrix_2.numCols(); col_2++){
+            for(int row_2 = 0; row_2 < matrix_2.numRows(); row_2++){
+                double temp_val = matrix_2.get(row_2, col_2);
+                unrolled_matrix.set(unroll_index, 0, temp_val);
+                unroll_index += 1;
+            }
+        }
+        for(int col_3 = 0; col_3 < matrix_3.numCols(); col_3++){
+            for(int row_3 = 0; row_3 < matrix_3.numRows(); row_3++){
+                double temp_val = matrix_3.get(row_3, col_3);
+                unrolled_matrix.set(unroll_index, 0, temp_val);
+                unroll_index += 1;
+            }
+        }
+        return unrolled_matrix;
+    }
+
+
+    /*
     Name       : learn_parameters_via_gd
     Purpose    : To optimize the theta parameters using gradient descent.
     Parameters :
@@ -542,8 +615,9 @@ public class NeuralNetwork {
             String file_name){
         // Set initial theta values
         SimpleMatrix initial_theta_1 = random_initialize_weights(input_layer_size, hidden_layer_size);
-        SimpleMatrix initial_theta_2 = random_initialize_weights(hidden_layer_size, num_labels);
-        SimpleMatrix initial_theta_comb = unroll_matrices(initial_theta_1, initial_theta_2);
+        SimpleMatrix initial_theta_2 = random_initialize_weights(hidden_layer_size, hidden_layer_size);
+        SimpleMatrix initial_theta_3 = random_initialize_weights(hidden_layer_size, num_labels);
+        SimpleMatrix initial_theta_comb = unroll_matrices(initial_theta_1, initial_theta_2, initial_theta_3);
 
         // Set variables for console printing
         int iteration = 0;
@@ -599,9 +673,11 @@ public class NeuralNetwork {
 
         // Obtain theta values from parameters
         SimpleMatrix theta_1 = new SimpleMatrix(hidden_layer_size, input_layer_size+1);
-        SimpleMatrix theta_2 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
+        SimpleMatrix theta_2 = new SimpleMatrix(hidden_layer_size, hidden_layer_size + 1);
+        SimpleMatrix theta_3 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
         copy_parameters(theta_1, parameters, 0);
         copy_parameters(theta_2, parameters, theta_1.getNumElements());
+        copy_parameters(theta_3, parameters, theta_1.getNumElements() + theta_2.getNumElements());
 
         // Predictions matrix
         SimpleMatrix predictions = new SimpleMatrix(input_data.numRows(), 1);
@@ -615,11 +691,13 @@ public class NeuralNetwork {
         SimpleMatrix h1 = sigmoid(input_1);
         SimpleMatrix input_2 = bias_units.concatColumns(h1).mult(theta_2.transpose());
         SimpleMatrix h2 = sigmoid(input_2);
+        SimpleMatrix input_3 = bias_units.concatColumns(h2).mult(theta_3.transpose());
+        SimpleMatrix h3 = sigmoid(input_3);
 
         // Find the max value for each prediction
         for(int i = 0; i < m; i++){
             // Obtain row data in array form
-            double[] row_data = h2.rows(i, i + 1).getDDRM().getData();
+            double[] row_data = h3.rows(i, i + 1).getDDRM().getData();
 
             // Find the max value in the row and its corresponding index
             double max_val = Doubles.max(row_data);
@@ -652,9 +730,11 @@ public class NeuralNetwork {
 
         // Obtain theta values from parameters
         SimpleMatrix theta_1 = new SimpleMatrix(hidden_layer_size, input_layer_size+1);
-        SimpleMatrix theta_2 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
+        SimpleMatrix theta_2 = new SimpleMatrix(hidden_layer_size, hidden_layer_size + 1);
+        SimpleMatrix theta_3 = new SimpleMatrix(num_labels, hidden_layer_size + 1);
         copy_parameters(theta_1, parameters, 0);
         copy_parameters(theta_2, parameters, theta_1.getNumElements());
+        copy_parameters(theta_3, parameters, theta_1.getNumElements() + theta_2.getNumElements());
 
         // Bias unit matrix
         SimpleMatrix bias_units = new SimpleMatrix(m, 1);
@@ -665,9 +745,11 @@ public class NeuralNetwork {
         SimpleMatrix h1 = sigmoid(input_1);
         SimpleMatrix input_2 = bias_units.concatColumns(h1).mult(theta_2.transpose());
         SimpleMatrix h2 = sigmoid(input_2);
+        SimpleMatrix input_3 = bias_units.concatColumns(h2).mult(theta_3.transpose());
+        SimpleMatrix h3 = sigmoid(input_3);
 
         // Obtain row data in array form
-        double[] row_data = h2.rows(0, 1).getDDRM().getData();
+        double[] row_data = h3.rows(0, 1).getDDRM().getData();
 
         // Find the max value in the row and its corresponding index
         double max_val = Doubles.max(row_data);
@@ -756,7 +838,7 @@ public class NeuralNetwork {
         int hidden_layer_size = 100;
         int num_labels = characters.length;
         String parameter_file_path = "src/parameters.csv";
-        int theta_size = (hidden_layer_size * (input_layer_size + 1)) + (num_labels * (hidden_layer_size + 1));
+        int theta_size = (hidden_layer_size * (input_layer_size + 1)) + (hidden_layer_size * hidden_layer_size + 1) + (num_labels * (hidden_layer_size + 1));
         SimpleMatrix parameter_mat = new SimpleMatrix(1, theta_size);
         NeuralNetwork.read_parameters(parameter_mat, parameter_file_path);
         return NeuralNetwork.new_prediction(parameter_mat, input_data, input_layer_size, hidden_layer_size, num_labels);
@@ -1107,6 +1189,48 @@ public class NeuralNetwork {
                 input_data.insertIntoThis(0, col, curr_column);
             }
         }
+    }
+
+    /*
+    Name       : learning_curve
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    private static void learning_curve(SimpleMatrix input_train, SimpleMatrix output_train, SimpleMatrix input_cv,
+                                       SimpleMatrix output_cv, double lambda){
+        // Number of training examples
+        int m = input_train.numRows();
+
+        // Error value arrays
+        double[] error_train = new double[m];
+        double[] error_cv = new double[m];
+        double[] num_examples = new double[m];
+        for(int i = 0; i < m; ++i){
+            num_examples[i] = i;
+        }
+
+        // Evaluate the training, cross validation error for the first i training examples
+        for(int i = 0; i < m; ++i){
+            // Learn the parameters theta for each new set of input examples
+            SimpleMatrix partial_input_train = input_train.extractMatrix(0, i, 0 , input_train.numCols());
+            SimpleMatrix partial_output_train = output_train.extractMatrix(0, i, 0 , output_train.numCols());
+            //SimpleMatrix optim_theta = learn_parameters_via_gd(partial_input_train, partial_output_train);
+
+            // Obtain the training error, without regularization
+            //error_train[i] = nn_cost_function(optim_theta, partial_input_train, partial_output_train, 0);
+
+            // Obtain the cross validation error over the entire set of cv input/output, not regularized
+            //error_cv[i] = nn_cost_function(optim_theta, input_cv, output_cv, 0);
+        }
+
+        // Plot the cv/training set error vs the number of training examples
+        XYChart chart = QuickChart.getChart("Learning Curves", "Number of Training Examples", "Error", "Train",
+                error_train, num_examples);
+
+        // Display the chart
+        new SwingWrapper(chart).displayChart();
     }
 
 

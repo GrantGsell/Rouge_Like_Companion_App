@@ -15,7 +15,7 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public static Bitmap CaptureScreen()
+        public static Bitmap bitmapScreenCapture()
         {
             int width = Screen.PrimaryScreen.Bounds.Width;
             int height = Screen.PrimaryScreen.Bounds.Height;
@@ -48,14 +48,14 @@ namespace RoguelikeCompanion
             int y_offset = 767;
             int height = 77;
          */
-        public static Bitmap IsolateNotificationBoxArea(Bitmap fullScreenCapture, int widthOffset, int newWidth, int heightOffset, int newHeight)
+        public static Bitmap cropBitMap(Bitmap fullScreenCapture, int widthOffset, int newWidth, int heightOffset, int newHeight)
         {
-            Rectangle cropRectangle = new Rectangle();
-            Bitmap target = new Bitmap(newWidth, newHeight);
+            Rectangle cropRectangle = new Rectangle(widthOffset, heightOffset, newWidth + widthOffset, newHeight + heightOffset);
+            Bitmap target = new Bitmap(cropRectangle.Width, cropRectangle.Height);
 
             using (Graphics g = Graphics.FromImage(target))
             {
-                g.DrawImage(fullScreenCapture, new Rectangle(widthOffset, heightOffset, newWidth, newHeight), cropRectangle, GraphicsUnit.Pixel);
+                g.DrawImage(fullScreenCapture, new Rectangle(widthOffset, heightOffset, cropRectangle.Width, cropRectangle.Height), cropRectangle, GraphicsUnit.Pixel);
             }
 
             return target;

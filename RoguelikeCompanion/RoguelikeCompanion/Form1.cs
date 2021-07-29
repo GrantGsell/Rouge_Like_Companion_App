@@ -17,5 +17,11 @@ namespace RoguelikeCompanion
             InitializeComponent();
         }
 
+        private void capture_Click(object sender, EventArgs e)
+        {
+            pictureBox.Image = ScreenImgCapture.CaptureScreen();
+            //Bitmap initialImage = ScreenImgCapture.CaptureScreen();
+            //pictureBox.Image = ScreenImgCapture.IsolateNotificationBoxArea(initialImage, 567, 425, 767, 77);
+        }
     }
 }

@@ -44,7 +44,7 @@ namespace RoguelikeCompanion
 
 
         /*
-         * Isolate the portion of the image where the desired data should be
+         * Crop a bitmap
          */
         public static Bitmap cropBitMap(Bitmap fullScreenCapture, int widthOffset, int newWidth, int heightOffset, int newHeight)
         {
@@ -60,6 +60,5 @@ namespace RoguelikeCompanion
 
             return target;
         }
-
     }
 }

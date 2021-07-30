@@ -14,6 +14,7 @@ namespace RoguelikeCompanion
     {
 
         /*
+         * Obtain a full-screen image and resize it to 1536 x 864
          */
         public static Bitmap bitmapScreenCapture()
         {
@@ -43,19 +44,18 @@ namespace RoguelikeCompanion
 
 
         /*
-            int x_offset = 567;
-            int width = 425;
-            int y_offset = 767;
-            int height = 77;
+         * Isolate the portion of the image where the desired data should be
          */
         public static Bitmap cropBitMap(Bitmap fullScreenCapture, int widthOffset, int newWidth, int heightOffset, int newHeight)
         {
-            Rectangle cropRectangle = new Rectangle(widthOffset, heightOffset, newWidth + widthOffset, newHeight + heightOffset);
+            // Set the crop location, and the crop bitmap
+            Rectangle cropRectangle = new Rectangle(widthOffset, heightOffset, newWidth, newHeight);
             Bitmap target = new Bitmap(cropRectangle.Width, cropRectangle.Height);
 
+            // Isolate and draw the croped portion of the image
             using (Graphics g = Graphics.FromImage(target))
             {
-                g.DrawImage(fullScreenCapture, new Rectangle(widthOffset, heightOffset, cropRectangle.Width, cropRectangle.Height), cropRectangle, GraphicsUnit.Pixel);
+                g.DrawImage(fullScreenCapture, new Rectangle(0, 0, cropRectangle.Width, cropRectangle.Height), cropRectangle, GraphicsUnit.Pixel);
             }
 
             return target;

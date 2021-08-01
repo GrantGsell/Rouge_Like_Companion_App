@@ -314,12 +314,83 @@ public class BorderData {
     }
 
 
+    /*
+    Name       : readBorderData
+    Purpose    : To read the border data matrix from the border_data table.
+    Parameters : None.
+    Return     : One 2D double matrix, denoting the border data.
+    Notes      :
+                 The table has the following properties:
+                    900 Columns.
+                    rows 0-7 contains class 1 border data.
+                    rows 8-15 contains class 2 border data.
+                    rows 16-23 contains class 3 border data.
+                    rows 24-31 contains class 4 border data.
+     */
+    public static double[][] readBorderData(){
+        // Return array
+        double[][] border_data = new double[4][7200];
+
+        try {
+            // Open a new connection to the database
+            Connection conn = MySQLJDBCUtil.getConnection();
+
+            // Create a Statement object
+            Statement stmt = conn.createStatement();
+
+            // Create query string
+            String query;
+
+            // Populate border matrix
+            int matRow = 0, matCol = 0;
+            for(int row = 0; row < 32; row++) {
+                // Create a temporary table to hold 1/8 rows for one class
+                query = "DROP TABLE IF EXISTS temp_border_data";
+                stmt.execute(query);
+                query = "CREATE TEMPORARY TABLE temp_border_data AS SELECT * FROM border_data WHERE row_num = " + Integer.toString(row);
+                stmt.execute(query);
+
+                // Remove the temp tables row identifier
+                query = "ALTER TABLE temp_border_data DROP COLUMN row_num";
+                stmt.execute(query);
+
+                // Extract the 900 columns for one row and read into matrix
+                query = "SELECT * FROM temp_border_data";
+                ResultSet rs = stmt.executeQuery(query);
+                rs.next();
+                for (int col = 1; col <= 900; col++) {
+                    border_data[matRow][matCol] = rs.getDouble(col);
+                    matCol++;
+                }
+
+                // Check for matrix row/column iteration
+                if((row + 1) % 8 == 0){
+                    matRow++;
+                }
+                if(matCol == 7200){
+                    matCol = 0;
+                }
+            }
+
+            // Close the Result Set and Statement objects
+            stmt.close();
+            conn.close();
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return border_data;
+    }
+
+
     public static void main(String[] args){
+        double[][] readInBorderData = readBorderData();
+
         // Obtain border data
         double[][] border_data = average_border_values_per_class();
 
         // Write the border data to the MySQL database
-        writeBorderDataToMySQL(border_data);
+        //writeBorderDataToMySQL(border_data);
 
     }
 }

@@ -236,7 +236,7 @@ public class BorderData {
                     String query = "UPDATE border_data " +
                                     "SET column_" + Integer.toString(dataBaseColIdx) + " =" +
                                     Double.toString(border_data[rowIndex][dataBaseColIdx]) +
-                                    " WHERE row_num = " + Integer.toString(rowIndex);
+                                    " WHERE row_num = " + Integer.toString(dataBaseRowIdx);
 
                     // Execute the query
                     stmt.execute(query);
@@ -251,7 +251,6 @@ public class BorderData {
             // Close the Result Set and Statement objects
             conn.close();
             stmt.close();
-
         }
         catch (SQLException e) {
             System.out.println(e.getMessage());

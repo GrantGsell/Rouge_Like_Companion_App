@@ -328,7 +328,7 @@ public class BorderData {
                     rows 24-31 contains class 4 border data.
      */
     public static double[][] readBorderData(){
-        // Return array
+        // Initialize return array
         double[][] border_data = new double[4][7200];
 
         try {
@@ -347,7 +347,8 @@ public class BorderData {
                 // Create a temporary table to hold 1/8 rows for one class
                 query = "DROP TABLE IF EXISTS temp_border_data";
                 stmt.execute(query);
-                query = "CREATE TEMPORARY TABLE temp_border_data AS SELECT * FROM border_data WHERE row_num = " + Integer.toString(row);
+                query = "CREATE TEMPORARY TABLE temp_border_data AS SELECT * FROM border_data WHERE row_num = " +
+                        Integer.toString(row);
                 stmt.execute(query);
 
                 // Remove the temp tables row identifier

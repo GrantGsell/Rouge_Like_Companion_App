@@ -199,18 +199,19 @@ public class BorderData {
         return  rgb_data;
     }
 
+
     /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
+    Name       : writeBorderDataToMySQL
+    Purpose    : To write the border data matrix to the border_data table.
+    Parameters : One 2D double matrix, denoting the border data.
+    Return     : None.
     Notes      :
                  The table has the following properties:
-                    900 Columns
-                    rows 0-7 contains class 1 border data
-                    rows 8-15 contains class 2 border data
-                    rows 16-23 contains class 3 border data
-                    rows 24-31 contains class 4 border data
+                    900 Columns.
+                    rows 0-7 contains class 1 border data.
+                    rows 8-15 contains class 2 border data.
+                    rows 16-23 contains class 3 border data.
+                    rows 24-31 contains class 4 border data.
      */
     public static void writeBorderDataToMySQL(double[][] border_data){
         // Create and initialize the border data table
@@ -265,11 +266,11 @@ public class BorderData {
     Return     : None.
     Notes      :
                  The table has the following properties:
-                    900 Columns
-                    rows 0-7 contains class 1 border data
-                    rows 8-15 contains class 2 border data
-                    rows 16-23 contains class 3 border data
-                    rows 24-31 contains class 4 border data
+                    900 Columns.
+                    rows 0-7 contains class 1 border data.
+                    rows 8-15 contains class 2 border data.
+                    rows 16-23 contains class 3 border data.
+                    rows 24-31 contains class 4 border data.
      */
     public static void createBorderDataTable(){
         // Clear and initialize table

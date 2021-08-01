@@ -3,7 +3,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
+import java.sql.*;
 
 public class BorderData {
 
@@ -195,5 +199,61 @@ public class BorderData {
         return  rgb_data;
     }
 
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static void writeBorderDataToMySQL(){
 
+    }
+
+
+    /*
+    Name       :
+    Purpose    :
+    Parameters :
+    Return     :
+    Notes      :
+     */
+    public static void createBorderDataTable(){
+        //
+
+        // Clear and initialize table
+        try {
+            // Open a new connection to the database
+            Connection conn = MySQLJDBCUtil.getConnection();
+
+            // Create a Statement object
+            Statement stmt = conn.createStatement();
+
+            // Create and execute queries
+            String query = "DROP TABLE IF EXISTS border_data";
+            stmt.execute(query);
+            query = "CREATE TABLE IF NOT EXISTS border_data (row_num tinyint primary key)";
+            stmt.execute(query);
+
+            // Add the columns for each row
+            for(int i = 0; i < 900; i++){
+                query = "ALTER TABLE border_data " +
+                        "ADD " + "column_" + Integer.toString(i) + " int";
+                stmt.execute(query);
+            }
+
+            // Close the Result Set and Statement objects
+            stmt.close();
+            conn.close();
+
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void main(String[] args){
+        // Create and initialize the border_data table
+        createBorderDataTable();
+    }
 }

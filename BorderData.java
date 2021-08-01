@@ -230,12 +230,12 @@ public class BorderData {
                 int dataBaseColIdx = 0;
                 for(int col = 0; col < border_data[0].length; col++){
                     // Set database row index
-                    int dataBaseRowIdx = rowIndex +  col % 900;
+                    int dataBaseRowIdx = rowIndex +  col / 900;
 
                     // Create the query string
                     String query = "UPDATE border_data " +
-                                    "SET column_" + Integer.toString(dataBaseColIdx) + " =" +
-                                    Double.toString(border_data[rowIndex][dataBaseColIdx]) +
+                                    "SET column_" + Integer.toString(dataBaseColIdx) + " = " +
+                                    Double.toString(border_data[num][col]) +
                                     " WHERE row_num = " + Integer.toString(dataBaseRowIdx);
 
                     // Execute the query
@@ -289,7 +289,7 @@ public class BorderData {
             // Add the columns for each ro
             for(int i = 0; i < 900; i++) {
                 query = "ALTER TABLE border_data " +
-                        "ADD " + "column_" + Integer.toString(i) + " int";
+                        "ADD " + "column_" + Integer.toString(i) + " double";
                 stmt.execute(query);
             }
 
@@ -312,8 +312,13 @@ public class BorderData {
         }
     }
 
+
     public static void main(String[] args){
-        // Create and initialize the border_data table
-        createBorderDataTable();
+        // Obtain border data
+        double[][] border_data = average_border_values_per_class();
+
+        // Write the border data to the MySQL database
+        writeBorderDataToMySQL(border_data);
+
     }
 }

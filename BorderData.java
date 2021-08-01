@@ -205,22 +205,74 @@ public class BorderData {
     Parameters :
     Return     :
     Notes      :
+                 The table has the following properties:
+                    900 Columns
+                    rows 0-7 contains class 1 border data
+                    rows 8-15 contains class 2 border data
+                    rows 16-23 contains class 3 border data
+                    rows 24-31 contains class 4 border data
      */
-    public static void writeBorderDataToMySQL(){
+    public static void writeBorderDataToMySQL(double[][] border_data){
+        // Create and initialize the border data table
+        createBorderDataTable();
 
+        // Populate the border data table
+        try {
+            // Open a new connection to the database
+            Connection conn = MySQLJDBCUtil.getConnection();
+
+            // Create a Statement object
+            Statement stmt = conn.createStatement();
+
+            // Write border data to table one column at a time
+            int rowIndex = 0;
+            for(int num = 0; num < border_data.length; num++){
+                int dataBaseColIdx = 0;
+                for(int col = 0; col < border_data[0].length; col++){
+                    // Set database row index
+                    int dataBaseRowIdx = rowIndex +  col % 900;
+
+                    // Create the query string
+                    String query = "UPDATE border_data " +
+                                    "SET column_" + Integer.toString(dataBaseColIdx) + " =" +
+                                    Double.toString(border_data[rowIndex][dataBaseColIdx]) +
+                                    " WHERE row_num = " + Integer.toString(rowIndex);
+
+                    // Execute the query
+                    stmt.execute(query);
+
+                    // Iterate database column index and check value
+                    dataBaseColIdx++;
+                    if(dataBaseColIdx > 899) dataBaseColIdx = 0;
+                }
+                rowIndex += 8;
+            }
+
+            // Close the Result Set and Statement objects
+            conn.close();
+            stmt.close();
+
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 
     /*
-    Name       :
-    Purpose    :
-    Parameters :
-    Return     :
+    Name       : createBorderDataTable
+    Purpose    : To create and initialize the table to hold the border data.
+    Parameters : None.
+    Return     : None.
     Notes      :
+                 The table has the following properties:
+                    900 Columns
+                    rows 0-7 contains class 1 border data
+                    rows 8-15 contains class 2 border data
+                    rows 16-23 contains class 3 border data
+                    rows 24-31 contains class 4 border data
      */
     public static void createBorderDataTable(){
-        //
-
         // Clear and initialize table
         try {
             // Open a new connection to the database
@@ -235,11 +287,20 @@ public class BorderData {
             query = "CREATE TABLE IF NOT EXISTS border_data (row_num tinyint primary key)";
             stmt.execute(query);
 
-            // Add the columns for each row
-            for(int i = 0; i < 900; i++){
+            // Add the columns for each ro
+            for(int i = 0; i < 900; i++) {
                 query = "ALTER TABLE border_data " +
                         "ADD " + "column_" + Integer.toString(i) + " int";
                 stmt.execute(query);
+            }
+
+            // Set insertion statement
+            query = "INSERT INTO border_data (row_num) " +
+                    "VALUES (";
+
+            // Add row number identifiers
+            for(int row = 0; row < 32; row++){
+                stmt.execute(query + Integer.toString(row) + ")");
             }
 
             // Close the Result Set and Statement objects

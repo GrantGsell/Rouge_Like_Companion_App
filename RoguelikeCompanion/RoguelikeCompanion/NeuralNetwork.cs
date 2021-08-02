@@ -85,6 +85,7 @@ namespace RoguelikeCompanion
 
 
         /*
+         * 
          */
         public static void normalizeInputData()
         {

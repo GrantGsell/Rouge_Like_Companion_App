@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
+using MySql.Data.MySqlClient;
 
 namespace RoguelikeCompanion
 {
@@ -13,8 +14,67 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public static void readBorderData()
+        public static double[,] readBorderData()
         {
+            // Create connector and reader objects
+            MySqlConnection MyConnection = null;
+            MySqlDataReader MyReader = null;
+
+            // Create the SQL connection
+            MyConnection = new MySqlConnection(SQLInfo.getLogin());
+            MyConnection.Open();
+
+            // Create a query and command
+            String query;
+            MySqlCommand MyCommand;
+
+            // Populate border matrix
+            int matRow = 0, matCol = 0;
+            double[,] borderData = new double[4, 7200];
+            for (int row = 0; row < 32; row++)
+            {
+                // Create a temporary table to hold 1/8 rows for one class
+                query = "DROP TABLE IF EXISTS temp_border_data";
+                MyCommand = new MySqlCommand(query, MyConnection);
+                MyCommand.ExecuteNonQuery();
+                query = "CREATE TEMPORARY TABLE temp_border_data AS SELECT * FROM border_data WHERE row_num = " + row.ToString();
+                MyCommand = new MySqlCommand(query, MyConnection);
+                MyCommand.ExecuteNonQuery();
+
+                // Remove the temp tables row identifier
+                query = "ALTER TABLE temp_border_data DROP COLUMN row_num";
+                MyCommand = new MySqlCommand(query, MyConnection);
+                MyCommand.ExecuteNonQuery();
+
+                // Extract the 900 columns for one row and read into matrix
+                query = "SELECT * FROM temp_border_data";
+                MyCommand = new MySqlCommand(query, MyConnection);
+                MyReader = MyCommand.ExecuteReader();
+                MyReader.Read();
+                for (int col = 1; col <= 900; col++)
+                {
+                    borderData[matRow, matCol] = MyReader.GetDouble(col - 1);
+                    matCol++;
+                }
+
+                // Check for matrix row/column iteration
+                if ((row + 1) % 8 == 0)
+                {
+                    matRow++;
+                }
+                if (matCol == 7200)
+                {
+                    matCol = 0;
+                }
+                MyReader.Close();
+            }
+
+            // Close connection and reader
+            MyReader.Close();
+            MyConnection.Close();
+
+            // Return border data array
+            return borderData;
 
         }
 
@@ -118,6 +178,5 @@ namespace RoguelikeCompanion
 
             return imageRGBArray;
         }
-
-    }
+    }    
 }

@@ -81,11 +81,11 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public static int predictIsBorder(Bitmap notificationBox, double[][] borderData)
+        public static int predictIsBorder(Bitmap notificationBox, double[,] borderData)
         {
             // Number of border features and classes
-            int numClasses = borderData.Length;
-            int numFeatures = borderData[0].Length;
+            int numClasses = borderData.GetLength(0);
+            int numFeatures = borderData.GetLength(1);
             int borderPixelHeight = 3;
 
             // Create an array to hold top, bottom border data
@@ -101,25 +101,25 @@ namespace RoguelikeCompanion
 
             // Copy RGB data into the combined array
             Array.Copy(topBorderArr, 0, combinedBorderData, 0, topBorderArr.Length);
-            Array.Copy(bottomBorderArr, 0, combinedBorderData, topBorderArr.Length + 1, bottomBorderArr.Length);
+            Array.Copy(bottomBorderArr, 0, combinedBorderData, topBorderArr.Length, bottomBorderArr.Length);
 
             // Find the difference between each of the classes
             double[] numDiffPixels = new double[numClasses];
             for (int col = 0; col < numFeatures; col++)
             {
-                if (Math.Abs((double)combinedBorderData[col] - borderData[0][col]) > 20)
+                if (Math.Abs((double)combinedBorderData[col] - borderData[0, col]) > 20)
                 {
                     numDiffPixels[0] += 1.0;
                 }
-                if (Math.Abs((double)combinedBorderData[col] - borderData[1][col]) > 50)
+                if (Math.Abs((double)combinedBorderData[col] - borderData[1, col]) > 50)
                 {
                     numDiffPixels[1] += 1.0;
                 }
-                if (Math.Abs((double)combinedBorderData[col] - borderData[2][col]) > 35)
+                if (Math.Abs((double)combinedBorderData[col] - borderData[2, col]) > 35)
                 {
                     numDiffPixels[2] += 1.0;
                 }
-                if (Math.Abs((double)combinedBorderData[col] - borderData[3][col]) > 35)
+                if (Math.Abs((double)combinedBorderData[col] - borderData[3, col]) > 35)
                 {
                     numDiffPixels[3] += 1.0;
                 }

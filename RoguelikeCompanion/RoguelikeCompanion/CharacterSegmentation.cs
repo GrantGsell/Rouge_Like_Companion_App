@@ -13,7 +13,7 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public static void characterSegmentation(Bitmap image)
+        public static (List<int>, Bitmap) characterSegmentation(Bitmap image)
         {
             // Sliding window dimensions and step size
             int swHeight = 18, swWidth = 15, swDelta = 5;
@@ -28,8 +28,10 @@ namespace RoguelikeCompanion
             preprocessBackground(image);
 
             // Obtain character segmentation indices list
-            getCharacterSeparationIndices(image, swHeight);
+            List<int> splits =  getCharacterSeparationIndices(image, swHeight);
 
+            // Return a tuple object of the processed image and character splits
+            return (splits, image);
         }
 
 
@@ -38,14 +40,14 @@ namespace RoguelikeCompanion
         public static Bitmap isolateText(Bitmap image, int swHeight, int swWidth, int swDelta)
         {
             // Text box column variables
-            int num_boxes = (image.Width - swWidth) / swDelta;      // Potential for error
+            int numBoxes = (image.Width - swWidth) / swDelta;
             int textBoxStart = -1;
             int textBoxEnd = -1;
             int widthOffset = 0;
             int heightOffset = 0;
 
             // Slide the sliding window box along the image width
-            for (int curr_idx = 0; curr_idx < num_boxes; curr_idx++)
+            for (int curr_idx = 0; curr_idx < numBoxes; curr_idx++)
             {
                 // Obtain the current sliding window box
                 Bitmap curr_box = ScreenImgCapture.cropBitMap(image, widthOffset, swWidth, heightOffset, swHeight);

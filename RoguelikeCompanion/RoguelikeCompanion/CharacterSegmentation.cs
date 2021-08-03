@@ -143,7 +143,72 @@ namespace RoguelikeCompanion
 
 
 
-        
+        /*
+         * 
+         */
+        public static List<int> getCharacterSeparationIndices(Bitmap image, int swHeight)
+        {
+            int[] spacingIndices = new int[image.Width];
+            int arrIdx = 0;
+
+            // Search image for black columns, if found search for black column 14 spaces away
+            int xOffset = 0;
+
+            // Use the sliding window to assign potential column indices to the spacing indices array
+            while (xOffset + 14 < image.Width)
+            {
+                // Obtain sliding window edge slices
+                Bitmap left_column = ScreenImgCapture.cropBitMap(image, xOffset, 1, 0, swHeight);
+                Bitmap right_column = ScreenImgCapture.cropBitMap(image, xOffset + 14, 1, 0, swHeight);
+
+                if (numBWPixels(left_column, 100, (swHeight - 3), false)
+                        && numBWPixels(right_column, 100, (swHeight - 2), false))
+                {
+                    spacingIndices[arrIdx] = xOffset;
+                    arrIdx += 1;
+                }
+                xOffset += 1;
+            }
+
+            // Process array into new usable array list and remove duplicates
+            List<int> charSplits = new List<int>();
+            int idx = 0;
+            while (spacingIndices[idx] != 0 || spacingIndices[idx + 1] != 0)
+            {
+                if (spacingIndices[idx + 5] - spacingIndices[idx] == 5)
+                {
+                    charSplits.Add(spacingIndices[idx + 3]);
+                    idx += 6;
+                }
+                else if (spacingIndices[idx + 4] - spacingIndices[idx] == 4)
+                {
+                    charSplits.Add(spacingIndices[idx + 3]);
+                    idx += 5;
+                }
+                else if (spacingIndices[idx + 3] - spacingIndices[idx] == 3)
+                {
+                    charSplits.Add(spacingIndices[idx + 2]);
+                    idx += 4;
+                }
+                else if (spacingIndices[idx + 2] - spacingIndices[idx] == 2)
+                {
+                    charSplits.Add(spacingIndices[idx + 1]);
+                    idx += 3;
+                }
+                else if (spacingIndices[idx + 1] - spacingIndices[idx] == 1)
+                {
+                    charSplits.Add(spacingIndices[idx]);
+                    idx += 2;
+                }
+                else
+                {
+                    charSplits.Add(spacingIndices[idx]);
+                    idx += 1;
+                }
+            }
+            return charSplits;
+
+        }
 
 
     }

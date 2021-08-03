@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using MySql.Data.MySqlClient;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace RoguelikeCompanion
 {
@@ -87,8 +88,20 @@ namespace RoguelikeCompanion
         /*
          * 
          */
-        public static void normalizeInputData()
+        public static void normalizeInputData(Matrix<double> inputMatrix, double[] mean, double[] std, List<int> constantColumns)
         {
+            // Apply data normalization to input matrix
+            for(int col = 0; col < inputMatrix.ColumnCount; col++)
+            {
+                if (!constantColumns.Contains(col))
+                {
+                    // Subtract mean
+                    inputMatrix[0, col] = inputMatrix[0, col] - mean[col];
+
+                    // Divide by standard deviation
+                    inputMatrix[0, col] = inputMatrix[0, col] / std[col];
+                }
+            }
 
         }
     }

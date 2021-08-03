@@ -6,14 +6,32 @@ using System.Threading.Tasks;
 using System.Drawing;
 using MySql.Data.MySqlClient;
 using MathNet.Numerics.LinearAlgebra;
+using System.IO;
 
 namespace RoguelikeCompanion
 {
     class NeuralNetwork
     {
+        // Fields
+        int numFeatures = 810;
+        double[] mean = new double[810];
+        double[] std = new double[810];
+        List<int> constantColumns = new List<int>();
+        string[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+            "O", "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE",
+            "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP", "ERRAPT"};
+
         /*
          */
-        public static void newImagePrediction(Bitmap newImage)
+        public NeuralNetwork()
+        {
+            readMeanStdConstCols(numFeatures, mean, std, constantColumns);
+        }
+
+
+        /*
+         */
+        public void newImagePrediction(Bitmap newImage)
         {
             try
             {
@@ -22,21 +40,45 @@ namespace RoguelikeCompanion
                 int swWidth = 15;
 
                 // Perform character segmentation
-
+                List<int> charSeparationIndicies;
+                Bitmap isolatedTextImage;
+                (charSeparationIndicies, isolatedTextImage) = CharacterSegmentation.characterSegmentation(newImage);
 
                 // Set string array for prediction results
-
+                string[] stringPredictions = new string[charSeparationIndicies.Count];
 
                 // Make a prediction for each character
+                int strPredArrIdx = 0;
+                for (int curr = 0; curr < charSeparationIndicies.Count; curr++)
+                {
+                    // Obtain a sliding window box for one character
+                    Bitmap currChar = ScreenImgCapture.cropBitMap(isolatedTextImage, charSeparationIndicies.ElementAt(curr), swWidth, 0, swHeight);
 
-                
+                    // Obtain sub-box pixel data
+                    double[] pixelData = Array.ConvertAll<int, double>(BorderClass.getRGBData(currChar), x => x);
+
+                    // Transform the data into a Simple Matrix object
+                    Matrix<double> newCharMatrix = Matrix<double>.Build.Dense(1, this.numFeatures, pixelData);
+
+                    // Normalize the new example data
+                    this.normalizeInputData(newCharMatrix, this.mean, this.std, this.constantColumns);
+
+                    // Make new prediction
+                    double prediction = 2;
+                    //double prediction = test_new_char(newCharMatrix);
+
+                    // Translate prediction into associated character
+                    int predict_idx = (int)prediction;
+                    String char_prediction = characters[predict_idx];
+                    stringPredictions[strPredArrIdx] = char_prediction;
+                    strPredArrIdx += 1;
+                }
 
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
-
         }
 
 
@@ -109,7 +151,7 @@ namespace RoguelikeCompanion
         /*
          * 
          */
-        public static void normalizeInputData(Matrix<double> inputMatrix, double[] mean, double[] std, List<int> constantColumns)
+        public void normalizeInputData(Matrix<double> inputMatrix, double[] mean, double[] std, List<int> constantColumns)
         {
             // Apply data normalization to input matrix
             for(int col = 0; col < inputMatrix.ColumnCount; col++)
@@ -162,6 +204,49 @@ namespace RoguelikeCompanion
             }
 
             return objectName.ToString();
+        }
+
+
+        /*
+         */
+        public void determineCharacter(Matrix<double> newCharMatrix)
+        {
+            // Set input, hidden and output layer sizes
+            int inputLayerSize = 810;
+            int hiddenLayerSize = 100;
+            int numLabels = this.characters.Length;
+
+            // Set parameter matrix values and path
+            string parameterFilePath = "C:/Users/Grant/Desktop/Java_Rouge_Like_App/src/parameters.csv";
+            int theta_size = (hiddenLayerSize * (inputLayerSize + 1)) + (numLabels * (hiddenLayerSize + 1));
+            Matrix<double> parameterMatrix = Matrix<double>.Build.Dense(1, theta_size);
+
+            // Read in parameter values
+            readParametersFromCSV(parameterMatrix, parameterFilePath);
+
+
+            //return NeuralNetwork.new_prediction(parameterMatrix, newCharMatrix, inputLayerSize, hiddenLayerSize, numLabels);
+        }
+
+
+        /*
+         */
+        public static void readParametersFromCSV(Matrix<double> parameterMatrix, string parameterCSVFilePath)
+        {
+            using(var reader = new StreamReader(parameterCSVFilePath))
+            {
+                while(!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    var values = line.Split(",");
+                    for(int col = 0; col < parameterMatrix.ColumnCount; col++)
+                    {
+                        string strData = values[col];
+                        double dblData = Convert.ToDouble(strData);
+                        parameterMatrix.Add(dblData);
+                    }
+                }
+            }
         }
     }
 }

@@ -15,6 +15,27 @@ namespace RoguelikeCompanion
          */
         public static void newImagePrediction(Bitmap newImage)
         {
+            try
+            {
+                // Sliding window dimensions
+                int swHeight = 18;
+                int swWidth = 15;
+
+                // Perform character segmentation
+
+
+                // Set string array for prediction results
+
+
+                // Make a prediction for each character
+
+                
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
 
         }
 
@@ -103,6 +124,44 @@ namespace RoguelikeCompanion
                 }
             }
 
+        }
+
+
+        /*
+         */
+        public static string transformCharArrayToString(string[] namePrediction)
+        {
+            StringBuilder objectName = new StringBuilder();
+            bool newWordFlag = false;
+
+            for (int i = 0; i < namePrediction.Length; i++)
+            {
+                if (namePrediction[i].Equals("SPACE"))
+                {
+                    objectName.Append("_");
+                    newWordFlag = true;
+                }
+                else if (namePrediction[i].Equals("ERRAP") || namePrediction[i].Equals("ERRAPT"))
+                {
+                    objectName.Append("'");
+                }
+                else if (namePrediction[i].Equals("ERRL") || namePrediction[i].Equals("ERRN") || namePrediction[i].Equals("ERRM") ||
+                        namePrediction[i].Equals("ERRT") || namePrediction[i].Equals("ERRU"))
+                {
+
+                }
+                else if (i == 0 || newWordFlag)
+                {
+                    objectName.Append(namePrediction[i]);
+                    newWordFlag = false;
+                }
+                else
+                {
+                    objectName.Append(namePrediction[i].ToLower());
+                }
+            }
+
+            return objectName.ToString();
         }
     }
 }

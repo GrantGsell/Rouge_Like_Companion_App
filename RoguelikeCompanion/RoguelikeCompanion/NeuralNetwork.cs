@@ -17,22 +17,35 @@ namespace RoguelikeCompanion
         double[] mean = new double[810];
         double[] std = new double[810];
         List<int> constantColumns = new List<int>();
-        string[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+        static string[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
             "O", "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE",
             "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP", "ERRAPT"};
+
+        //
+        // Set input, hidden and output layer sizes
+        static int inputLayerSize = 810;
+        static int hiddenLayerSize = 100;
+
+        // Set parameter matrix values and path
+        string parameterFilePath = "C:/Users/Grant/Desktop/Java_Rouge_Like_App/src/parameters.csv";
+        static int theta_size = (hiddenLayerSize * (inputLayerSize + 1)) + (characters.Length * (hiddenLayerSize + 1));
+        Matrix<double> parameterMatrix = Matrix<double>.Build.Dense(1, theta_size);
+
 
         /*
          */
         public NeuralNetwork()
         {
             readMeanStdConstCols(numFeatures, mean, std, constantColumns);
+            readParametersFromCSV(parameterMatrix, this.parameterFilePath);
         }
 
 
         /*
          */
-        public void newImagePrediction(Bitmap newImage)
+        public string newImagePrediction(Bitmap newImage)
         {
+            string objectName = null;
             try
             {
                 // Sliding window dimensions
@@ -67,17 +80,20 @@ namespace RoguelikeCompanion
                     double prediction = determineCharacter(newCharMatrix);
 
                     // Translate prediction into associated character
-                    int predict_idx = (int)prediction;
-                    String char_prediction = characters[predict_idx];
-                    stringPredictions[strPredArrIdx] = char_prediction;
+                    int predictIdx = (int)prediction;
+                    String charPrediction = characters[predictIdx];
+                    stringPredictions[strPredArrIdx] = charPrediction;
                     strPredArrIdx += 1;
                 }
 
+                // Translate string character array into a string
+                objectName = transformCharArrayToString(stringPredictions);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
+            return objectName;
         }
 
 
@@ -213,10 +229,11 @@ namespace RoguelikeCompanion
          */
         public double determineCharacter(Matrix<double> newCharMatrix)
         {
+            /*
             // Set input, hidden and output layer sizes
             int inputLayerSize = 810;
             int hiddenLayerSize = 100;
-            int numLabels = this.characters.Length;
+            int numLabels = characters.Length;
 
             // Set parameter matrix values and path
             string parameterFilePath = "C:/Users/Grant/Desktop/Java_Rouge_Like_App/src/parameters.csv";
@@ -225,17 +242,19 @@ namespace RoguelikeCompanion
 
             // Read in parameter values
             readParametersFromCSV(parameterMatrix, parameterFilePath);
+            */
 
-            return NeuralNetwork.makeNNPrediction(parameterMatrix, newCharMatrix, inputLayerSize, hiddenLayerSize, numLabels);
+            return NeuralNetwork.makeNNPrediction(this.parameterMatrix, newCharMatrix, inputLayerSize, hiddenLayerSize, characters.Length);
         }
 
 
         /*
          */
-        public static void readParametersFromCSV(Matrix<double> parameterMatrix, string parameterCSVFilePath)
+        public void readParametersFromCSV(Matrix<double> parameterMatrix, string parameterCSVFilePath)
         {
             using(var reader = new StreamReader(parameterCSVFilePath))
             {
+                int matrixArr = 0;
                 while(!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
@@ -244,7 +263,7 @@ namespace RoguelikeCompanion
                     {
                         string strData = values[col];
                         double dblData = Convert.ToDouble(strData);
-                        parameterMatrix.Add(dblData);
+                        parameterMatrix[0, matrixArr++] = dblData;
                     }
                 }
             }
@@ -258,8 +277,29 @@ namespace RoguelikeCompanion
             // Initialize theta matricies
             Matrix<double> theta1 = Matrix<double>.Build.Dense(hiddenLayerSize, inputLayerSize + 1);
             Matrix<double> theta2 = Matrix<double>.Build.Dense(numLabels, hiddenLayerSize + 1);
-            
+
             // Extract theta values from parameters
+            copyParameters(theta1, parameters, 0);
+            copyParameters(theta2, parameters, theta1.RowCount * theta1.ColumnCount);
+
+            // Create bias unit matrix
+            Matrix<double> biasUnits = Matrix<double>.Build.Dense(1, 1);
+            biasUnits.Add(1);
+
+            // Run NN forward propagation
+            Matrix<double> input1 = (biasUnits.Append(newCharData)).Multiply(theta1.Transpose());
+            Matrix<double> h1 = sigmoid(input1);
+            Matrix<double> input2 = (biasUnits.Append(h1)).Multiply(theta2.Transpose());
+            Matrix<double> h2 = sigmoid(input2);
+
+            // Obtain output layer data in vector form
+            double[] outputArr = h2.Row(0).AsArray();
+
+            // Find the max value in the row and its corresponding index
+            double maxVal = outputArr.Max();
+            double maxValIdx = Array.IndexOf(outputArr, maxVal);
+
+            return maxValIdx;
             
         }
 
@@ -276,6 +316,16 @@ namespace RoguelikeCompanion
                     inputMatrix[row, col] = inputVector[0, vectorIdx++];
                 }
             }
+        }
+
+
+        /*
+         */
+        public static Matrix<double> sigmoid(Matrix<double> matrix)
+        {
+            matrix = matrix.Multiply(-1);
+            matrix = (Matrix<double>.Exp(matrix)).Add(1).PointwisePower(-1.0);
+            return matrix;
         }
     }
 }

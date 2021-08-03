@@ -104,10 +104,11 @@ namespace RoguelikeCompanion
             MyCommand = new MySqlCommand(query, MyConnection);
             MyReader = MyCommand.ExecuteReader();
             MyReader.Read();
-            for (int i = 2; i < numFeatures + 2; i++)
+            for (int i = 1; i < numFeatures + 1; i++)
             {
-                mean[i - 2] = MyReader.GetDouble(i);
+                mean[i - 1] = MyReader.GetDouble(i);
             }
+            MyReader.Close();
 
 
             // Populate the standard deviation array
@@ -115,10 +116,11 @@ namespace RoguelikeCompanion
             MyCommand = new MySqlCommand(query, MyConnection);
             MyReader = MyCommand.ExecuteReader();
             MyReader.Read();
-            for (int i = 2; i < numFeatures + 2; i++)
+            for (int i = 1; i < numFeatures + 1; i++)
             {
-                std[i - 2] = MyReader.GetDouble(i);
+                std[i - 1] = MyReader.GetDouble(i);
             }
+            MyReader.Close();
 
 
             // Obtain the number of constant column elements
@@ -128,6 +130,7 @@ namespace RoguelikeCompanion
             MyReader = MyCommand.ExecuteReader();
             MyReader.Read();
             int numConstantCols = MyReader.GetInt32(0);
+            MyReader.Close();
 
 
             // Populate the constant columns list
@@ -135,7 +138,7 @@ namespace RoguelikeCompanion
             MyCommand = new MySqlCommand(query, MyConnection);
             MyReader = MyCommand.ExecuteReader();
             MyReader.Read();
-            for (int i = 2; i < numConstantCols + 1; i++)
+            for (int i = 1; i < numConstantCols; i++)
             {
                 int temp = MyReader.GetInt32(i);
                 constantColumns.Add(temp);

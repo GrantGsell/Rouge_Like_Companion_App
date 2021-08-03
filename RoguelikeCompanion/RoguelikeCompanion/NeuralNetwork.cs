@@ -64,8 +64,7 @@ namespace RoguelikeCompanion
                     this.normalizeInputData(newCharMatrix, this.mean, this.std, this.constantColumns);
 
                     // Make new prediction
-                    double prediction = 2;
-                    //double prediction = test_new_char(newCharMatrix);
+                    double prediction = determineCharacter(newCharMatrix);
 
                     // Translate prediction into associated character
                     int predict_idx = (int)prediction;
@@ -212,7 +211,7 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public void determineCharacter(Matrix<double> newCharMatrix)
+        public double determineCharacter(Matrix<double> newCharMatrix)
         {
             // Set input, hidden and output layer sizes
             int inputLayerSize = 810;
@@ -227,8 +226,7 @@ namespace RoguelikeCompanion
             // Read in parameter values
             readParametersFromCSV(parameterMatrix, parameterFilePath);
 
-
-            //return NeuralNetwork.new_prediction(parameterMatrix, newCharMatrix, inputLayerSize, hiddenLayerSize, numLabels);
+            return NeuralNetwork.makeNNPrediction(parameterMatrix, newCharMatrix, inputLayerSize, hiddenLayerSize, numLabels);
         }
 
 
@@ -248,6 +246,34 @@ namespace RoguelikeCompanion
                         double dblData = Convert.ToDouble(strData);
                         parameterMatrix.Add(dblData);
                     }
+                }
+            }
+        }
+
+
+        /*
+         */
+        public static double makeNNPrediction(Matrix<double> parameters, Matrix<double> newCharData, int inputLayerSize, int hiddenLayerSize, int numLabels)
+        {
+            // Initialize theta matricies
+            Matrix<double> theta1 = Matrix<double>.Build.Dense(hiddenLayerSize, inputLayerSize + 1);
+            Matrix<double> theta2 = Matrix<double>.Build.Dense(numLabels, hiddenLayerSize + 1);
+            
+            // Extract theta values from parameters
+            
+        }
+
+
+        /*
+         */
+        public static void copyParameters(Matrix<double> inputMatrix, Matrix<double> inputVector, int vectorIdx)
+        {
+            // Copy vector values into matrix
+            for(int col = 0; col < inputMatrix.ColumnCount; col++)
+            {
+                for(int row = 0; row < inputMatrix.RowCount; row++)
+                {
+                    inputMatrix[row, col] = inputVector[0, vectorIdx++];
                 }
             }
         }

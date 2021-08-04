@@ -31,6 +31,10 @@ namespace RoguelikeCompanion
         static int theta_size = (hiddenLayerSize * (inputLayerSize + 1)) + (characters.Length * (hiddenLayerSize + 1));
         Matrix<double> parameterMatrix = Matrix<double>.Build.Dense(1, theta_size);
 
+        //
+        static Matrix<double> theta1 = Matrix<double>.Build.Dense(hiddenLayerSize, inputLayerSize + 1);
+        static Matrix<double> theta2 = Matrix<double>.Build.Dense(characters.Length, hiddenLayerSize + 1);
+
 
         /*
          */
@@ -38,6 +42,8 @@ namespace RoguelikeCompanion
         {
             readMeanStdConstCols(numFeatures, mean, std, constantColumns);
             readParametersFromCSV(parameterMatrix, this.parameterFilePath);
+            copyParameters(theta1, parameterMatrix, 0);
+            copyParameters(theta2, parameterMatrix, theta1.RowCount * theta1.ColumnCount);
         }
 
 
@@ -229,21 +235,6 @@ namespace RoguelikeCompanion
          */
         public double determineCharacter(Matrix<double> newCharMatrix)
         {
-            /*
-            // Set input, hidden and output layer sizes
-            int inputLayerSize = 810;
-            int hiddenLayerSize = 100;
-            int numLabels = characters.Length;
-
-            // Set parameter matrix values and path
-            string parameterFilePath = "C:/Users/Grant/Desktop/Java_Rouge_Like_App/src/parameters.csv";
-            int theta_size = (hiddenLayerSize * (inputLayerSize + 1)) + (numLabels * (hiddenLayerSize + 1));
-            Matrix<double> parameterMatrix = Matrix<double>.Build.Dense(1, theta_size);
-
-            // Read in parameter values
-            readParametersFromCSV(parameterMatrix, parameterFilePath);
-            */
-
             return NeuralNetwork.makeNNPrediction(this.parameterMatrix, newCharMatrix, inputLayerSize, hiddenLayerSize, characters.Length);
         }
 
@@ -274,14 +265,6 @@ namespace RoguelikeCompanion
          */
         public static double makeNNPrediction(Matrix<double> parameters, Matrix<double> newCharData, int inputLayerSize, int hiddenLayerSize, int numLabels)
         {
-            // Initialize theta matricies
-            Matrix<double> theta1 = Matrix<double>.Build.Dense(hiddenLayerSize, inputLayerSize + 1);
-            Matrix<double> theta2 = Matrix<double>.Build.Dense(numLabels, hiddenLayerSize + 1);
-
-            // Extract theta values from parameters
-            copyParameters(theta1, parameters, 0);
-            copyParameters(theta2, parameters, theta1.RowCount * theta1.ColumnCount);
-
             // Create bias unit matrix
             Matrix<double> biasUnits = Matrix<double>.Build.Dense(1, 1);
             biasUnits.Add(1);

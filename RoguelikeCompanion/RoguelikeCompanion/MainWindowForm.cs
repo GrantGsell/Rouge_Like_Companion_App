@@ -13,6 +13,7 @@ namespace RoguelikeCompanion
 {
     public partial class MainWindowForm : Form
     {
+        Dictionary<string, (string, bool)> objectNameDictionary = ObjectInformation.createObjectNameDictionary();
         double[,] borderData = BorderClass.readBorderData();
         NeuralNetwork nn = new NeuralNetwork();
         FlowLayoutPanel dynamicFlowLayoutPanel;
@@ -20,14 +21,9 @@ namespace RoguelikeCompanion
         public MainWindowForm()
         {
             InitializeComponent();
+            
             this.IsMdiContainer = true;
             this.WindowState = FormWindowState.Maximized;
-
-            // Create all weapons form
-            //AllWeaponsForm allWeapons = new AllWeaponsForm(this.Width * 65 / 100, this.Height);
-            //allWeapons.MdiParent = this;
-            //allWeapons.Location = new Point(0, 0);
-            //allWeapons.Show();
 
             // Create container for all weapons
             dynamicFlowLayoutPanel = new FlowLayoutPanel();
@@ -49,6 +45,7 @@ namespace RoguelikeCompanion
             //IndividualWeaponForm formChild = new IndividualWeaponForm(test, "Crossbow", "33.2", "0.3 seconds", "21", "Automatic");
             //formChild.MdiParent = this;
             //formChild.Show();
+            
         }
 
         private void capture_Click(object sender, EventArgs e)
@@ -72,9 +69,34 @@ namespace RoguelikeCompanion
             if(borderClass != 0 && borderClass != 4)
             {
                 string guess = nn.newImagePrediction(notificationBox);
-                int temp = 5;
+
+                // Fix guess object if not found in dictionary
+                if (!objectNameDictionary.ContainsKey(guess))
+                {
+
+                }
+
+                // Obtain object information
+                if (objectNameDictionary.GetValueOrDefault(guess).Item2)
+                {
+                    
+                }
+                else
+                {
+
+                }
+                //int temp = 5;
 
             }
+        }
+
+
+        /*
+         * Dont Delete this Funciton
+         */
+        private void MainWindowForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

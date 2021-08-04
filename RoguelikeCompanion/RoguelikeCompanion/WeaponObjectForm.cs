@@ -17,7 +17,6 @@ namespace RoguelikeCompanion
         string reloadTime;
         string sellPrice;
         string gunType;
-        Image image;
         
 
         /*

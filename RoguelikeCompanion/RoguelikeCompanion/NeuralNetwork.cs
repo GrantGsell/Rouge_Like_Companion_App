@@ -31,7 +31,7 @@ namespace RoguelikeCompanion
         static int theta_size = (hiddenLayerSize * (inputLayerSize + 1)) + (characters.Length * (hiddenLayerSize + 1));
         Matrix<double> parameterMatrix = Matrix<double>.Build.Dense(1, theta_size);
 
-        //
+        // Theta matrices from parameters matrix for forward propagation
         static Matrix<double> theta1 = Matrix<double>.Build.Dense(hiddenLayerSize, inputLayerSize + 1);
         static Matrix<double> theta2 = Matrix<double>.Build.Dense(characters.Length, hiddenLayerSize + 1);
 
@@ -99,6 +99,9 @@ namespace RoguelikeCompanion
             {
                 Console.WriteLine(e.Message);
             }
+
+            // Check for empty string or ammo string
+            if (objectName == "Ammo" || objectName == null) return null;
             return objectName;
         }
 

@@ -17,6 +17,8 @@ namespace RoguelikeCompanion
         string reloadTime;
         string sellPrice;
         string gunType;
+        Image image;
+        
 
         /*
          */
@@ -26,86 +28,7 @@ namespace RoguelikeCompanion
             this.dps = dps;
             this.reloadTime = reloadTime;
             this.sellPrice = sellPrice;
-            this.gunType = gunType;
-        }
-
-        
-        /*
-         */
-        public ListView weaponListView()
-        {
-            // Create new ListView object
-            ListView weaponList = new ListView();
-
-            // Add grid lines, remove clickable headers, remove scroll
-            weaponList.GridLines = true;
-            weaponList.HeaderStyle = ColumnHeaderStyle.Nonclickable;
-            weaponList.Scrollable = false;
-
-            // Set Name, size and location
-            weaponList.Name = this.name + "ListView";
-            weaponList.Location = new System.Drawing.Point(890, 73);
-
-            // Populate ListView with weapon data
-            weaponData(weaponList);
-
-            // Autosize ListView columns
-            weaponList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-            weaponList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
-
-            // Generate optimal width/height
-            int totalWidth = weaponList.Columns[0].Width + weaponList.Columns[1].Width;
-
-            int itemHeight = weaponList.Items.OfType<ListViewItem>().First().Bounds.Height;
-            int itemCount = weaponList.Items.Count;
-            int headerOffset = weaponList.TopItem.Bounds.Top;
-            int totalHeight = itemCount * itemHeight + headerOffset;
-
-            // Autosize Listview Height
-            weaponList.Size = new Size(totalWidth, totalHeight);
-
-            return weaponList;
-        }
-
-
-        /*
-         */
-        public void weaponData(ListView newBox)
-        {
-            // Set ListView into Details mode
-            newBox.View = View.Details;
-
-            // Declare, Constrct ColumnHeader objects
-            ColumnHeader header1, header2;
-            header1 = new ColumnHeader();
-            header2 = new ColumnHeader();
-
-            // Set header text, font and alignment
-            header1.Text = "Property";
-            header1.TextAlign = HorizontalAlignment.Center;
-
-            header2.Text = "Values";
-            header2.TextAlign = HorizontalAlignment.Center;
-
-            // Set header font
-            newBox.Font = new Font("Consolas", 12);
-
-            // Create a two column list
-            newBox.Columns.Add(header1);
-            newBox.Columns.Add(header2);
-
-            // Add, populate 5 rows of data
-            newBox.Items.Add(new ListViewItem(new string[] { "Name", this.name }));
-            newBox.Items.Add(new ListViewItem(new string[] { "DPS", this.dps }));
-            newBox.Items.Add(new ListViewItem(new string[] { "Reload Time", this.reloadTime }));
-            newBox.Items.Add(new ListViewItem(new string[] { "Sell Price", this.sellPrice }));
-            newBox.Items.Add(new ListViewItem(new string[] { "Gun Type", this.gunType }));
-
-            // Set font size for the row data
-            foreach (ListViewItem lvi in newBox.Items)
-            {
-                lvi.Font = new Font("Consolas", 11);
-            }
+            this.gunType = gunType;  
         }
 
 
@@ -131,6 +54,10 @@ namespace RoguelikeCompanion
             weaponGrid.Columns[1].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
             weaponGrid.Columns[1].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
+            // Add image column
+            DataGridViewImageCell imageCell = new DataGridViewImageCell();
+            weaponGrid.Rows.Add(imageCell);
+
             // Add, populate 5 rows of data
             weaponGrid.RowCount = 5;
             weaponGrid.Rows[0].SetValues(new string[] { "Name", this.name });
@@ -139,8 +66,8 @@ namespace RoguelikeCompanion
             weaponGrid.Rows[3].SetValues(new string[] { "Sell Price", this.sellPrice });
             weaponGrid.Rows[4].SetValues(new string[] { "Gun Type", this.gunType });
 
+
             // Autosize rows and columns
-            //weaponGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             weaponGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
             // Set the container size
@@ -150,6 +77,5 @@ namespace RoguelikeCompanion
 
             return weaponGrid;
         }
-
     }
 }

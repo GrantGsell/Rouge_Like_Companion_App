@@ -13,16 +13,37 @@ namespace RoguelikeCompanion
     public partial class IndividualItemForm : Form
     {
         PictureBox itemImage;
+        DataGridView itemData;
 
-
-        public IndividualItemForm()
+        public IndividualItemForm(Image img, string itemType, string itemEffect)
         {
             InitializeComponent();
+            itemData = itemDataGrid(itemType, itemEffect);
+            itemImage = IndividualWeaponForm.createPictureBox(img, 3);
         }
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            // Remove borders
+            this.FormBorderStyle = FormBorderStyle.None;
 
+            // Create an image object in the top left corner
+            itemImage.Location = new System.Drawing.Point(0, 0);
+
+            // Place the item DataGridView to the right of the image
+            int imageWidthOffset = itemImage.Width;
+            int imageHeightOffset = itemImage.Height / 2;
+            itemData.Location = new Point(imageWidthOffset, imageHeightOffset);
+
+            // Add image and data grid to form
+            this.Controls.Add(itemImage);
+            this.Controls.Add(itemData);
+
+            // Set the form size
+            int width = itemImage.Width + itemData.Width;
+            int height = itemImage.Height;
+            this.Size = new Size(width, height);
         }
 
 

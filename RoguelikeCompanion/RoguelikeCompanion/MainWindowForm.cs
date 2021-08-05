@@ -79,15 +79,25 @@ namespace RoguelikeCompanion
                 // Obtain object information
                 if (objectNameDictionary.GetValueOrDefault(guess).Item2)
                 {
-                    
+                    //var dataTuple = ObjectInformation.obtainWeaponStats(guess);
+                    //IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
+                    //formChild.MdiParent = this;
+                    //dynamicFlowLayoutPanel.Controls.Add(formChild);
+                    //formChild.Show();
                 }
                 else
                 {
 
                 }
-                //int temp = 5;
-
             }
+
+            var dataTuple = ObjectInformation.obtainWeaponStats("Bubble_Blaster");
+            IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
+            formChild.MdiParent = this;
+            dynamicFlowLayoutPanel.Controls.Add(formChild);
+            formChild.Show();
+
+
         }
 
 

@@ -45,6 +45,10 @@ namespace RoguelikeCompanion
             int height = imageOffset + data.Height;
             this.Size = new Size(width, height);
 
+            // Center Image
+            int centerWidth = (width / 2) - (imagePB.Width / 2);
+            imagePB.Location = new System.Drawing.Point(centerWidth, 0);
+
         }
 
         /*
@@ -53,9 +57,9 @@ namespace RoguelikeCompanion
         {
             PictureBox imageBox = new PictureBox();
             Bitmap bm = new Bitmap(img);
-            bm = ScaleImage(bm, 100, 200);
+            bm = ScaleImage(bm, bm.Height * 7, bm.Width * 7);
             imageBox.Height = 100;
-            imageBox.Width = 200;
+            imageBox.Width = 100;
             imageBox.Image = bm;
 
             return imageBox;

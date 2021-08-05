@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,7 +47,6 @@ namespace RoguelikeCompanion
                     objectNames[name] = (id, isGun);
                 }
 
-
                 // Close connection and reader
                 MyReader.Close();
                 MyConnection.Close();
@@ -59,13 +61,12 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public void obtainWeaponStats(string weaponName)
+        public static Tuple<string, string, string, string, string, Bitmap, Bitmap> obtainWeaponStats(string weaponName)
         {
             try
             {
                 // Create connector and reader objects
                 MySqlConnection MyConnection = null;
-                MySqlDataReader MyReader = null;
 
                 // Create the SQL connection
                 MyConnection = new MySqlConnection(SQLInfo.getLogin());
@@ -76,22 +77,43 @@ namespace RoguelikeCompanion
                 MySqlCommand MyCommand;
 
                 // Write and execute query
-                query = "SELECT object_id, object_name, dps, reload_time, sell_price, gun_type " +
+                query = "SELECT object_id, object_name, dps, reload_time, sell_price, gun_type, pic, quality_image " +
                         "FROM objects " +
                         "LEFT JOIN gun_stats ON object_id = gun_id " +
                         "LEFT JOIN object_quality ON quality = quality_letter " +
-                        "WHERE object_name = " + weaponName;
+                        "WHERE object_name = \'" + weaponName + "\'";
                 MyCommand = new MySqlCommand(query, MyConnection);
-                MyReader = MyCommand.ExecuteReader();
-                MyReader.Read();
 
-                //
+                // Obtain data from reader
+                MySqlDataAdapter da = new MySqlDataAdapter(MyCommand);
+                DataTable table = new DataTable();
+                da.Fill(table);
+                var name = (string)table.Rows[0][1];
+                var dps = (string)table.Rows[0][2];
+                string reloadTime = (string)table.Rows[0][3];
+                string sellPrice = (string)table.Rows[0][4];
+                string gunType = (string)table.Rows[0][5];
+                byte[] weaponRaw = (byte[])table.Rows[0][6];
+                byte[] qualityRaw = (byte[])table.Rows[0][7];
 
+                // Transform image byte data into bitmap
+                MemoryStream ms = new MemoryStream(weaponRaw);
+                Bitmap outImage = new Bitmap(ms);
+                ms = new MemoryStream(qualityRaw);
+                Bitmap outQuality = new Bitmap(ms);
+
+                // Close connection and reader
+                MyConnection.Close();
+
+                // Put data into a tuple
+                return Tuple.Create(name, dps, reloadTime, sellPrice, gunType, outImage, outQuality);
 
             }
             catch (MySqlException e)
             {
                 Console.WriteLine(e.Message);
             }
+            return null;
+        }
     }
 }

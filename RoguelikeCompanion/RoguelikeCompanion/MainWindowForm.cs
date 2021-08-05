@@ -22,9 +22,13 @@ namespace RoguelikeCompanion
         public MainWindowForm()
         {
             InitializeComponent();
-            
-            this.IsMdiContainer = true;
+
+            // Set app size
+            this.Bounds = Screen.PrimaryScreen.Bounds;
             this.WindowState = FormWindowState.Maximized;
+
+            this.IsMdiContainer = true;
+           
 
             // Create container for all weapons
             dynamicFlowLayoutPanel1 = new FlowLayoutPanel();
@@ -37,6 +41,7 @@ namespace RoguelikeCompanion
 
             // Create container for all items
             dynamicFlowLayoutPanel2 = new FlowLayoutPanel();
+            dynamicFlowLayoutPanel2.BackColor = Color.DarkCyan;
             dynamicFlowLayoutPanel2.Name = "itemFlowLayoutPanel";
             dynamicFlowLayoutPanel2.Width = this.Width - dynamicFlowLayoutPanel1.Width;
             dynamicFlowLayoutPanel2.Height = this.Height / 2;
@@ -101,11 +106,19 @@ namespace RoguelikeCompanion
                 }
             }
 
+            // Add Test weapon
             var dataTuple2 = ObjectInformation.obtainWeaponStats("Casey");
             IndividualWeaponForm formChild2 = new IndividualWeaponForm(dataTuple2.Item6, dataTuple2.Item7, dataTuple2.Item1, dataTuple2.Item2, dataTuple2.Item3, dataTuple2.Item4, dataTuple2.Item5);
             formChild2.MdiParent = this;
             dynamicFlowLayoutPanel1.Controls.Add(formChild2);
             formChild2.Show();
+
+            // Add Test item
+            var itemDataTuple = ObjectInformation.obtainItemStats("Orange");
+            IndividualItemForm formChild3 = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanel2.Width);
+            formChild3.MdiParent = this;
+            dynamicFlowLayoutPanel2.Controls.Add(formChild3);
+            formChild3.Show();
 
 
         }

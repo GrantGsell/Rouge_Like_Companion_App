@@ -12,7 +12,6 @@ namespace RoguelikeCompanion
 {
     class ObjectInformation
     {
-
         /*
          */
         public static Dictionary<string, (string, bool)> createObjectNameDictionary()
@@ -84,12 +83,12 @@ namespace RoguelikeCompanion
                         "WHERE object_name = \'" + weaponName + "\'";
                 MyCommand = new MySqlCommand(query, MyConnection);
 
-                // Obtain data from reader
+                // Obtain data
                 MySqlDataAdapter da = new MySqlDataAdapter(MyCommand);
                 DataTable table = new DataTable();
                 da.Fill(table);
-                var name = (string)table.Rows[0][1];
-                var dps = (string)table.Rows[0][2];
+                string name = (string)table.Rows[0][1];
+                string dps = (string)table.Rows[0][2];
                 string reloadTime = (string)table.Rows[0][3];
                 string sellPrice = (string)table.Rows[0][4];
                 string gunType = (string)table.Rows[0][5];
@@ -107,7 +106,57 @@ namespace RoguelikeCompanion
 
                 // Put data into a tuple
                 return Tuple.Create(name, dps, reloadTime, sellPrice, gunType, outImage, outQuality);
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return null;
+        }
 
+
+        /*
+         */
+        public Tuple<string, string, string, Bitmap> obtainItemStats(string itemName)
+        {
+            try
+            {
+                // Create connector and reader objects
+                MySqlConnection MyConnection = null;
+
+                // Create the SQL connection
+                MyConnection = new MySqlConnection(SQLInfo.getLogin());
+                MyConnection.Open();
+
+                // Create a query string and command
+                String query;
+                MySqlCommand MyCommand;
+
+                // Write and execute query
+                query = "SELECT object_id, object_name, item_type, effect, img" +
+                        "FROM objects " +
+                        "LEFT JOIN item_stats USING (object_id)  " +
+                        "WHERE object_name = \'" + itemName + "\'";
+                MyCommand = new MySqlCommand(query, MyConnection);
+
+                // Obtain data
+                MySqlDataAdapter da = new MySqlDataAdapter(MyCommand);
+                DataTable table = new DataTable();
+                da.Fill(table);
+                string objectName = (string)table.Rows[0][1];
+                string itemType = (string)table.Rows[0][2];
+                string effect = (string)table.Rows[0][3];
+                byte[] itemImageRaw = (byte[])table.Rows[0][3];
+
+                // Transform image byte data into bitmap
+                MemoryStream ms = new MemoryStream(itemImageRaw);
+                Bitmap itemImage = new Bitmap(ms);
+
+                // Close connection
+                MyConnection.Close();
+
+                // Put data into a tuple
+                return Tuple.Create(objectName, itemType, effect, itemImage);
             }
             catch (MySqlException e)
             {

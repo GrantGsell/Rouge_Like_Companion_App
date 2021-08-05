@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,18 +17,22 @@ namespace RoguelikeCompanion
         // Class members;
         PictureBox imagePB;
         WeaponObjectForm obj;
+        PictureBox qualityPB;
 
-        public IndividualWeaponForm(Image img, string name, string dps, string reloadTime, string sellPrice, string gunType)
+        public IndividualWeaponForm(Image img, Image qualtiy, string name, string dps, string reloadTime, string sellPrice, string gunType)
         {
             InitializeComponent();
-            this.imagePB = createPictureBox(img);
+            this.imagePB = createPictureBox(img, 15);
+            this.qualityPB = createPictureBox(qualtiy, 3);
             this.obj = new WeaponObjectForm(name, dps, reloadTime, sellPrice, gunType);
         }
+
 
         private void Form2_Load(object sender, EventArgs e)
         {
             // Remove borders
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.BackColor = Color.Aqua;
 
             // Create an image object in the top left corner
             imagePB.Location = new System.Drawing.Point(0, 0);
@@ -36,68 +42,62 @@ namespace RoguelikeCompanion
             DataGridView data = obj.weaponDataGrid();
             data.Location = new System.Drawing.Point(0, imageOffset);
 
+            // Add the quality image below the DataGridView
+            int qualityOffset = imagePB.Height + data.Height;
+            qualityPB.Location = new System.Drawing.Point(0, qualityOffset);
+
             // Add image and grid to form
             this.Controls.Add(imagePB);
             this.Controls.Add(data);
+            this.Controls.Add(qualityPB);
 
             // Set form size
             int width = data.Width;
-            int height = imageOffset + data.Height;
+            int height = imageOffset + data.Height + qualityPB.Height;
             this.Size = new Size(width, height);
 
-            // Center Image
-            int centerWidth = (width / 2) - (imagePB.Width / 2);
-            imagePB.Location = new System.Drawing.Point(centerWidth, 0);
-
+            // Center Images
+            int centerWidthImage = (width / 2) - (imagePB.Width / 2);
+            int centerWidthQuality = (width / 2) - (qualityPB.Width / 2);
+            imagePB.Location = new System.Drawing.Point(centerWidthImage, 0);
+            qualityPB.Location = new System.Drawing.Point(centerWidthQuality, qualityOffset);
         }
+
 
         /*
          */
-        public PictureBox createPictureBox(Image img)
+        public PictureBox createPictureBox(Image img, int scaleFactor)
         {
             PictureBox imageBox = new PictureBox();
             Bitmap bm = new Bitmap(img);
-            bm = ScaleImage(bm, bm.Height * 7, bm.Width * 7);
-            imageBox.Height = 100;
-            imageBox.Width = 100;
+            int newHeight = img.Height * scaleFactor;
+            int newWidth = img.Width * scaleFactor;
+            bm = ScaleImage(bm, newHeight, newWidth);
+            imageBox.Height = bm.Height;
+            imageBox.Width = bm.Width;
             imageBox.Image = bm;
 
             return imageBox;
         }
 
+
         /*
          */
-        public static Bitmap ScaleImage(Bitmap img, int height, int width)
+        public static Bitmap ScaleImage(Bitmap bmp, int maxWidth, int maxHeight)
         {
-            if (img == null || height <= 0 || width <= 0)
-            {
-                return null;
-            }
-            int newWidth = (img.Width * height) / (img.Height);
-            int newHeight = (img.Height * width) / (img.Width);
-            int x = 0;
-            int y = 0;
+            var ratioX = (double)maxWidth / bmp.Width;
+            var ratioY = (double)maxHeight / bmp.Height;
+            var ratio = Math.Min(ratioX, ratioY);
 
-            Bitmap bmp = new Bitmap(width, height);
-            Graphics g = Graphics.FromImage(bmp);
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
+            var newWidth = (int)(bmp.Width * ratio);
+            var newHeight = (int)(bmp.Height * ratio);
 
-            if (newWidth > width)
-            {
-                // New height
-                x = (bmp.Width - width) / 2;
-                y = (bmp.Height - newHeight) / 2;
-                g.DrawImage(img, x, y, width, newHeight);
-            }
-            else
-            {
-                // New width
-                x = (bmp.Width / 2) - (newWidth / 2);
-                y = (bmp.Height / 2) - (height / 2);
-                g.DrawImage(img, x, y, newWidth, height);
-            }
+            var newImage = new Bitmap(newWidth, newHeight);
 
-            return bmp;
+            using (var graphics = Graphics.FromImage(newImage))
+                graphics.DrawImage(bmp, 0, 0, newWidth, newHeight);
+
+            return newImage;
         }
 
     }

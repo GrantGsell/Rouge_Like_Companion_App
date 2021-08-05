@@ -33,11 +33,13 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanel.TabIndex = 0;
             dynamicFlowLayoutPanel.FlowDirection = FlowDirection.LeftToRight;
             this.Controls.Add(dynamicFlowLayoutPanel);
-            Image test = Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/temp_0.jpg");
-            IndividualWeaponForm formChild = new IndividualWeaponForm(test, "Crossbow", "33.2", "0.3 seconds", "21", "Automatic");
-            formChild.MdiParent = this;
-            dynamicFlowLayoutPanel.Controls.Add(formChild);
-            formChild.Show();
+           
+            // For testing
+            //Image test = Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/temp_0.jpg");
+            //IndividualWeaponForm formChild = new IndividualWeaponForm(test, "Crossbow", "33.2", "0.3 seconds", "21", "Automatic");
+            //formChild.MdiParent = this;
+            //dynamicFlowLayoutPanel.Controls.Add(formChild);
+            //formChild.Show();
 
 
             // For testing
@@ -91,8 +93,8 @@ namespace RoguelikeCompanion
                 }
             }
 
-            var dataTuple = ObjectInformation.obtainWeaponStats("Bubble_Blaster");
-            IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
+            var dataTuple = ObjectInformation.obtainWeaponStats("Casey");
+            IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item7, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
             formChild.MdiParent = this;
             dynamicFlowLayoutPanel.Controls.Add(formChild);
             formChild.Show();

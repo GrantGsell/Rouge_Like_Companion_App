@@ -14,12 +14,14 @@ namespace RoguelikeCompanion
     {
         PictureBox itemImage;
         DataGridView itemData;
+        int formSize;
 
-        public IndividualItemForm(Image img, string itemType, string itemEffect)
+        public IndividualItemForm(Image img, string itemType, string itemEffect, int maxFormSize)
         {
             InitializeComponent();
+            formSize = maxFormSize;
+            itemImage = IndividualWeaponForm.createPictureBox(img, 5);
             itemData = itemDataGrid(itemType, itemEffect);
-            itemImage = IndividualWeaponForm.createPictureBox(img, 3);
         }
 
 
@@ -33,16 +35,15 @@ namespace RoguelikeCompanion
 
             // Place the item DataGridView to the right of the image
             int imageWidthOffset = itemImage.Width;
-            int imageHeightOffset = itemImage.Height / 2;
-            itemData.Location = new Point(imageWidthOffset, imageHeightOffset);
+            itemData.Location = new Point(imageWidthOffset, 0);
 
             // Add image and data grid to form
             this.Controls.Add(itemImage);
             this.Controls.Add(itemData);
 
             // Set the form size
-            int width = itemImage.Width + itemData.Width;
-            int height = itemImage.Height;
+            int width = formSize; //itemImage.Width + itemData.Width;
+            int height = (itemImage.Height > (itemData.Rows[0].Height + itemData.ColumnHeadersHeight)) ? itemImage.Height : itemData.Rows[0].Height + itemData.ColumnHeadersHeight;
             this.Size = new Size(width, height);
         }
 
@@ -53,6 +54,17 @@ namespace RoguelikeCompanion
         {
             // Create a new container to hold item data
             DataGridView itemGrid = new DataGridView();
+            itemGrid.Width = formSize - itemImage.Width;
+
+            // Set interactive options to off
+            itemGrid.ReadOnly = true;
+            itemGrid.AllowUserToOrderColumns = false;
+            itemGrid.AllowUserToResizeRows = false;
+            itemGrid.AllowUserToResizeColumns = false;
+
+            // Turn 'off' cell highlighting
+            itemGrid.DefaultCellStyle.SelectionBackColor = itemGrid.DefaultCellStyle.BackColor;
+            itemGrid.DefaultCellStyle.SelectionForeColor = itemGrid.DefaultCellStyle.ForeColor;
 
             // Turn off scrolling and row headers
             itemGrid.ScrollBars = ScrollBars.None;
@@ -66,21 +78,24 @@ namespace RoguelikeCompanion
             itemGrid.Columns[0].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
             itemGrid.Columns[1].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
+            // Turn off sorting for columns
+            itemGrid.Columns[0].SortMode = DataGridViewColumnSortMode.NotSortable;
+            itemGrid.Columns[1].SortMode = DataGridViewColumnSortMode.NotSortable;
+
             // Populate 1 row
             itemGrid.RowCount = 1;
             itemGrid.Rows[0].SetValues(new string[] { itemType, itemEffect });
 
-            // Autosize rows and columns
-            itemGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            // Add text wraping
+            itemGrid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            itemGrid.Columns[1].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            itemGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
 
-            // Set the container size
-            int totalHeight = itemGrid.ColumnHeadersHeight + itemGrid.Rows[0].Height + 5;
-            int totalWidth = itemGrid.Columns[0].Width + itemGrid.Columns[1].Width;
-            itemGrid.Size = new Size(totalWidth, totalHeight);
+            // Set the second column size
+            int idealEffectColumnWidth = formSize - itemImage.Width - itemGrid.Columns[0].Width - 5;
+            itemGrid.Columns[1].Width = idealEffectColumnWidth;
 
             return itemGrid;
         }
-
-
     }
 }

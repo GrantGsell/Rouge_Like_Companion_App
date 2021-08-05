@@ -16,7 +16,7 @@ namespace RoguelikeCompanion
     {
         // Class members;
         PictureBox imagePB;
-        WeaponObjectForm obj;
+        WeaponObjectForm weaponObj;
         PictureBox qualityPB;
 
         public IndividualWeaponForm(Image img, Image qualtiy, string name, string dps, string reloadTime, string sellPrice, string gunType)
@@ -24,7 +24,7 @@ namespace RoguelikeCompanion
             InitializeComponent();
             this.imagePB = createPictureBox(img, 15);
             this.qualityPB = createPictureBox(qualtiy, 3);
-            this.obj = new WeaponObjectForm(name, dps, reloadTime, sellPrice, gunType);
+            this.weaponObj = new WeaponObjectForm(name, dps, reloadTime, sellPrice, gunType);
         }
 
 
@@ -39,7 +39,7 @@ namespace RoguelikeCompanion
 
             // Put DataGridView below image
             int imageOffset = imagePB.Height;
-            DataGridView data = obj.weaponDataGrid();
+            DataGridView data = weaponObj.weaponDataGrid();
             data.Location = new System.Drawing.Point(0, imageOffset);
 
             // Add the quality image below the DataGridView
@@ -66,7 +66,7 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public PictureBox createPictureBox(Image img, int scaleFactor)
+        public static PictureBox createPictureBox(Image img, int scaleFactor)
         {
             PictureBox imageBox = new PictureBox();
             Bitmap bm = new Bitmap(img);

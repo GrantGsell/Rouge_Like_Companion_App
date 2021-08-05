@@ -16,7 +16,8 @@ namespace RoguelikeCompanion
         Dictionary<string, (string, bool)> objectNameDictionary = ObjectInformation.createObjectNameDictionary();
         double[,] borderData = BorderClass.readBorderData();
         NeuralNetwork nn = new NeuralNetwork();
-        FlowLayoutPanel dynamicFlowLayoutPanel;
+        FlowLayoutPanel dynamicFlowLayoutPanel1;
+        FlowLayoutPanel dynamicFlowLayoutPanel2;
 
         public MainWindowForm()
         {
@@ -26,37 +27,42 @@ namespace RoguelikeCompanion
             this.WindowState = FormWindowState.Maximized;
 
             // Create container for all weapons
-            dynamicFlowLayoutPanel = new FlowLayoutPanel();
-            dynamicFlowLayoutPanel.Name = "weaponFlowLayoutPanel";
-            dynamicFlowLayoutPanel.Width = this.Width * 65 / 100;
-            dynamicFlowLayoutPanel.Height = this.Height;
-            dynamicFlowLayoutPanel.TabIndex = 0;
-            dynamicFlowLayoutPanel.FlowDirection = FlowDirection.LeftToRight;
-            this.Controls.Add(dynamicFlowLayoutPanel);
-           
-            // For testing
-            //Image test = Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/temp_0.jpg");
-            //IndividualWeaponForm formChild = new IndividualWeaponForm(test, "Crossbow", "33.2", "0.3 seconds", "21", "Automatic");
-            //formChild.MdiParent = this;
-            //dynamicFlowLayoutPanel.Controls.Add(formChild);
-            //formChild.Show();
+            dynamicFlowLayoutPanel1 = new FlowLayoutPanel();
+            dynamicFlowLayoutPanel1.Name = "weaponFlowLayoutPanel";
+            dynamicFlowLayoutPanel1.Width = this.Width * 65 / 100;
+            dynamicFlowLayoutPanel1.Height = this.Height;
+            dynamicFlowLayoutPanel1.TabIndex = 0;
+            dynamicFlowLayoutPanel1.FlowDirection = FlowDirection.LeftToRight;
+            this.Controls.Add(dynamicFlowLayoutPanel1);
 
+            // Create container for all items
+            dynamicFlowLayoutPanel2 = new FlowLayoutPanel();
+            dynamicFlowLayoutPanel2.Name = "itemFlowLayoutPanel";
+            dynamicFlowLayoutPanel2.Width = this.Width - dynamicFlowLayoutPanel1.Width;
+            dynamicFlowLayoutPanel2.Height = this.Height / 2;
+            dynamicFlowLayoutPanel2.TabIndex = 0;
+            dynamicFlowLayoutPanel2.FlowDirection = FlowDirection.TopDown;
+            dynamicFlowLayoutPanel2.Location = new Point(dynamicFlowLayoutPanel1.Width, 0 );
+            this.Controls.Add(dynamicFlowLayoutPanel2);
 
             // For testing
-            //Image test = Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/temp_0.jpg");
-            //IndividualWeaponForm formChild = new IndividualWeaponForm(test, "Crossbow", "33.2", "0.3 seconds", "21", "Automatic");
-            //formChild.MdiParent = this;
-            //formChild.Show();
-            
+            /*
+            Image test = Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/temp_0.jpg");
+            IndividualWeaponForm formChild = new IndividualWeaponForm(test, "Crossbow", "33.2", "0.3 seconds", "21", "Automatic");
+            formChild.MdiParent = this;
+            dynamicFlowLayoutPanel.Controls.Add(formChild);
+            formChild.Show();
+            Image test = Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/temp_0.jpg");
+            IndividualWeaponForm formChild = new IndividualWeaponForm(test, "Crossbow", "33.2", "0.3 seconds", "21", "Automatic");
+            formChild.MdiParent = this;
+            formChild.Show();
+            */
+
         }
 
         private void capture_Click(object sender, EventArgs e)
         {
-            WeaponObjectForm test = new WeaponObjectForm("Crossbow", "33.2", "0.3 seconds", "21", "Automatic");
-            //test.weaponListBox();
-            this.Controls.Add(test.weaponDataGrid());
-
-            /*
+                        /*
             */
             //NeuralNetwork nn = new NeuralNetwork();
             System.Threading.Thread.Sleep(4000);
@@ -81,23 +87,25 @@ namespace RoguelikeCompanion
                 // Obtain object information
                 if (objectNameDictionary.GetValueOrDefault(guess).Item2)
                 {
-                    //var dataTuple = ObjectInformation.obtainWeaponStats(guess);
-                    //IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
-                    //formChild.MdiParent = this;
-                    //dynamicFlowLayoutPanel.Controls.Add(formChild);
-                    //formChild.Show();
+                    // Used for weapons
+                    var dataTuple = ObjectInformation.obtainWeaponStats(guess);
+                    IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item7, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
+                    formChild.MdiParent = this;
+                    dynamicFlowLayoutPanel1.Controls.Add(formChild);
+                    formChild.Show();
                 }
                 else
                 {
+                    // Used for Items
 
                 }
             }
 
-            var dataTuple = ObjectInformation.obtainWeaponStats("Casey");
-            IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item7, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
-            formChild.MdiParent = this;
-            dynamicFlowLayoutPanel.Controls.Add(formChild);
-            formChild.Show();
+            var dataTuple2 = ObjectInformation.obtainWeaponStats("Casey");
+            IndividualWeaponForm formChild2 = new IndividualWeaponForm(dataTuple2.Item6, dataTuple2.Item7, dataTuple2.Item1, dataTuple2.Item2, dataTuple2.Item3, dataTuple2.Item4, dataTuple2.Item5);
+            formChild2.MdiParent = this;
+            dynamicFlowLayoutPanel1.Controls.Add(formChild2);
+            formChild2.Show();
 
 
         }

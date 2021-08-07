@@ -61,6 +61,7 @@ namespace RoguelikeCompanion
             itemGrid.AllowUserToOrderColumns = false;
             itemGrid.AllowUserToResizeRows = false;
             itemGrid.AllowUserToResizeColumns = false;
+            itemGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
             // Turn 'off' cell highlighting
             itemGrid.DefaultCellStyle.SelectionBackColor = itemGrid.DefaultCellStyle.BackColor;

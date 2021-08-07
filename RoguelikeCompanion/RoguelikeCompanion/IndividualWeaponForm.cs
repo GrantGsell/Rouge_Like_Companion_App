@@ -112,6 +112,7 @@ namespace RoguelikeCompanion
             weaponGrid.AllowUserToOrderColumns = false;
             weaponGrid.AllowUserToResizeRows = false;
             weaponGrid.AllowUserToResizeColumns = false;
+            weaponGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
             // Turn 'off' cell highlighting
             weaponGrid.DefaultCellStyle.SelectionBackColor = weaponGrid.DefaultCellStyle.BackColor;

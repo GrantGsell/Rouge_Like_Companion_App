@@ -19,7 +19,7 @@ namespace RoguelikeCompanion
         {
             InitializeComponent();
             this.synergyData = synergyDataGrid(synergizesWith);
-            synergyImage = IndividualWeaponForm.createPictureBox(img, 5);
+            synergyImage = IndividualWeaponForm.createPictureBox(img, 10);
         }
 
 
@@ -35,6 +35,7 @@ namespace RoguelikeCompanion
             synergyGrid.AllowUserToOrderColumns = false;
             synergyGrid.AllowUserToResizeRows = false;
             synergyGrid.AllowUserToResizeColumns = false;
+            synergyGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
             // Turn 'off' cell highlighting
             synergyGrid.DefaultCellStyle.SelectionBackColor = synergyGrid.DefaultCellStyle.BackColor;

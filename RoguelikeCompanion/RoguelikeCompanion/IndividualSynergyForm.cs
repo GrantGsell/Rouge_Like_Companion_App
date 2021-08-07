@@ -19,7 +19,7 @@ namespace RoguelikeCompanion
         {
             InitializeComponent();
             this.synergyData = synergyDataGrid(synergizesWith);
-            synergyImage = IndividualWeaponForm.createPictureBox(img, 10);
+            this.synergyImage = IndividualWeaponForm.createPictureBox(img, 15);
         }
 
 
@@ -36,6 +36,7 @@ namespace RoguelikeCompanion
             synergyGrid.AllowUserToResizeRows = false;
             synergyGrid.AllowUserToResizeColumns = false;
             synergyGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            synergyGrid.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.False;
 
             // Turn 'off' cell highlighting
             synergyGrid.DefaultCellStyle.SelectionBackColor = synergyGrid.DefaultCellStyle.BackColor;
@@ -49,6 +50,8 @@ namespace RoguelikeCompanion
             synergyGrid.ColumnCount = 1;
             synergyGrid.Columns[0].Name = "Synergizes With:";
             synergyGrid.Columns[0].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            synergyGrid.Columns[0].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            synergyGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
             // Turn off sorting for columns
             synergyGrid.Columns[0].SortMode = DataGridViewColumnSortMode.NotSortable;
@@ -58,8 +61,8 @@ namespace RoguelikeCompanion
             synergyGrid.Rows[0].SetValues(new string[] { synergizesWith });
 
             // Set DataGridView size
-            synergyGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-
+            int height = synergyGrid.ColumnHeadersHeight + synergyGrid.Rows[0].Height;
+            synergyGrid.Size = new Size( synergyGrid.Width, height);
 
             return synergyGrid;
         }
@@ -70,7 +73,7 @@ namespace RoguelikeCompanion
             this.FormBorderStyle = FormBorderStyle.None;
 
             // Create an image object in the top left corner
-            synergyImage.Location = new System.Drawing.Point(0, 0);
+            synergyImage.Location = new Point(0, 0);
 
             // Place the synergy DataGridView object below the image
             int imageHeightOffset = synergyImage.Height;

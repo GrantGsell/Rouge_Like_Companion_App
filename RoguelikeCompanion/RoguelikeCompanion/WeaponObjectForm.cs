@@ -38,8 +38,15 @@ namespace RoguelikeCompanion
             // Create new container to hold data
             DataGridView weaponGrid = new DataGridView();
 
-            // Set grid location
-            weaponGrid.Location = new System.Drawing.Point(890, 400);
+            // Set interactive option off
+            weaponGrid.ReadOnly = true;
+            weaponGrid.AllowUserToOrderColumns = false;
+            weaponGrid.AllowUserToResizeRows = false;
+            weaponGrid.AllowUserToResizeColumns = false;
+
+            // Turn 'off' cell highlighting
+            weaponGrid.DefaultCellStyle.SelectionBackColor = weaponGrid.DefaultCellStyle.BackColor;
+            weaponGrid.DefaultCellStyle.SelectionForeColor = weaponGrid.DefaultCellStyle.ForeColor;
 
             // Turn off scrolling and row headers
             weaponGrid.ScrollBars = ScrollBars.None;
@@ -53,9 +60,10 @@ namespace RoguelikeCompanion
             weaponGrid.Columns[1].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
             weaponGrid.Columns[1].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
-            // Add image column
-            DataGridViewImageCell imageCell = new DataGridViewImageCell();
-            weaponGrid.Rows.Add(imageCell);
+            // Turn off sorting for columns
+            weaponGrid.Columns[0].SortMode = DataGridViewColumnSortMode.NotSortable;
+            weaponGrid.Columns[1].SortMode = DataGridViewColumnSortMode.NotSortable;
+
 
             // Add, populate 5 rows of data
             weaponGrid.RowCount = 5;
@@ -70,7 +78,7 @@ namespace RoguelikeCompanion
             weaponGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
             // Set the container size
-            int totalHeight = weaponGrid.ColumnHeadersHeight + weaponGrid.Rows[0].Height * (weaponGrid.Rows.Count - 1) + 5;
+            int totalHeight = weaponGrid.ColumnHeadersHeight + weaponGrid.Rows[0].Height * (weaponGrid.Rows.Count) + 2;
             int totalWidth = weaponGrid.Columns[0].Width + weaponGrid.Columns[1].Width;
             weaponGrid.Size = new Size(totalWidth, totalHeight);
 

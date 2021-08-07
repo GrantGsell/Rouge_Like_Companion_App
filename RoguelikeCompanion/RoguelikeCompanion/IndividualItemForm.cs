@@ -31,7 +31,7 @@ namespace RoguelikeCompanion
             this.FormBorderStyle = FormBorderStyle.None;
 
             // Create an image object in the top left corner
-            itemImage.Location = new System.Drawing.Point(0, 0);
+            itemImage.Location = new Point(0, 0);
 
             // Place the item DataGridView to the right of the image
             int imageWidthOffset = itemImage.Width;

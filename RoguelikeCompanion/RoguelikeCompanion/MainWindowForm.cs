@@ -16,8 +16,9 @@ namespace RoguelikeCompanion
         Dictionary<string, (string, bool)> objectNameDictionary = ObjectInformation.createObjectNameDictionary();
         double[,] borderData = BorderClass.readBorderData();
         NeuralNetwork nn = new NeuralNetwork();
-        FlowLayoutPanel dynamicFlowLayoutPanel1;
-        FlowLayoutPanel dynamicFlowLayoutPanel2;
+        FlowLayoutPanel dynamicFlowLayoutPanelWeapon;
+        FlowLayoutPanel dynamicFlowLayoutPanelItem;
+        FlowLayoutPanel dynamicFlowLayoutPanelSynergy;
 
         public MainWindowForm()
         {
@@ -31,24 +32,37 @@ namespace RoguelikeCompanion
            
 
             // Create container for all weapons
-            dynamicFlowLayoutPanel1 = new FlowLayoutPanel();
-            dynamicFlowLayoutPanel1.Name = "weaponFlowLayoutPanel";
-            dynamicFlowLayoutPanel1.Width = this.Width * 65 / 100;
-            dynamicFlowLayoutPanel1.Height = this.Height;
-            dynamicFlowLayoutPanel1.TabIndex = 0;
-            dynamicFlowLayoutPanel1.FlowDirection = FlowDirection.LeftToRight;
-            this.Controls.Add(dynamicFlowLayoutPanel1);
+            dynamicFlowLayoutPanelWeapon = new FlowLayoutPanel();
+            dynamicFlowLayoutPanelWeapon.BackColor = Color.DeepSkyBlue;
+            dynamicFlowLayoutPanelWeapon.Name = "weaponFlowLayoutPanel";
+            dynamicFlowLayoutPanelWeapon.Width = this.Width * 65 / 100;
+            dynamicFlowLayoutPanelWeapon.Height = this.Height;
+            dynamicFlowLayoutPanelWeapon.TabIndex = 0;
+            dynamicFlowLayoutPanelWeapon.FlowDirection = FlowDirection.LeftToRight;
+            this.Controls.Add(dynamicFlowLayoutPanelWeapon);
 
             // Create container for all items
-            dynamicFlowLayoutPanel2 = new FlowLayoutPanel();
-            dynamicFlowLayoutPanel2.BackColor = Color.DarkCyan;
-            dynamicFlowLayoutPanel2.Name = "itemFlowLayoutPanel";
-            dynamicFlowLayoutPanel2.Width = this.Width - dynamicFlowLayoutPanel1.Width;
-            dynamicFlowLayoutPanel2.Height = this.Height / 2;
-            dynamicFlowLayoutPanel2.TabIndex = 0;
-            dynamicFlowLayoutPanel2.FlowDirection = FlowDirection.TopDown;
-            dynamicFlowLayoutPanel2.Location = new Point(dynamicFlowLayoutPanel1.Width, 0 );
-            this.Controls.Add(dynamicFlowLayoutPanel2);
+            dynamicFlowLayoutPanelItem = new FlowLayoutPanel();
+            dynamicFlowLayoutPanelItem.BackColor = Color.DarkCyan;
+            dynamicFlowLayoutPanelItem.Name = "itemFlowLayoutPanel";
+            dynamicFlowLayoutPanelItem.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
+            dynamicFlowLayoutPanelItem.Height = this.Height / 2;
+            dynamicFlowLayoutPanelItem.TabIndex = 0;
+            dynamicFlowLayoutPanelItem.FlowDirection = FlowDirection.TopDown;
+            dynamicFlowLayoutPanelItem.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, 0 );
+            this.Controls.Add(dynamicFlowLayoutPanelItem);
+
+            // Create container for all synergies
+            dynamicFlowLayoutPanelSynergy = new FlowLayoutPanel();
+            dynamicFlowLayoutPanelSynergy.BackColor = Color.DarkGreen;
+            dynamicFlowLayoutPanelSynergy.Name = "synergyFlowLayoutPanel";
+            dynamicFlowLayoutPanelSynergy.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
+            dynamicFlowLayoutPanelSynergy.Height = this.Height / 2;
+            dynamicFlowLayoutPanelSynergy.TabIndex = 0;
+            dynamicFlowLayoutPanelSynergy.FlowDirection = FlowDirection.TopDown;
+            dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, this.Height / 2);
+            this.Controls.Add(dynamicFlowLayoutPanelSynergy);
+
 
             // For testing
             /*
@@ -96,7 +110,7 @@ namespace RoguelikeCompanion
                     var dataTuple = ObjectInformation.obtainWeaponStats(guess);
                     IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item7, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
                     formChild.MdiParent = this;
-                    dynamicFlowLayoutPanel1.Controls.Add(formChild);
+                    dynamicFlowLayoutPanelWeapon.Controls.Add(formChild);
                     formChild.Show();
                 }
                 else
@@ -110,16 +124,21 @@ namespace RoguelikeCompanion
             var dataTuple2 = ObjectInformation.obtainWeaponStats("Casey");
             IndividualWeaponForm formChild2 = new IndividualWeaponForm(dataTuple2.Item6, dataTuple2.Item7, dataTuple2.Item1, dataTuple2.Item2, dataTuple2.Item3, dataTuple2.Item4, dataTuple2.Item5);
             formChild2.MdiParent = this;
-            dynamicFlowLayoutPanel1.Controls.Add(formChild2);
+            dynamicFlowLayoutPanelWeapon.Controls.Add(formChild2);
             formChild2.Show();
 
             // Add Test item
             var itemDataTuple = ObjectInformation.obtainItemStats("Orange");
-            IndividualItemForm formChild3 = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanel2.Width);
+            IndividualItemForm formChild3 = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanelItem.Width);
             formChild3.MdiParent = this;
-            dynamicFlowLayoutPanel2.Controls.Add(formChild3);
+            dynamicFlowLayoutPanelItem.Controls.Add(formChild3);
             formChild3.Show();
 
+            // Add Test synergy
+            IndividualSynergyForm formChild4 = new IndividualSynergyForm(dataTuple2.Item6, "TEST TEST TEST");
+            formChild4.MdiParent = this;
+            dynamicFlowLayoutPanelItem.Controls.Add(formChild4);
+            formChild4.Show();
 
         }
 

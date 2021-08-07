@@ -87,6 +87,10 @@ namespace RoguelikeCompanion
             int height = synergyData.Height + synergyImage.Height;
             int width = (synergyData.Width > synergyImage.Width) ? synergyData.Width : synergyImage.Width;
             this.Size = new Size(width, height);
+
+            // Center image
+            int updatedImageWidth = Math.Abs(synergyData.Width / 2 - synergyImage.Width / 2);
+            synergyImage.Location = new Point(updatedImageWidth, 0);
         }
     }
 }

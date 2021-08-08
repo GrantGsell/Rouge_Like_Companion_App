@@ -37,15 +37,19 @@ class DatabaseCreation:
                 data_object = GungeonWeaponObject(name)
                 data_object.new_weapon(data_object.name, weapon_names, item_names)
 
-                # Obtain object id from objects table
-                name = name.replace("\'", "\\'")
-                object_id = self.obtain_id_from_objects_table(name)
+            else:
+                data_object = self.issueObjects(name)
 
-                # Write gun data to gun_stats table in the MySQL database
-                self.write_gun_data_to_gun_stats_table(object_id, data_object)
+            # Obtain object id from objects table
+            name = name.replace("\'", "\\'")
+            object_id = self.obtain_id_from_objects_table(name)
 
-                # Write the gun synergy data to the synergies table in the MySQL database
-                self.write_synergy_information_to_synergies_table(object_id, data_object)
+            # Write gun data to gun_stats table in the MySQL database
+            self.write_gun_data_to_gun_stats_table(object_id, data_object)
+
+            # Write the gun synergy data to the synergies table in the MySQL database
+            self.write_synergy_information_to_synergies_table(object_id, data_object)
+
 
         # Iterate over the names list and add data to database
         item_stats_dictionary = self.get_item_stats()
@@ -697,6 +701,58 @@ class DatabaseCreation:
             conn.close()
         return
 
+    """
+    Name        :
+    Purpose     :
+    Parameters  :
+    Return      :
+    """
+    def issueObjects(self, object_name):
+        # Create a new Weapon object
+        newObj = GungeonWeaponObject(object_name)
+
+        # Set similar values
+        newObj.magSize = "Variable"
+        newObj.maxAmmo = "Variable"
+        newObj.dps = "Variable"
+        newObj.damage = "Variable"
+        newObj.reloadTime = "Variable"
+        newObj.fireRate = "Variable"
+        newObj.shotSpeed = "Variable"
+        newObj.range = "Variable"
+        newObj.force = "Variable"
+        newObj.speed = "Variable"
+
+        # Set issue weapon stats based on name
+        if(object_name == "Gunderfury"):
+            newObj.type = "Variable"
+            newObj.quality = "A"
+            newObj.sell = "41"
+            newObj.unlock = "Visit all chambers"
+            newObj.pic = requests.get("https://static.wikia.nocookie.net/enterthegungeon_gamepedia/images/a/a7/"
+                                    "Gunderfury.png/revision/latest/scale-to-width-down/80?cb=20190406104933").content
+
+            # Add synergy objects
+            synObj0 = SynergyObj("Chance_On_Hit", "Silver_Bullets", "Obtain a chance to slow enemies and make "
+                                                                    "Gunderfury's bullets act like they have Shock "
+                                                                    "Rounds")
+            synObj1 = SynergyObj("Worlds_Of_Guncraft", "Mr._Accretion_Jr.", "Occasionally shoot out Mr. Accretion Jr. "
+                                                                            "shots.")
+            newObj.synergy = [synObj0, synObj1]
+        else:
+            newObj.type = None
+            newObj.quality = None
+            newObj.sell = "21"
+            newObj.unlock = "Purchase from Doug"
+            newObj.pic = requests.get("https://static.wikia.nocookie.net/enterthegungeon_gamepedia/images/1/16/"
+                                    "Chamber_Gun.png/revision/latest/scale-to-width-down/75?cb=20190406195820").content
+
+            # Add synergy objects
+            synObj = SynergyObj("Master\'s_Chambers", "Master_Round", "Each Master Round the player carries permanently"
+                                                                      " unlocks the mode of its respective floor.")
+            newObj.synergy = [synObj]
+
+        return newObj
 
 
 

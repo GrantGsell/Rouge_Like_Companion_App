@@ -733,10 +733,10 @@ class DatabaseCreation:
                                     "Gunderfury.png/revision/latest/scale-to-width-down/80?cb=20190406104933").content
 
             # Add synergy objects
-            synObj0 = SynergyObj("Chance_On_Hit", "Silver_Bullets", "Obtain a chance to slow enemies and make "
+            synObj0 = SynergyObj("Chance_On_Hit", ["Silver_Bullets"], "Obtain a chance to slow enemies and make "
                                                                     "Gunderfury's bullets act like they have Shock "
                                                                     "Rounds")
-            synObj1 = SynergyObj("Worlds_Of_Guncraft", "Mr._Accretion_Jr.", "Occasionally shoot out Mr. Accretion Jr. "
+            synObj1 = SynergyObj("Worlds_Of_Guncraft", ["Mr._Accretion_Jr."], "Occasionally shoot out Mr. Accretion Jr. "
                                                                             "shots.")
             newObj.synergy = [synObj0, synObj1]
         else:
@@ -748,7 +748,7 @@ class DatabaseCreation:
                                     "Chamber_Gun.png/revision/latest/scale-to-width-down/75?cb=20190406195820").content
 
             # Add synergy objects
-            synObj = SynergyObj("Master\'s_Chambers", "Master_Round", "Each Master Round the player carries permanently"
+            synObj = SynergyObj("Master\'s_Chambers", ["Master_Round"], "Each Master Round the player carries permanently"
                                                                       " unlocks the mode of its respective floor.")
             newObj.synergy = [synObj]
 

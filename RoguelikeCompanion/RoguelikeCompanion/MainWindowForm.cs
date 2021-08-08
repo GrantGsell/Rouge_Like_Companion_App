@@ -13,6 +13,7 @@ namespace RoguelikeCompanion
 {
     public partial class MainWindowForm : Form
     {
+        string[] objectNames;
         double[,] borderData = BorderClass.readBorderData();
         NeuralNetwork nn = new NeuralNetwork();
         FlowLayoutPanel dynamicFlowLayoutPanelWeapon;
@@ -20,7 +21,6 @@ namespace RoguelikeCompanion
         FlowLayoutPanel dynamicFlowLayoutPanelSynergy;
         Dictionary<string, bool> currentRunObjects = new Dictionary<string, bool>();
         Dictionary<string, (string, bool)> objectNameDictionary = ObjectInformation.createObjectNameDictionary();
-        string[] objectNames;
 
         public MainWindowForm()
         {
@@ -71,6 +71,7 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, this.Height / 2);
             this.Controls.Add(dynamicFlowLayoutPanelSynergy);
         }
+
 
         private void capture_Click(object sender, EventArgs e)
         {
@@ -160,6 +161,75 @@ namespace RoguelikeCompanion
         }
 
 
+        public void activeCapTimer_Tick(object sender, EventArgs e)
+        {
+            activeCapture();
+        }
+
+
+        /*
+         */
+        public void activeCapture()
+        {
+            // Obtain bitmaps
+            Bitmap initialImage = ScreenImgCapture.bitmapScreenCapture();
+            Bitmap notificationBox = ScreenImgCapture.cropBitMap(initialImage, 567, 425, 767, 77);
+            Bitmap borderNotificationBox = ScreenImgCapture.cropBitMap(notificationBox, 25, notificationBox.Width - 25, 0, notificationBox.Height);
+
+            // Check for notification box
+            int borderClass = BorderClass.predictIsBorder(borderNotificationBox, borderData);
+            if (borderClass != 0 && borderClass != 4)
+            {
+                string guess = nn.newImagePrediction(notificationBox);
+
+                // Fix guess object if not found in dictionary
+                if (!objectNameDictionary.ContainsKey(guess))
+                {
+                    guess = closestWord(guess, objectNames);
+                }
+
+                // Check to see if the object was already found
+                if (currentRunObjects.ContainsKey(guess))
+                {
+                    return;
+                }
+                currentRunObjects.Add(guess, true);
+
+                // Obtain object information
+                if (objectNameDictionary.GetValueOrDefault(guess).Item2)
+                {
+                    // Add weapon to the main form
+                    var dataTuple = ObjectInformation.obtainWeaponStats(guess);
+                    IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item7, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
+                    formChild.MdiParent = this;
+                    dynamicFlowLayoutPanelWeapon.Controls.Add(formChild);
+                    formChild.Show();
+
+                    // Add synergies to the main form
+                    var synergyTupleList = ObjectInformation.obtainSynergyStats(guess);
+                    foreach (var synergyTuple in synergyTupleList)
+                    {
+                        IndividualSynergyForm formChild1 = new IndividualSynergyForm(synergyTuple.Item1, synergyTuple.Item2);
+                        formChild1.MdiParent = this;
+                        dynamicFlowLayoutPanelSynergy.Controls.Add(formChild1);
+                        formChild1.Show();
+                    }
+                }
+                else
+                {
+                    // Add item to the main form
+                    var itemDataTuple = ObjectInformation.obtainItemStats(guess);
+                    IndividualItemForm formChild = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanelItem.Width);
+                    formChild.MdiParent = this;
+                    dynamicFlowLayoutPanelItem.Controls.Add(formChild);
+                    formChild.Show();
+
+                }
+            }
+            
+        }
+
+
         /*
          */
         public string closestWord(string guess, string[] objectNames)
@@ -227,7 +297,11 @@ namespace RoguelikeCompanion
          */
         private void MainWindowForm_Load(object sender, EventArgs e)
         {
-
+            // Timer to run the active capture method
+            Timer activeCapTimer = new Timer();
+            activeCapTimer.Interval = (1000);
+            activeCapTimer.Tick += new EventHandler(activeCapTimer_Tick);
+            activeCapTimer.Start();
         }
     }
 }

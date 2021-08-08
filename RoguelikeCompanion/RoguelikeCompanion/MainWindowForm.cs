@@ -13,12 +13,13 @@ namespace RoguelikeCompanion
 {
     public partial class MainWindowForm : Form
     {
-        Dictionary<string, (string, bool)> objectNameDictionary = ObjectInformation.createObjectNameDictionary();
         double[,] borderData = BorderClass.readBorderData();
         NeuralNetwork nn = new NeuralNetwork();
         FlowLayoutPanel dynamicFlowLayoutPanelWeapon;
         FlowLayoutPanel dynamicFlowLayoutPanelItem;
         FlowLayoutPanel dynamicFlowLayoutPanelSynergy;
+        Dictionary<string, bool> currentRunObjects = new Dictionary<string, bool>();
+        Dictionary<string, (string, bool)> objectNameDictionary = ObjectInformation.createObjectNameDictionary();
 
         public MainWindowForm()
         {
@@ -27,10 +28,8 @@ namespace RoguelikeCompanion
             // Set app size
             this.Bounds = Screen.PrimaryScreen.Bounds;
             this.WindowState = FormWindowState.Maximized;
-
             this.IsMdiContainer = true;
            
-
             // Create container for all weapons
             dynamicFlowLayoutPanelWeapon = new FlowLayoutPanel();
             dynamicFlowLayoutPanelWeapon.BackColor = Color.DeepSkyBlue;
@@ -62,26 +61,11 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelSynergy.FlowDirection = FlowDirection.TopDown;
             dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, this.Height / 2);
             this.Controls.Add(dynamicFlowLayoutPanelSynergy);
-
-
-            // For testing
-            /*
-            Image test = Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/temp_0.jpg");
-            IndividualWeaponForm formChild = new IndividualWeaponForm(test, "Crossbow", "33.2", "0.3 seconds", "21", "Automatic");
-            formChild.MdiParent = this;
-            dynamicFlowLayoutPanel.Controls.Add(formChild);
-            formChild.Show();
-            Image test = Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/temp_0.jpg");
-            IndividualWeaponForm formChild = new IndividualWeaponForm(test, "Crossbow", "33.2", "0.3 seconds", "21", "Automatic");
-            formChild.MdiParent = this;
-            formChild.Show();
-            */
-
         }
 
         private void capture_Click(object sender, EventArgs e)
         {
-                        /*
+            /*
             */
             //NeuralNetwork nn = new NeuralNetwork();
             System.Threading.Thread.Sleep(4000);
@@ -102,6 +86,13 @@ namespace RoguelikeCompanion
                 {
 
                 }
+
+                // Check to see if the object was already found
+                if (currentRunObjects.ContainsKey(guess))
+                {
+                    # continue;
+                }
+                currentRunObjects.Add(guess, true);
 
                 // Obtain object information
                 if (objectNameDictionary.GetValueOrDefault(guess).Item2)
@@ -137,7 +128,7 @@ namespace RoguelikeCompanion
             // Add Test synergy
             IndividualSynergyForm formChild4 = new IndividualSynergyForm(dataTuple2.Item6, "TEST TEST TEST");
             formChild4.MdiParent = this;
-            dynamicFlowLayoutPanelItem.Controls.Add(formChild4);
+            dynamicFlowLayoutPanelSynergy.Controls.Add(formChild4);
             formChild4.Show();
 
         }

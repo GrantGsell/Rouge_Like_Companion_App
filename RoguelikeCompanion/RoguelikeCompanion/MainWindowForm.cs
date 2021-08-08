@@ -182,6 +182,9 @@ namespace RoguelikeCompanion
             {
                 string guess = nn.newImagePrediction(notificationBox);
 
+                // Return if null
+                if (guess == null) return;
+
                 // Fix guess object if not found in dictionary
                 if (!objectNameDictionary.ContainsKey(guess))
                 {

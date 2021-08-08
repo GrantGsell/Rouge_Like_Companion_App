@@ -20,19 +20,28 @@ namespace RoguelikeCompanion
         FlowLayoutPanel dynamicFlowLayoutPanelSynergy;
         Dictionary<string, bool> currentRunObjects = new Dictionary<string, bool>();
         Dictionary<string, (string, bool)> objectNameDictionary = ObjectInformation.createObjectNameDictionary();
+        string[] objectNames;
 
         public MainWindowForm()
         {
             InitializeComponent();
 
+            // Obtain all object names
+            objectNames = objectNameDictionary.Keys.ToArray<string>();
+
             // Set app size
             this.Bounds = Screen.PrimaryScreen.Bounds;
             this.WindowState = FormWindowState.Maximized;
             this.IsMdiContainer = true;
-           
+
+            // Set app background image
+            //string mainBackground = "C:/Users/Grant/Desktop/Rouge_Like_Companion_App/Gungeon_Backgound_Art.png";
+            //Image mainBackgroundImage = Image.FromFile(mainBackground);
+            //this.BackgroundImage = mainBackgroundImage;
+
             // Create container for all weapons
             dynamicFlowLayoutPanelWeapon = new FlowLayoutPanel();
-            dynamicFlowLayoutPanelWeapon.BackColor = Color.DeepSkyBlue;
+            dynamicFlowLayoutPanelWeapon.BackColor = Color.Transparent;//Color.DeepSkyBlue;
             dynamicFlowLayoutPanelWeapon.Name = "weaponFlowLayoutPanel";
             dynamicFlowLayoutPanelWeapon.Width = this.Width * 65 / 100;
             dynamicFlowLayoutPanelWeapon.Height = this.Height;
@@ -42,7 +51,7 @@ namespace RoguelikeCompanion
 
             // Create container for all items
             dynamicFlowLayoutPanelItem = new FlowLayoutPanel();
-            dynamicFlowLayoutPanelItem.BackColor = Color.DarkCyan;
+            dynamicFlowLayoutPanelItem.BackColor = Color.Transparent;//Color.DarkCyan;
             dynamicFlowLayoutPanelItem.Name = "itemFlowLayoutPanel";
             dynamicFlowLayoutPanelItem.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelItem.Height = this.Height / 2;
@@ -53,7 +62,7 @@ namespace RoguelikeCompanion
 
             // Create container for all synergies
             dynamicFlowLayoutPanelSynergy = new FlowLayoutPanel();
-            dynamicFlowLayoutPanelSynergy.BackColor = Color.DarkGreen;
+            dynamicFlowLayoutPanelSynergy.BackColor = Color.Transparent; //Color.DarkGreen;
             dynamicFlowLayoutPanelSynergy.Name = "synergyFlowLayoutPanel";
             dynamicFlowLayoutPanelSynergy.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelSynergy.Height = this.Height / 2;
@@ -84,43 +93,60 @@ namespace RoguelikeCompanion
                 // Fix guess object if not found in dictionary
                 if (!objectNameDictionary.ContainsKey(guess))
                 {
-
+                    guess = closestWord(guess, objectNames);
                 }
 
                 // Check to see if the object was already found
                 if (currentRunObjects.ContainsKey(guess))
                 {
-                    # continue;
+                    //continue;
                 }
                 currentRunObjects.Add(guess, true);
 
                 // Obtain object information
                 if (objectNameDictionary.GetValueOrDefault(guess).Item2)
                 {
-                    // Used for weapons
+                    // Add weapon to the main form
                     var dataTuple = ObjectInformation.obtainWeaponStats(guess);
                     IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item7, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
                     formChild.MdiParent = this;
                     dynamicFlowLayoutPanelWeapon.Controls.Add(formChild);
                     formChild.Show();
+
+                    // Add synergies to the main form
+                    var synergyTupleList = ObjectInformation.obtainSynergyStats(guess);
+                    foreach (var synergyTuple in synergyTupleList)
+                    {
+                        IndividualSynergyForm formChild1 = new IndividualSynergyForm(synergyTuple.Item1, synergyTuple.Item2);
+                        formChild1.MdiParent = this;
+                        dynamicFlowLayoutPanelSynergy.Controls.Add(formChild1);
+                        formChild1.Show();
+                    }
                 }
                 else
                 {
-                    // Used for Items
+                    // Add item to the main form
+                    var itemDataTuple = ObjectInformation.obtainItemStats(guess);
+                    IndividualItemForm formChild = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanelItem.Width);
+                    formChild.MdiParent = this;
+                    dynamicFlowLayoutPanelItem.Controls.Add(formChild);
+                    formChild.Show();
 
                 }
             }
 
+            // For Testing purposes only
+            /*
             // Add Test weapon
             var dataTuple2 = ObjectInformation.obtainWeaponStats("Casey");
-            IndividualWeaponForm formChild2 = new IndividualWeaponForm(dataTuple2.Item6, dataTuple2.Item7, dataTuple2.Item1, dataTuple2.Item2, dataTuple2.Item3, dataTuple2.Item4, dataTuple2.Item5);
-            formChild2.MdiParent = this;
-            dynamicFlowLayoutPanelWeapon.Controls.Add(formChild2);
-            formChild2.Show();
+            IndividualWeaponForm formChild5 = new IndividualWeaponForm(dataTuple2.Item6, dataTuple2.Item7, dataTuple2.Item1, dataTuple2.Item2, dataTuple2.Item3, dataTuple2.Item4, dataTuple2.Item5);
+            formChild5.MdiParent = this;
+            dynamicFlowLayoutPanelWeapon.Controls.Add(formChild5);
+            formChild5.Show();
 
             // Add Test item
-            var itemDataTuple = ObjectInformation.obtainItemStats("Orange");
-            IndividualItemForm formChild3 = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanelItem.Width);
+            var itemDataTuple1 = ObjectInformation.obtainItemStats("Orange");
+            IndividualItemForm formChild3 = new IndividualItemForm(itemDataTuple1.Item4, itemDataTuple1.Item2, itemDataTuple1.Item3, dynamicFlowLayoutPanelItem.Width);
             formChild3.MdiParent = this;
             dynamicFlowLayoutPanelItem.Controls.Add(formChild3);
             formChild3.Show();
@@ -130,7 +156,69 @@ namespace RoguelikeCompanion
             formChild4.MdiParent = this;
             dynamicFlowLayoutPanelSynergy.Controls.Add(formChild4);
             formChild4.Show();
+            */
+        }
 
+
+        /*
+         */
+        public string closestWord(string guess, string[] objectNames)
+        {
+            // Calculate the Levenshtein distance between incorrect word and all potential words
+            int minLevDist = 50;
+            String correctWord = "";
+            foreach (string elem in objectNames)
+            {
+                int currDist = levenshteinDistance(guess, elem);
+                if (minLevDist > currDist)
+                {
+                    minLevDist = currDist;
+                    correctWord = elem;
+                }
+            }
+
+            return correctWord;
+        }
+
+
+        /*
+         */
+        public int levenshteinDistance(string guess, string compareWord)
+        {
+            // Make both words lowercase
+            string wordA = guess.ToLower();
+            string wordB = compareWord.ToLower();
+
+            // Declare Levenshtein distance matrix
+            int[,] levMatrix = new int[wordB.Length + 1, wordA.Length + 1];
+
+            // Initialize the first row, col of the matrix
+            for (int row = 1; row < wordB.Length + 1; row++)
+            {
+                levMatrix[row, 0] = row;
+            }
+            for (int col = 1; col < wordA.Length + 1; col++)
+            {
+                levMatrix[0, col] = col;
+            }
+
+            // Use tabulation to populate the table
+            for (int row = 1; row < wordB.Length + 1; row++)
+            {
+                for (int col = 1; col < wordA.Length + 1; col++)
+                {
+                    int sameCharFlag = 1;
+                    if (wordA[col - 1] == wordB[row - 1])
+                    {
+                        sameCharFlag = 0;
+                    }
+                    levMatrix[row, col] = Math.Min(
+                                Math.Min(levMatrix[row - 1, col] + 1, levMatrix[row - 1, col - 1] + sameCharFlag),
+                                levMatrix[row, col - 1] + 1
+                    );
+                }
+            }
+            return levMatrix[wordB.Length, wordA.Length];
         }
 
 

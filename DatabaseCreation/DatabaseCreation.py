@@ -527,9 +527,9 @@ class DatabaseCreation:
         query = "INSERT INTO object_quality (quality_letter, quality_image) " \
                 "VALUES(%s, %s)"
 
-        quality_letter_arr = ["1", "A", "B", "C", "CBA", "D"]
+        quality_letter_arr = ["1", "A", "B", "C", "CBA", "D", "N/A"]
         quality_imgs = ["1S_Quality_Item.png", "A_Quality_Item.png", "B_Quality_Item.png", "C_Quality_Item.png",
-                        "CBA.png", "D_Quality_Item.png"]
+                        "CBA.png", "D_Quality_Item.png", "N_Quality_Item.png"]
 
         try:
             # Step 3. Connect to the MySQL database by creating a new MySQLConnection object

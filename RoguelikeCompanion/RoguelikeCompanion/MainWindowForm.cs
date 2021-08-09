@@ -67,7 +67,7 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelSynergy.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelSynergy.Height = this.Height / 2;
             dynamicFlowLayoutPanelSynergy.TabIndex = 0;
-            dynamicFlowLayoutPanelSynergy.FlowDirection = FlowDirection.TopDown;
+            dynamicFlowLayoutPanelSynergy.FlowDirection = FlowDirection.LeftToRight;
             dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, this.Height / 2);
             this.Controls.Add(dynamicFlowLayoutPanelSynergy);
         }
@@ -78,7 +78,7 @@ namespace RoguelikeCompanion
             /*
             */
             //NeuralNetwork nn = new NeuralNetwork();
-            System.Threading.Thread.Sleep(4000);
+            //System.Threading.Thread.Sleep(4000);
             
             // Obtain bitmaps
             Bitmap initialImage = ScreenImgCapture.bitmapScreenCapture();
@@ -87,9 +87,11 @@ namespace RoguelikeCompanion
 
             // Check for notification box
             int borderClass = BorderClass.predictIsBorder(borderNotificationBox, borderData);
+            borderClass = 2;
             if(borderClass != 0 && borderClass != 4)
             {
-                string guess = nn.newImagePrediction(notificationBox);
+                //string guess = nn.newImagePrediction(notificationBox);
+                string guess = "Trident";
 
                 // Fix guess object if not found in dictionary
                 if (!objectNameDictionary.ContainsKey(guess))
@@ -100,7 +102,7 @@ namespace RoguelikeCompanion
                 // Check to see if the object was already found
                 if (currentRunObjects.ContainsKey(guess))
                 {
-                    //continue;
+                    return;
                 }
                 currentRunObjects.Add(guess, true);
 

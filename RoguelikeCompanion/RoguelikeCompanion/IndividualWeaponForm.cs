@@ -22,8 +22,8 @@ namespace RoguelikeCompanion
         public IndividualWeaponForm(Image img, Image qualtiy, string name, string dps, string reloadTime, string sellPrice, string gunType)
         {
             InitializeComponent();
-            this.imagePB = createPictureBox(img, 15);
-            this.qualityPB = createPictureBox(qualtiy, 3);
+            this.imagePB = createPictureBox(img, 100, 100);
+            this.qualityPB = createPictureBox(qualtiy, 50, 50);
             this.weaponData = weaponDataGrid(name, dps, reloadTime, sellPrice, gunType);
         }
 
@@ -65,12 +65,12 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public static PictureBox createPictureBox(Image img, int scaleFactor)
+        public static PictureBox createPictureBox(Image img, int newWidth, int newHeight)
         {
             PictureBox imageBox = new PictureBox();
             Bitmap bm = new Bitmap(img);
-            int newHeight = img.Height * scaleFactor;
-            int newWidth = img.Width * scaleFactor;
+            //int newHeight = 100;//img.Height * scaleFactor;
+            //int newWidth = 100;// img.Width * scaleFactor;
             bm = ScaleImage(bm, newHeight, newWidth);
             imageBox.Height = bm.Height;
             imageBox.Width = bm.Width;
@@ -146,7 +146,7 @@ namespace RoguelikeCompanion
             weaponGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
             // Set the container size
-            int totalHeight = weaponGrid.ColumnHeadersHeight + weaponGrid.Rows[0].Height * (weaponGrid.Rows.Count) + 2;
+            int totalHeight = weaponGrid.ColumnHeadersHeight + weaponGrid.Rows[0].Height * (weaponGrid.Rows.Count - 1) + 2;
             int totalWidth = weaponGrid.Columns[0].Width + weaponGrid.Columns[1].Width;
             weaponGrid.Size = new Size(totalWidth, totalHeight);
 

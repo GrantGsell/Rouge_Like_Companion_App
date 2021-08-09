@@ -19,7 +19,7 @@ namespace RoguelikeCompanion
         {
             InitializeComponent();
             this.synergyData = synergyDataGrid(synergizesWith);
-            this.synergyImage = IndividualWeaponForm.createPictureBox(img, 15);
+            this.synergyImage = IndividualWeaponForm.createPictureBox(img, 75, 75);
         }
 
 

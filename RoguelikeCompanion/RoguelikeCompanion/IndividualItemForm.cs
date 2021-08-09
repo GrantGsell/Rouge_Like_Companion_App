@@ -20,7 +20,7 @@ namespace RoguelikeCompanion
         {
             InitializeComponent();
             formSize = maxFormSize;
-            itemImage = IndividualWeaponForm.createPictureBox(img, 5);
+            itemImage = IndividualWeaponForm.createPictureBox(img, 75, 75);
             itemData = itemDataGrid(itemType, itemEffect);
         }
 

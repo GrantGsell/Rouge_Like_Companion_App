@@ -35,13 +35,13 @@ namespace RoguelikeCompanion
             this.IsMdiContainer = true;
 
             // Set app background image
-            //string mainBackground = "C:/Users/Grant/Desktop/Rouge_Like_Companion_App/Gungeon_Backgound_Art.png";
-            //Image mainBackgroundImage = Image.FromFile(mainBackground);
+            string allBackground = "C:/Users/Grant/Desktop/Rouge_Like_Companion_App/Gungeon_Backgound_Art.png";
+            Image backgroundImage = Image.FromFile(allBackground);
             //this.BackgroundImage = mainBackgroundImage;
 
             // Create container for all weapons
             dynamicFlowLayoutPanelWeapon = new FlowLayoutPanel();
-            dynamicFlowLayoutPanelWeapon.BackColor = Color.Transparent;//Color.DeepSkyBlue;
+            dynamicFlowLayoutPanelWeapon.BackgroundImage = backgroundImage;
             dynamicFlowLayoutPanelWeapon.Name = "weaponFlowLayoutPanel";
             dynamicFlowLayoutPanelWeapon.Width = this.Width * 65 / 100;
             dynamicFlowLayoutPanelWeapon.Height = this.Height;
@@ -51,7 +51,7 @@ namespace RoguelikeCompanion
 
             // Create container for all items
             dynamicFlowLayoutPanelItem = new FlowLayoutPanel();
-            dynamicFlowLayoutPanelItem.BackColor = Color.Transparent;//Color.DarkCyan;
+            dynamicFlowLayoutPanelItem.BackgroundImage = backgroundImage;
             dynamicFlowLayoutPanelItem.Name = "itemFlowLayoutPanel";
             dynamicFlowLayoutPanelItem.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelItem.Height = this.Height / 2;
@@ -62,7 +62,7 @@ namespace RoguelikeCompanion
 
             // Create container for all synergies
             dynamicFlowLayoutPanelSynergy = new FlowLayoutPanel();
-            dynamicFlowLayoutPanelSynergy.BackColor = Color.Transparent; //Color.DarkGreen;
+            dynamicFlowLayoutPanelSynergy.BackgroundImage = backgroundImage;
             dynamicFlowLayoutPanelSynergy.Name = "synergyFlowLayoutPanel";
             dynamicFlowLayoutPanelSynergy.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelSynergy.Height = this.Height / 2;

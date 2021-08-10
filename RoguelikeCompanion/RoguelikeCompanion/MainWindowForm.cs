@@ -28,7 +28,7 @@ namespace RoguelikeCompanion
 
             // Obtain all object names
             objectNames = objectNameDictionary.Keys.ToArray<string>();
-
+             
             // Set app size
             this.Bounds = Screen.PrimaryScreen.Bounds;
             this.WindowState = FormWindowState.Maximized;
@@ -43,10 +43,13 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelWeapon = new FlowLayoutPanel();
             dynamicFlowLayoutPanelWeapon.BackgroundImage = backgroundImage;
             dynamicFlowLayoutPanelWeapon.Name = "weaponFlowLayoutPanel";
-            dynamicFlowLayoutPanelWeapon.Width = this.Width * 65 / 100;
+            dynamicFlowLayoutPanelWeapon.Width = this.Width * 55 / 100;
             dynamicFlowLayoutPanelWeapon.Height = this.Height;
             dynamicFlowLayoutPanelWeapon.TabIndex = 0;
             dynamicFlowLayoutPanelWeapon.FlowDirection = FlowDirection.LeftToRight;
+            dynamicFlowLayoutPanelWeapon.AutoScroll = true;
+            dynamicFlowLayoutPanelWeapon.WrapContents = true;
+            dynamicFlowLayoutPanelWeapon.SetAutoScrollMargin(10, 10);
             this.Controls.Add(dynamicFlowLayoutPanelWeapon);
 
             // Create container for all items
@@ -58,6 +61,9 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelItem.TabIndex = 0;
             dynamicFlowLayoutPanelItem.FlowDirection = FlowDirection.TopDown;
             dynamicFlowLayoutPanelItem.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, 0 );
+            dynamicFlowLayoutPanelItem.AutoScroll = true;
+            dynamicFlowLayoutPanelItem.WrapContents = false;
+            dynamicFlowLayoutPanelItem.SetAutoScrollMargin(10, 10);
             this.Controls.Add(dynamicFlowLayoutPanelItem);
 
             // Create container for all synergies
@@ -69,6 +75,9 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelSynergy.TabIndex = 0;
             dynamicFlowLayoutPanelSynergy.FlowDirection = FlowDirection.LeftToRight;
             dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, this.Height / 2);
+            dynamicFlowLayoutPanelSynergy.AutoScroll = true;
+            dynamicFlowLayoutPanelSynergy.WrapContents = true;
+            dynamicFlowLayoutPanelSynergy.SetAutoScrollMargin(10, 10);
             this.Controls.Add(dynamicFlowLayoutPanelSynergy);
         }
 
@@ -102,9 +111,9 @@ namespace RoguelikeCompanion
                 // Check to see if the object was already found
                 if (currentRunObjects.ContainsKey(guess))
                 {
-                    return;
+                    // return;
                 }
-                currentRunObjects.Add(guess, true);
+                //currentRunObjects.Add(guess, true);
 
                 // Obtain object information
                 if (objectNameDictionary.GetValueOrDefault(guess).Item2)
@@ -124,17 +133,19 @@ namespace RoguelikeCompanion
                         formChild1.MdiParent = this;
                         dynamicFlowLayoutPanelSynergy.Controls.Add(formChild1);
                         formChild1.Show();
+                        dynamicFlowLayoutPanelSynergy.ScrollControlIntoView(formChild1);
                     }
+                    dynamicFlowLayoutPanelWeapon.ScrollControlIntoView(formChild);
                 }
                 else
                 {
                     // Add item to the main form
                     var itemDataTuple = ObjectInformation.obtainItemStats(guess);
-                    IndividualItemForm formChild = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanelItem.Width);
+                    IndividualItemForm formChild = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanelItem.Width - (dynamicFlowLayoutPanelItem.AutoScrollMargin.Width * 3));
                     formChild.MdiParent = this;
                     dynamicFlowLayoutPanelItem.Controls.Add(formChild);
                     formChild.Show();
-
+                    dynamicFlowLayoutPanelItem.ScrollControlIntoView(formChild);
                 }
             }
 
@@ -218,16 +229,22 @@ namespace RoguelikeCompanion
                         formChild1.MdiParent = this;
                         dynamicFlowLayoutPanelSynergy.Controls.Add(formChild1);
                         formChild1.Show();
+                        dynamicFlowLayoutPanelSynergy.ScrollControlIntoView(formChild1);
                     }
+
+                    // Set forms to focus on newly added images
+                    dynamicFlowLayoutPanelWeapon.ScrollControlIntoView(formChild);
+                    //dynamicFlowLayoutPanelSynergy.ScrollControlIntoView(formChild1);
                 }
                 else
                 {
                     // Add item to the main form
                     var itemDataTuple = ObjectInformation.obtainItemStats(guess);
-                    IndividualItemForm formChild = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanelItem.Width);
+                    IndividualItemForm formChild = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanelItem.Width - (dynamicFlowLayoutPanelItem.AutoScrollMargin.Width * 3));
                     formChild.MdiParent = this;
                     dynamicFlowLayoutPanelItem.Controls.Add(formChild);
                     formChild.Show();
+                    dynamicFlowLayoutPanelItem.ScrollControlIntoView(formChild);
 
                 }
             }
@@ -298,7 +315,7 @@ namespace RoguelikeCompanion
 
 
         /*
-         * Dont Delete this Funciton
+         *
          */
         private void MainWindowForm_Load(object sender, EventArgs e)
         {

@@ -41,7 +41,7 @@ namespace RoguelikeCompanion
 
             // Create container for all weapons
             dynamicFlowLayoutPanelWeapon = new FlowLayoutPanel();
-            dynamicFlowLayoutPanelWeapon.BackgroundImage = backgroundImage;
+            //dynamicFlowLayoutPanelWeapon.BackgroundImage = backgroundImage;
             dynamicFlowLayoutPanelWeapon.Name = "weaponFlowLayoutPanel";
             dynamicFlowLayoutPanelWeapon.Width = this.Width * 55 / 100;
             dynamicFlowLayoutPanelWeapon.Height = this.Height;
@@ -54,7 +54,7 @@ namespace RoguelikeCompanion
 
             // Create container for all items
             dynamicFlowLayoutPanelItem = new FlowLayoutPanel();
-            dynamicFlowLayoutPanelItem.BackgroundImage = backgroundImage;
+            //dynamicFlowLayoutPanelItem.BackgroundImage = backgroundImage;
             dynamicFlowLayoutPanelItem.Name = "itemFlowLayoutPanel";
             dynamicFlowLayoutPanelItem.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelItem.Height = this.Height / 2;
@@ -68,7 +68,7 @@ namespace RoguelikeCompanion
 
             // Create container for all synergies
             dynamicFlowLayoutPanelSynergy = new FlowLayoutPanel();
-            dynamicFlowLayoutPanelSynergy.BackgroundImage = backgroundImage;
+            //dynamicFlowLayoutPanelSynergy.BackgroundImage = backgroundImage;
             dynamicFlowLayoutPanelSynergy.Name = "synergyFlowLayoutPanel";
             dynamicFlowLayoutPanelSynergy.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelSynergy.Height = this.Height / 2;
@@ -321,7 +321,7 @@ namespace RoguelikeCompanion
         {
             // Timer to run the active capture method
             Timer activeCapTimer = new Timer();
-            activeCapTimer.Interval = (1000);
+            activeCapTimer.Interval = (1250);
             activeCapTimer.Tick += new EventHandler(activeCapTimer_Tick);
             activeCapTimer.Start();
         }

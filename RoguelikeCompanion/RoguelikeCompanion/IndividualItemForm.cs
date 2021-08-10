@@ -44,6 +44,7 @@ namespace RoguelikeCompanion
             // Set the form size
             int width = formSize; //itemImage.Width + itemData.Width;
             int height = (itemImage.Height > (itemData.Rows[0].Height + itemData.ColumnHeadersHeight)) ? itemImage.Height : itemData.Rows[0].Height + itemData.ColumnHeadersHeight;
+            itemData.Rows[0].Height = height - itemData.ColumnHeadersHeight;
             this.Size = new Size(width, height);
         }
 
@@ -90,7 +91,7 @@ namespace RoguelikeCompanion
             // Add text wraping
             itemGrid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             itemGrid.Columns[1].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            itemGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;
+            itemGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
 
             // Set the second column size
             int idealEffectColumnWidth = formSize - itemImage.Width - itemGrid.Columns[0].Width - 5;

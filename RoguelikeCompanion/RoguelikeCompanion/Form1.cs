@@ -241,9 +241,9 @@ namespace RoguelikeCompanion
                 dynamicFlowLayoutPanelWeapon.Width = this.Width * 55 / 100;
                 dynamicFlowLayoutPanelWeapon.Height = this.Height - 40;
                 dynamicFlowLayoutPanelItem.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
-                dynamicFlowLayoutPanelItem.Height = (this.Height - 20) / 2;
+                dynamicFlowLayoutPanelItem.Height = (this.Height - 40) / 2;
                 dynamicFlowLayoutPanelSynergy.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
-                dynamicFlowLayoutPanelSynergy.Height = (this.Height - 20) / 2;
+                dynamicFlowLayoutPanelSynergy.Height = (this.Height - 40) / 2;
 
                 // Change the location of two children forms
                 dynamicFlowLayoutPanelItem.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, 40);

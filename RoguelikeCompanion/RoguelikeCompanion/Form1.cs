@@ -107,7 +107,6 @@ namespace RoguelikeCompanion
             if (borderClass != 0 && borderClass != 4)
             {
                 string guess = nn.newImagePrediction(notificationBox);
-                guess = "Trident";
 
                 // Return if null
                 if (guess == null) return;

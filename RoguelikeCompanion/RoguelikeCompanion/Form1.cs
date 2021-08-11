@@ -247,7 +247,7 @@ namespace RoguelikeCompanion
 
                 // Change the location of two children forms
                 dynamicFlowLayoutPanelItem.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, 40);
-                dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, this.Height / 2 + 40 / 2);
+                dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, dynamicFlowLayoutPanelItem.Height + 40);
             }
             catch (System.NullReferenceException)
             {

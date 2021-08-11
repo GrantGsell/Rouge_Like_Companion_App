@@ -52,7 +52,7 @@ namespace RoguelikeCompanion
 
             // Set form size
             int width = weaponData.Width;
-            int height = imageOffset + weaponData.Height + qualityPB.Height;
+            int height = 100 + 50 + weaponData.Height;//imageOffset + weaponData.Height + qualityPB.Height;
             this.Size = new Size(width, height);
 
             // Center Images

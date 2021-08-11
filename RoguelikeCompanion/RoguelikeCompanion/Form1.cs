@@ -72,7 +72,7 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelSynergy.Height = this.Height / 2 - (40 / 2);
             dynamicFlowLayoutPanelSynergy.TabIndex = 0;
             dynamicFlowLayoutPanelSynergy.FlowDirection = FlowDirection.LeftToRight;
-            dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, this.Height / 2 + 40 / 2);
+            dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, dynamicFlowLayoutPanelItem.Height + 40);
             dynamicFlowLayoutPanelSynergy.AutoScroll = true;
             dynamicFlowLayoutPanelSynergy.WrapContents = true;
             dynamicFlowLayoutPanelSynergy.SetAutoScrollMargin(10, 10);
@@ -87,6 +87,8 @@ namespace RoguelikeCompanion
         }
 
 
+        /*
+         */
         public void activeCapTimer_Tick(object sender, EventArgs e)
         {
             activeCapture();
@@ -227,6 +229,8 @@ namespace RoguelikeCompanion
         }
 
 
+        /*
+         */
         private void Form1_LocationChanged(object sender, EventArgs e)
         {
             this.Bounds = Screen.FromControl(this).Bounds;
@@ -251,6 +255,9 @@ namespace RoguelikeCompanion
             }
         }
 
+
+        /*
+         */
         private void newRunButton_Click(object sender, EventArgs e)
         {
             // Clear the flow layout panels for a new run

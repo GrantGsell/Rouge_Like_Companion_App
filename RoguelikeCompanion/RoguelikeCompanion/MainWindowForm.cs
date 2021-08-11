@@ -28,20 +28,17 @@ namespace RoguelikeCompanion
 
             // Obtain all object names
             objectNames = objectNameDictionary.Keys.ToArray<string>();
-             
-            // Set app size
-            this.Bounds = Screen.PrimaryScreen.Bounds;
-            this.WindowState = FormWindowState.Maximized;
-            this.IsMdiContainer = true;
 
-            // Set app background image
-            string allBackground = "C:/Users/Grant/Desktop/Rouge_Like_Companion_App/Gungeon_Backgound_Art.png";
-            Image backgroundImage = Image.FromFile(allBackground);
-            //this.BackgroundImage = mainBackgroundImage;
+            // Set app size
+            //this.WindowState = FormWindowState.Maximized;
+            var test = Screen.PrimaryScreen.Bounds;
+            test.Height = test.Height - 75;
+            this.Bounds = test;
+            
+            this.IsMdiContainer = true;
 
             // Create container for all weapons
             dynamicFlowLayoutPanelWeapon = new FlowLayoutPanel();
-            //dynamicFlowLayoutPanelWeapon.BackgroundImage = backgroundImage;
             dynamicFlowLayoutPanelWeapon.Name = "weaponFlowLayoutPanel";
             dynamicFlowLayoutPanelWeapon.Width = this.Width * 55 / 100;
             dynamicFlowLayoutPanelWeapon.Height = this.Height;
@@ -54,7 +51,6 @@ namespace RoguelikeCompanion
 
             // Create container for all items
             dynamicFlowLayoutPanelItem = new FlowLayoutPanel();
-            //dynamicFlowLayoutPanelItem.BackgroundImage = backgroundImage;
             dynamicFlowLayoutPanelItem.Name = "itemFlowLayoutPanel";
             dynamicFlowLayoutPanelItem.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelItem.Height = this.Height / 2;
@@ -68,7 +64,6 @@ namespace RoguelikeCompanion
 
             // Create container for all synergies
             dynamicFlowLayoutPanelSynergy = new FlowLayoutPanel();
-            //dynamicFlowLayoutPanelSynergy.BackgroundImage = backgroundImage;
             dynamicFlowLayoutPanelSynergy.Name = "synergyFlowLayoutPanel";
             dynamicFlowLayoutPanelSynergy.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelSynergy.Height = this.Height / 2;
@@ -324,6 +319,33 @@ namespace RoguelikeCompanion
             activeCapTimer.Interval = (1250);
             activeCapTimer.Tick += new EventHandler(activeCapTimer_Tick);
             activeCapTimer.Start();
+        }
+
+        /*
+         */
+        private void MainWindowForm_LocationChanged(object sender, System.EventArgs e)
+        {
+            // Resize the form
+            int h = Screen.FromControl(this).Bounds.Height;
+            int w = Screen.FromControl(this).Bounds.Width;
+            this.MaximumSize = new Size(w, h);
+            this.Width = w;
+            this.Height = h;
+            //this.WindowState = FormWindowState.Maximized;
+
+
+            // Change size of the three children forms
+            dynamicFlowLayoutPanelWeapon.Width = this.Width * 55 / 100;
+            dynamicFlowLayoutPanelWeapon.Height = h - 25;
+            dynamicFlowLayoutPanelItem.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
+            dynamicFlowLayoutPanelItem.Height = (h - 25) / 2;
+            dynamicFlowLayoutPanelSynergy.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
+            dynamicFlowLayoutPanelSynergy.Height = (h - 25) / 2;
+
+            // Change the location of two children forms
+            dynamicFlowLayoutPanelItem.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, 0);
+            dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, (h - 25) / 2);
+            
         }
     }
 }

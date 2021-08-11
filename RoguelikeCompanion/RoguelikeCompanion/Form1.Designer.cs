@@ -52,6 +52,7 @@ namespace RoguelikeCompanion
             // newRunButton
             // 
             this.newRunButton.Dock = System.Windows.Forms.DockStyle.Left;
+            this.newRunButton.FlatAppearance.BorderSize = 0;
             this.newRunButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Lime;
             this.newRunButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.newRunButton.Font = new System.Drawing.Font("Modern No. 20", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
@@ -66,6 +67,7 @@ namespace RoguelikeCompanion
             // closeButton
             // 
             this.closeButton.Dock = System.Windows.Forms.DockStyle.Right;
+            this.closeButton.FlatAppearance.BorderSize = 0;
             this.closeButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Red;
             this.closeButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.closeButton.Font = new System.Drawing.Font("Modern No. 20", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);

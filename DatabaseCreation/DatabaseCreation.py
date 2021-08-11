@@ -876,6 +876,10 @@ class GungeonWeaponObject:
                 elif idx == 11: self.speed = info[colon_idx+1:]
                 elif idx == 12: self.sell = info[colon_idx+1:]
                 elif idx == 13: self.unlock = info[colon_idx+1:]
+
+            # Fix reload time issue for weapons that dont need to reload
+            if self.reloadTime is None:
+                self.reloadTime = "N/A"
         return
 
 

@@ -24,7 +24,6 @@ namespace RoguelikeCompanion
         // Dictionaries for background color change
         Dictionary<string, Point> objectFormPoint = new Dictionary<string, Point>();
         Dictionary<string, Point> synergyFormPoint = new Dictionary<string, Point>();
-        bool testSwitch = false;
 
         public MainForm()
         {
@@ -111,21 +110,9 @@ namespace RoguelikeCompanion
 
             // Check for notification box
             int borderClass = BorderClass.predictIsBorder(borderNotificationBox, borderData);
-            borderClass = 3;
             if (borderClass != 0 && borderClass != 4)
             {
                 string guess = nn.newImagePrediction(notificationBox);
-
-                //Testing
-                if (!testSwitch)
-                {
-                    guess = "Trident";
-                    testSwitch = true;
-                }
-                else
-                {
-                    guess = "Siren";
-                }
 
                 // Return if null
                 if (guess == null) return;
@@ -135,6 +122,9 @@ namespace RoguelikeCompanion
                 {
                     guess = closestWord(guess, objectNames);
                 }
+
+                // Replace apostrophes
+                guess = guess.Replace("'", "\\'");
 
                 // Check to see if the object was already found
                 if (currentRunObjects.ContainsKey(guess))
@@ -154,8 +144,10 @@ namespace RoguelikeCompanion
                     formChild.Show();
 
                     // Add Form object name and Location to dictionary
-                    objectFormPoint.Add(dataTuple.Item1, formChild.Location);
-
+                    if(!objectFormPoint.ContainsKey(dataTuple.Item1))
+                    {
+                        objectFormPoint.Add(dataTuple.Item1, formChild.Location);
+                    }
 
                     // Add synergies to the main form
                     var synergyTupleList = ObjectInformation.obtainSynergyStats(guess);
@@ -180,7 +172,10 @@ namespace RoguelikeCompanion
                         dynamicFlowLayoutPanelSynergy.ScrollControlIntoView(formChild1);
 
                         // Add synergy to point dicitonary
-                        synergyFormPoint.Add(synergyTuple.Item3, formChild1.Location);
+                        if(!synergyFormPoint.ContainsKey(synergyTuple.Item3))
+                        {
+                            synergyFormPoint.Add(synergyTuple.Item3, formChild1.Location);
+                        }
                     }
 
                     // Set forms to focus on newly added images

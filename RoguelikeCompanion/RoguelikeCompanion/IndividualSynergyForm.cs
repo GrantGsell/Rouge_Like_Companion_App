@@ -73,24 +73,24 @@ namespace RoguelikeCompanion
             this.FormBorderStyle = FormBorderStyle.None;
 
             // Create an image object in the top left corner
-            synergyImage.Location = new Point(0, 0);
+            synergyImage.Location = new Point(0, 75 - synergyImage.Height);
 
             // Place the synergy DataGridView object below the image
             int imageHeightOffset = synergyImage.Height;
-            synergyData.Location = new Point(0, imageHeightOffset);
+            synergyData.Location = new Point(0, (75 - synergyImage.Height) + imageHeightOffset);
 
             // Add image and data grid to the form
             this.Controls.Add(synergyImage);
             this.Controls.Add(synergyData);
 
             // Set form size
-            int height = synergyData.Height + synergyImage.Height;
+            int height = synergyData.Height + 75;
             int width = (synergyData.Width > synergyImage.Width) ? synergyData.Width : synergyImage.Width;
             this.Size = new Size(width, height);
 
             // Center image
             int updatedImageWidth = Math.Abs(synergyData.Width / 2 - synergyImage.Width / 2);
-            synergyImage.Location = new Point(updatedImageWidth, 0);
+            synergyImage.Location = new Point(updatedImageWidth, 75 - synergyImage.Height);
         }
     }
 }

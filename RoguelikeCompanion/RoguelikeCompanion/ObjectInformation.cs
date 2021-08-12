@@ -168,9 +168,9 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public static List<Tuple<Bitmap, string>> obtainSynergyStats(string objectName)
+        public static List<Tuple<Bitmap, string, string>> obtainSynergyStats(string objectName)
         {
-            List<Tuple<Bitmap, string>> results = new List<Tuple<Bitmap, string>>();
+            List<Tuple<Bitmap, string, string>> results = new List<Tuple<Bitmap, string, string>>();
             try
             {
                 // Create connector and reader objects
@@ -249,7 +249,7 @@ namespace RoguelikeCompanion
                     MyConnection2.Close();
 
                     // Add data to results list
-                    results.Add(Tuple.Create(itemImage, objectName));
+                    results.Add(Tuple.Create(itemImage, objectName, synergyObjectName));
                 }
 
                 // Close connection

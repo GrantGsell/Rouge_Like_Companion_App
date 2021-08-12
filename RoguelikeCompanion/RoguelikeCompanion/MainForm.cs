@@ -322,6 +322,7 @@ namespace RoguelikeCompanion
             }
         }
 
+
         /*
          */
         public void removeFoundSynergy(string objectName)

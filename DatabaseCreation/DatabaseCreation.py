@@ -9,6 +9,8 @@ from os.path import basename
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from PIL import Image
+names_items = get_item_names()
+names_weapons = DatabaseCreation.get_gun_names()
 
 class DatabaseCreation:
 
@@ -753,6 +755,43 @@ class DatabaseCreation:
             newObj.synergy = [synObj]
 
         return newObj
+
+
+    """
+    Name        :
+    Purpose     :
+    Parameters  :
+    Return      :
+    """
+    def get_item_synergies(self, item_name, weapon_names, item_names):
+        # Base URL
+        url = 'https://enterthegungeon.gamepedia.com/' + item_name
+
+        # Obtain HTML page data, and check the get request was successful
+        try:
+            page = requests.get(url)
+            soup = BeautifulSoup(page.content, 'html.parser')
+
+            # Obtain all tags that start with a marker
+            try:
+                synergy_info = soup.find('div', class_='mw-parser-output').find(alt="Synergy.png").parent.parent.parent.find_all("li")
+            except:
+                return
+
+            # Add any tags whose title appears in the items or weapons lists
+            synergizes_with_names = []
+            for tag in synergy_info:
+                titles = tag.find_all('a', title=True)
+                for titleTag in titles:
+                    title = titleTag.get("title")
+                    parentTitleTag = titleTag.parent.find(title=True).get("title")
+                    if (title.replace(' ', '_') in item_names or title.replace(' ', '_') in weapon_names) and parentTitleTag[0:10] == "Synergies#":
+                        synergizes_with_names.append(title.replace(' ', '_'))
+
+            return synergizes_with_names
+        except AttributeError:
+            print('Url ERROR')
+            return
 
 
 

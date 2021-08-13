@@ -303,9 +303,9 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelSynergy.Controls.Clear();
 
             // Clear dictionaries
-            objectNameDictionary.Clear();
             objectFormPoint.Clear();
             synergyFormPoint.Clear();
+            currentRunObjects.Clear();
         }
 
         /*

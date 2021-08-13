@@ -168,9 +168,9 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public static List<Tuple<Bitmap, string, string>> obtainSynergyStats(string objectName)
+        public static List<Tuple<Bitmap, string, string, bool>> obtainSynergyStats(string objectName)
         {
-            List<Tuple<Bitmap, string, string>> results = new List<Tuple<Bitmap, string, string>>();
+            List<Tuple<Bitmap, string, string, bool>> results = new List<Tuple<Bitmap, string, string, bool>>();
             try
             {
                 // Create connector and reader objects
@@ -203,6 +203,9 @@ namespace RoguelikeCompanion
                     // Obtain synergy object name and is_gun
                     string synergyObjectName = MyReader.GetString(3);
                     bool synergy_is_gun = MyReader.GetBoolean(5);
+
+                    // Replace appostrophe
+                    synergyObjectName = synergyObjectName.Replace("'", "\\'");
 
                     // Create a second connector and reader objects
                     MySqlConnection MyConnection2 = null;
@@ -249,7 +252,7 @@ namespace RoguelikeCompanion
                     MyConnection2.Close();
 
                     // Add data to results list
-                    results.Add(Tuple.Create(itemImage, objectName, synergyObjectName));
+                    results.Add(Tuple.Create(itemImage, objectName, synergyObjectName, synergy_is_gun));
                 }
 
                 // Close connection

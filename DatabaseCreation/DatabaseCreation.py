@@ -9,8 +9,6 @@ from os.path import basename
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from PIL import Image
-names_items = get_item_names()
-names_weapons = DatabaseCreation.get_gun_names()
 
 class DatabaseCreation:
 
@@ -21,50 +19,57 @@ class DatabaseCreation:
     Return      :
     """
     def top_database_creation(self):
-        # Clear and create tables
-        self.clear_and_initialize_tables()
+        try:
+            # Clear and create tables
+            self.clear_and_initialize_tables()
 
-        # Create the object table and quality table
-        self.write_objects_to_objects_table()
-        self.write_qualities_to_sql()
+            # Create the object table and quality table
+            self.write_objects_to_objects_table()
+            self.write_qualities_to_sql()
 
-        # Get the names of each weapon
-        weapon_names = self.get_gun_names()
-        item_names = self.get_item_names()
+            # Get the names of each weapon
+            weapon_names = self.get_gun_names()
+            item_names = self.get_item_names()
 
-        # Iterate over the names list and add data to database
-        for name in weapon_names:
-            if name != 'Gunderfury' and name != 'Chamber_Gun':
-                # Obtain data
-                data_object = GungeonWeaponObject(name)
-                data_object.new_weapon(data_object.name, weapon_names, item_names)
+            # Iterate over the names list and add data to database
+            for name in weapon_names:
+                if name != 'Gunderfury' and name != 'Chamber_Gun':
+                    # Obtain data
+                    data_object = GungeonWeaponObject(name)
+                    data_object.new_weapon(data_object.name, weapon_names, item_names)
 
-            else:
-                data_object = self.issueObjects(name)
+                else:
+                    data_object = self.issueObjects(name)
 
-            # Obtain object id from objects table
-            name = name.replace("\'", "\\'")
-            object_id = self.obtain_id_from_objects_table(name)
+                # Obtain object id from objects table
+                name = name.replace("\'", "\\'")
+                object_id = self.obtain_id_from_objects_table(name)
 
-            # Write gun data to gun_stats table in the MySQL database
-            self.write_gun_data_to_gun_stats_table(object_id, data_object)
+                # Write gun data to gun_stats table in the MySQL database
+                self.write_gun_data_to_gun_stats_table(object_id, data_object)
 
-            # Write the gun synergy data to the synergies table in the MySQL database
-            self.write_synergy_information_to_synergies_table(object_id, data_object)
+                # Write the gun synergy data to the synergies table in the MySQL database
+                self.write_synergy_information_to_synergies_table(object_id, data_object)
 
+            # Iterate over the names list and add data to database
+            item_stats_dictionary = self.get_item_stats()
+            for name in item_names:
+                # Obtain object id from objects table
+                sql_name = name.replace("\'", "\\'")
+                object_id = self.obtain_id_from_objects_table(sql_name)
 
-        # Iterate over the names list and add data to database
-        item_stats_dictionary = self.get_item_stats()
-        for name in item_names:
-            # Obtain object id from objects table
-            sql_name = name.replace("\'", "\\'")
-            object_id = self.obtain_id_from_objects_table(sql_name)
+                # Obtain item object data
+                item_data_tuple = item_stats_dictionary.get(name)
 
-            # Obtain item object data
-            item_data_tuple = item_stats_dictionary.get(name)
+                # Write object data to MySQL database
+                self.write_item_data_to_item_stats_table(object_id, item_data_tuple)
 
-            # Write object data to MySQL database
-            self.write_item_data_to_item_stats_table(object_id, item_data_tuple)
+                # Write the item synergy data to the synergies table in the MySQL database
+                synergy_names_list = self.get_item_synergies(name, weapon_names, item_names)
+                if synergy_names_list != None:
+                    self.write_item_synergy_information_to_synergies_table(object_id, synergy_names_list)
+        except:
+            temp = 5
         return
 
     """
@@ -398,6 +403,54 @@ class DatabaseCreation:
             conn.close()
 
         return
+
+    """
+        Name        :
+        Purpose     :
+        Parameters  :
+        Return      :
+        """
+
+    def write_item_synergy_information_to_synergies_table(self, object_id, synergy_name_list):
+        query = "INSERT INTO synergies(object_id, synergy_object_name, synergy_object_text, synergy_is_gun)" \
+                " VALUES(%s, %s, %s, %s)"
+        data = []
+        for name in synergy_name_list:
+            if (name == "Master_Round"):
+                syn_is_gun = False
+            else:
+                syn_is_gun = self.object_is_gun(name)
+            data.append((object_id, name, "", syn_is_gun))
+
+        if len(data) < 1:
+            return
+
+        # Step 1. Read in the database configuration file data
+        db_config = read_db_config()
+
+        try:
+            # Step 3. Connect to the MySQL database by creating a new MySQLConnection object
+            conn = MySQLConnection(**db_config)
+
+            # Step 4. Create a new MySQLCursor object
+            cursor = conn.cursor()
+
+            # Step 5. Execute the query
+            cursor.executemany(query, data)
+
+            # Step 6. Accept the changes to ensure the data is updated in teh table
+            conn.commit()
+
+        except Error as error:
+            print(error)
+
+        # Step 7. Close the cursor object nd close the database connection object
+        finally:
+            cursor.close()
+            conn.close()
+
+        return
+
 
     """
     Name        :

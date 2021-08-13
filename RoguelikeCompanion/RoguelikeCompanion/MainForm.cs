@@ -186,15 +186,17 @@ namespace RoguelikeCompanion
                         continue;
                     }
 
-                    IndividualSynergyForm formChild1 = new IndividualSynergyForm(synergyTuple.Item1, synergyTuple.Item2);
-                    formChild1.MdiParent = this;
-                    dynamicFlowLayoutPanelSynergy.Controls.Add(formChild1);
-                    formChild1.Show();
-                    dynamicFlowLayoutPanelSynergy.ScrollControlIntoView(formChild1);
-
-                    // Add synergy to point dicitonary
+                    
+                    // Add synergy object if it is not in the synergyFormPoint dictionary
                     if (!synergyFormPoint.ContainsKey(synergyTuple.Item3))
                     {
+                        IndividualSynergyForm formChild1 = new IndividualSynergyForm(synergyTuple.Item1, synergyTuple.Item2);
+                        formChild1.MdiParent = this;
+                        dynamicFlowLayoutPanelSynergy.Controls.Add(formChild1);
+                        formChild1.Show();
+                        dynamicFlowLayoutPanelSynergy.ScrollControlIntoView(formChild1);
+
+                        // Add synergy to point dicitonary
                         synergyFormPoint.Add(synergyTuple.Item3, formChild1.Location);
                     }
                 }
@@ -335,10 +337,15 @@ namespace RoguelikeCompanion
         {
             try
             {
+                // Remove the synergy object form 
                 Point formPt;
                 synergyFormPoint.TryGetValue(objectName, out formPt);
                 var synergyToRemove = dynamicFlowLayoutPanelSynergy.GetChildAtPoint(formPt, GetChildAtPointSkip.None);
                 synergyToRemove.Dispose();
+
+                // Remove the synergy object from the syenrgy dictionary
+                synergyFormPoint.Remove(objectName);
+
             }
             catch
             {

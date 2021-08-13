@@ -144,38 +144,9 @@ namespace RoguelikeCompanion
                     formChild.Show();
 
                     // Add Form object name and Location to dictionary
-                    if(!objectFormPoint.ContainsKey(dataTuple.Item1))
+                    if(!objectFormPoint.ContainsKey(dataTuple.Item1.Replace("'", "\\'")))
                     {
-                        objectFormPoint.Add(dataTuple.Item1, formChild.Location);
-                    }
-
-                    // Add synergies to the main form
-                    var synergyTupleList = ObjectInformation.obtainSynergyStats(guess);
-                    foreach (var synergyTuple in synergyTupleList)
-                    {
-                        // Check the object form dictionary for the synergy item
-                        if (objectFormPoint.ContainsKey(synergyTuple.Item3))
-                        {
-                            // Change the background of synergized objects
-                            changeChildFormColor(synergyTuple.Item3);
-                            changeChildFormColor(synergyTuple.Item2);
-
-                            // Remove the synergy object that exists
-                            removeFoundSynergy(synergyTuple.Item2);
-                            continue;
-                        }
-
-                        IndividualSynergyForm formChild1 = new IndividualSynergyForm(synergyTuple.Item1, synergyTuple.Item2);
-                        formChild1.MdiParent = this;
-                        dynamicFlowLayoutPanelSynergy.Controls.Add(formChild1);
-                        formChild1.Show();
-                        dynamicFlowLayoutPanelSynergy.ScrollControlIntoView(formChild1);
-
-                        // Add synergy to point dicitonary
-                        if(!synergyFormPoint.ContainsKey(synergyTuple.Item3))
-                        {
-                            synergyFormPoint.Add(synergyTuple.Item3, formChild1.Location);
-                        }
+                        objectFormPoint.Add(dataTuple.Item1.Replace("'", "\\'"), formChild.Location);
                     }
 
                     // Set forms to focus on newly added images
@@ -192,8 +163,42 @@ namespace RoguelikeCompanion
                     dynamicFlowLayoutPanelItem.ScrollControlIntoView(formChild);
 
                     // Add Form object name and Location to dictionary
-                    objectFormPoint.Add(itemDataTuple.Item1, formChild.Location);
+                    if (!objectFormPoint.ContainsKey(itemDataTuple.Item1.Replace("'", "\\'")))
+                    {
+                        objectFormPoint.Add(itemDataTuple.Item1.Replace("'", "\\'"), formChild.Location);
+                    }
                 }
+
+
+                // Add synergies to the main form
+                var synergyTupleList = ObjectInformation.obtainSynergyStats(guess);
+                foreach (var synergyTuple in synergyTupleList)
+                {
+                    // Check the object form dictionary for the synergy item
+                    if (objectFormPoint.ContainsKey(synergyTuple.Item3))
+                    {
+                        // Change the background of synergized objects
+                        changeChildFormColor(synergyTuple.Item3, synergyTuple.Item4);
+                        changeChildFormColor(synergyTuple.Item2, objectNameDictionary.GetValueOrDefault(guess).Item2);
+
+                        // Remove the synergy object that exists
+                        removeFoundSynergy(synergyTuple.Item2);
+                        continue;
+                    }
+
+                    IndividualSynergyForm formChild1 = new IndividualSynergyForm(synergyTuple.Item1, synergyTuple.Item2);
+                    formChild1.MdiParent = this;
+                    dynamicFlowLayoutPanelSynergy.Controls.Add(formChild1);
+                    formChild1.Show();
+                    dynamicFlowLayoutPanelSynergy.ScrollControlIntoView(formChild1);
+
+                    // Add synergy to point dicitonary
+                    if (!synergyFormPoint.ContainsKey(synergyTuple.Item3))
+                    {
+                        synergyFormPoint.Add(synergyTuple.Item3, formChild1.Location);
+                    }
+                }
+
             }
 
         }
@@ -305,19 +310,20 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public void changeChildFormColor(string objectName)
+        public void changeChildFormColor(string objectName, bool isWeapon)
         {
             // Change the bacground of the object
             Point formPt;
             objectFormPoint.TryGetValue(objectName, out formPt);
-            try
+            if(isWeapon)
             {
                 var temp = dynamicFlowLayoutPanelWeapon.GetChildAtPoint(formPt, GetChildAtPointSkip.None);
                 temp.BackColor = Color.LightGreen;
             }
-            catch
+            else
             {
                 var temp = dynamicFlowLayoutPanelItem.GetChildAtPoint(formPt, GetChildAtPointSkip.None);
+                temp.ForeColor = Color.DarkGreen;
                 temp.BackColor = Color.LightGreen;
             }
         }

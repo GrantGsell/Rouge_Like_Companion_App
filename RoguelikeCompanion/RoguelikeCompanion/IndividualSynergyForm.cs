@@ -27,6 +27,9 @@ namespace RoguelikeCompanion
          */
         public DataGridView synergyDataGrid(string synergizesWith)
         {
+            // Remove \\ and _ from synergizesWith objet name
+            synergizesWith = synergizesWith.Replace("\\", "").Replace("_", " ");
+
             // Create a new container to hold item data
             DataGridView synergyGrid = new DataGridView();
 

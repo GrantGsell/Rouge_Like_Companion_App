@@ -104,6 +104,9 @@ namespace RoguelikeCompanion
          */
         public DataGridView weaponDataGrid(string name, string dps, string reloadTime, string sellPrice, string gunType)
         {
+            // Remove \\ and _ from names
+            name = name.Replace("\\", "").Replace("_", " ");
+
             // Create new container to hold data
             DataGridView weaponGrid = new DataGridView();
 

@@ -34,7 +34,9 @@ namespace RoguelikeCompanion
             // Set propterties for the label
             displayName.BorderStyle = BorderStyle.None;
             displayName.Margin = new Padding(0);
-            displayName.Font = new Font("Modern No. 20", 12);
+            displayName.Font = new Font("Modern No. 20", 12, FontStyle.Bold);
+            //Color newColor = ColorTranslator.FromHtml("#2DA8D8FF");
+            //displayName.ForeColor = newColor;
             displayName.AutoSize = true;
 
             return displayName;
@@ -62,7 +64,11 @@ namespace RoguelikeCompanion
             this.Size = new Size(width, height);
 
             // Center the image
-            objectImage.Location = new Point(this.Width / 2 - objectImage.Width / 2, 0);
+            objectImage.Location = new Point(this.Width / 2 - objectImage.Width / 2, 75 - objectImage.Height);
+
+            // Set forground(text) and background color
+            this.ForeColor = ColorTranslator.FromHtml("#000000");
+            this.BackColor = ColorTranslator.FromHtml("#79cbb8"); 
         }
     }
 }

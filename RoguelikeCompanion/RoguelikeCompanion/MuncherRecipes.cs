@@ -13,15 +13,14 @@ namespace RoguelikeCompanion
     public partial class MuncherRecipes : Form
     {
         // Initialize the five MuncherRecipes
-        FlowLayoutPanel recipe1 = new FlowLayoutPanel();
-        FlowLayoutPanel recipe2 = new FlowLayoutPanel();
-        FlowLayoutPanel recipe3 = new FlowLayoutPanel();
-        FlowLayoutPanel recipe4 = new FlowLayoutPanel();
-        FlowLayoutPanel recipe5 = new FlowLayoutPanel();
+        FlowLayoutPanel[,] recipeFLPArray;
+        FlowLayoutPanel test = new FlowLayoutPanel();
 
         public MuncherRecipes()
         {
             InitializeComponent();
+            recipeFLPArray = createArrayOfFlowLayoutPanels();
+            this.BackColor = ColorTranslator.FromHtml("#f47a60");
         }
 
 
@@ -54,8 +53,7 @@ namespace RoguelikeCompanion
             // Muncher Recipe 5
             string[] recipe5Weapons1 = { "Bee_Hive"};
             string[] recipe5Weapons2 = { "RPG"};
-            string[] result5 = { "Mutation" };
-
+            string[] result5 = { "Stinger" };
 
             // Add each recipe to a tuple and then to the allRecipes list
             allRecipes.Add(Tuple.Create(recipe1Weapons1, recipe1Weapons2, result1));
@@ -70,16 +68,134 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public void populateOneRecipeRow(List<Tuple<string[], string[], string[]>> allRecipesList)
+        public void populateOneRecipeRow(Tuple<string[], string[], string[]> singleRecipe, int rowNum)
         {
-            
+            // Add first column objects
+            foreach (string name in singleRecipe.Item1) 
+            {
+                // Obtain item stats from IndividualWeaponform class
+                string updatedName = name.Replace("'", "\\'");
+                var weaponTuple = ObjectInformation.obtainWeaponStats(updatedName);
 
-            // Obtain item stats from IndividualItemform class
+                // Create a form for each item using IndividualSynergyForm
+                IndividualMuncherForm newForm = new IndividualMuncherForm(weaponTuple.Item6, weaponTuple.Item1);
+                newForm.MdiParent = this;
 
+                // Add the form to the correct FLP
+                recipeFLPArray[rowNum, 0].Controls.Add(newForm);
+                newForm.Show();
+            }
+
+            // Add second column objects
+            foreach (string name in singleRecipe.Item2)
+            {
+                // Obtain item stats from IndividualWeaponform class
+                string updatedName = name.Replace("'", "\\'");
+                var weaponTuple = ObjectInformation.obtainWeaponStats(updatedName);
+
+                // Create a form for each item using IndividualSynergyForm
+                IndividualMuncherForm newForm = new IndividualMuncherForm(weaponTuple.Item6, weaponTuple.Item1);
+                newForm.MdiParent = this;
+                
+
+                // Add the form to the correct FLP
+                recipeFLPArray[rowNum, 1].Controls.Add(newForm);
+                newForm.Show();
+            }
+
+            // Add result column object
+            string resultName = singleRecipe.Item3[0];
+
+            // Obtain item stats from IndividualWeaponform class
+            var weaponResultTuple = ObjectInformation.obtainWeaponStats(resultName);
 
             // Create a form for each item using IndividualSynergyForm
-            
+            IndividualMuncherForm newFormResult = new IndividualMuncherForm(weaponResultTuple.Item6, weaponResultTuple.Item1);
+            newFormResult.MdiParent = this;
 
+            // Add the form to the correct FLP
+            recipeFLPArray[rowNum, 2].Width = 180;
+            recipeFLPArray[rowNum, 2].Controls.Add(newFormResult);
+            newFormResult.Show();
         }
+
+
+        /*
+         */
+        private void MuncherRecipes_Load(object sender, EventArgs e)
+        {            
+            this.IsMdiContainer = true;
+
+            createArrayOfFlowLayoutPanels();
+
+            var testTuple = allRecipesList();
+            populateOneRecipeRow(testTuple[0], 0);
+            this.Controls.Add(recipeFLPArray[0, 0]);
+            this.Controls.Add(recipeFLPArray[0, 1]);
+            this.Controls.Add(recipeFLPArray[0, 2]);
+
+            populateOneRecipeRow(testTuple[1], 1);
+            this.Controls.Add(recipeFLPArray[1, 0]);
+            this.Controls.Add(recipeFLPArray[1, 1]);
+            this.Controls.Add(recipeFLPArray[1, 2]);
+
+            populateOneRecipeRow(testTuple[2], 2);
+            this.Controls.Add(recipeFLPArray[2, 0]);
+            this.Controls.Add(recipeFLPArray[2, 1]);
+            this.Controls.Add(recipeFLPArray[2, 2]);
+
+            populateOneRecipeRow(testTuple[3], 3);
+            this.Controls.Add(recipeFLPArray[3, 0]);
+            this.Controls.Add(recipeFLPArray[3, 1]);
+            this.Controls.Add(recipeFLPArray[3, 2]);
+
+            populateOneRecipeRow(testTuple[4], 4);
+            this.Controls.Add(recipeFLPArray[4, 0]);
+            this.Controls.Add(recipeFLPArray[4, 1]);
+            this.Controls.Add(recipeFLPArray[4, 2]);
+
+            // Obtain height, width values
+            int width = recipeFLPArray[4, 0].Width + recipeFLPArray[4, 1].Width + recipeFLPArray[4, 2].Width + 50;
+            int height = recipeFLPArray[4, 0].Height + recipeFLPArray[4, 0].Location.Y;
+            this.Size = new Size(width, height);
+        }
+
+        
+        /*
+         */
+        public FlowLayoutPanel[,] createArrayOfFlowLayoutPanels()
+        {
+            FlowLayoutPanel[,] arrayFLP = new FlowLayoutPanel[5, 3];
+            for(int row = 0; row < 5; row++)
+            {
+                for(int col = 0; col < 3; col++)
+                {
+                    // Create new FLP
+                    arrayFLP[row, col] = new FlowLayoutPanel();
+
+                    // Set Size for each FLP
+                    int width = 600;
+                    int height = (row > 0) ? 105 : 210;
+                    arrayFLP[row, col].Size = new Size(width, height);
+
+                    // Set location for each FLP
+                    if (row == 0)
+                    {
+                        arrayFLP[row, col].Location = new Point(width * col + col * 10, 0);
+                    }
+                    else
+                    {
+                        arrayFLP[row, col].Location = new Point(width * col + col * 10, arrayFLP[row - 1, col].Height + arrayFLP[row - 1, col].Location.Y + 10);
+                    }
+                    arrayFLP[row, col].BackColor = ColorTranslator.FromHtml("#79CBB8");
+                }
+            }
+            return arrayFLP;
+        }
+
+
+        /*
+         */
+
     }
 }

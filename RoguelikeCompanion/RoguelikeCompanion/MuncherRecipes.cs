@@ -14,13 +14,11 @@ namespace RoguelikeCompanion
     {
         // Initialize the five MuncherRecipes
         FlowLayoutPanel[,] recipeFLPArray;
-        FlowLayoutPanel test = new FlowLayoutPanel();
 
         public MuncherRecipes()
         {
             InitializeComponent();
             recipeFLPArray = createArrayOfFlowLayoutPanels();
-            this.BackColor = ColorTranslator.FromHtml("#f47a60");
         }
 
 
@@ -126,37 +124,21 @@ namespace RoguelikeCompanion
         {            
             this.IsMdiContainer = true;
 
+            // Create an array of FLPS
             createArrayOfFlowLayoutPanels();
 
-            var testTuple = allRecipesList();
-            populateOneRecipeRow(testTuple[0], 0);
-            this.Controls.Add(recipeFLPArray[0, 0]);
-            this.Controls.Add(recipeFLPArray[0, 1]);
-            this.Controls.Add(recipeFLPArray[0, 2]);
+            // Add all recipes to their respective FLPs
+            populateAllFLPs();
 
-            populateOneRecipeRow(testTuple[1], 1);
-            this.Controls.Add(recipeFLPArray[1, 0]);
-            this.Controls.Add(recipeFLPArray[1, 1]);
-            this.Controls.Add(recipeFLPArray[1, 2]);
+            // Set form properties
+            this.FormBorderStyle = FormBorderStyle.None;
 
-            populateOneRecipeRow(testTuple[2], 2);
-            this.Controls.Add(recipeFLPArray[2, 0]);
-            this.Controls.Add(recipeFLPArray[2, 1]);
-            this.Controls.Add(recipeFLPArray[2, 2]);
-
-            populateOneRecipeRow(testTuple[3], 3);
-            this.Controls.Add(recipeFLPArray[3, 0]);
-            this.Controls.Add(recipeFLPArray[3, 1]);
-            this.Controls.Add(recipeFLPArray[3, 2]);
-
-            populateOneRecipeRow(testTuple[4], 4);
-            this.Controls.Add(recipeFLPArray[4, 0]);
-            this.Controls.Add(recipeFLPArray[4, 1]);
-            this.Controls.Add(recipeFLPArray[4, 2]);
+            // Set titlebar size and location
+            setTitleBars();
 
             // Obtain height, width values
             int width = recipeFLPArray[4, 0].Width + recipeFLPArray[4, 1].Width + recipeFLPArray[4, 2].Width + 50;
-            int height = recipeFLPArray[4, 0].Height + recipeFLPArray[4, 0].Location.Y;
+            int height = recipeFLPArray[4, 0].Height + recipeFLPArray[4, 0].Location.Y + 10;
             this.Size = new Size(width, height);
         }
 
@@ -181,7 +163,7 @@ namespace RoguelikeCompanion
                     // Set location for each FLP
                     if (row == 0)
                     {
-                        arrayFLP[row, col].Location = new Point(width * col + col * 10, 0);
+                        arrayFLP[row, col].Location = new Point(width * col + col * 10, titleBar0.Height);
                     }
                     else
                     {
@@ -196,6 +178,75 @@ namespace RoguelikeCompanion
 
         /*
          */
+        public void populateAllFLPs()
+        {
+            var recipeTuples = allRecipesList();
+
+            for(int row = 0; row < 5; row++)
+            {
+                populateOneRecipeRow(recipeTuples[row], row);
+                for(int col = 0; col < 3; col++)
+                {
+                    this.Controls.Add(recipeFLPArray[row, col]);
+                }
+            }
+        }
+
+
+        /*
+         */
+        public void setTitleBars()
+        {
+            // Set titlebar locations
+            titleBar0.Location = new Point(0, 0);
+            titleBar1.Location = new Point(recipeFLPArray[0, 1].Location.X, 0);
+            titleBar2.Location = new Point(recipeFLPArray[0, 2].Location.X, 0);
+
+            // Set title bar widths
+            titleBar0.Width = recipeFLPArray[0, 0].Width;
+            titleBar1.Width = recipeFLPArray[0, 1].Width;
+            titleBar2.Width = recipeFLPArray[0, 2].Width;
+
+            // Create labels for the titlebars
+            Label titleBar0Label = new Label();
+            Label titleBar1Label = new Label();
+            Label titleBar2Label = new Label();
+
+            // Add text to the labels
+            titleBar0Label.Text = "Weapon 1";
+            titleBar1Label.Text = "Weapon 2";
+            titleBar2Label.Text = "Result";
+
+            // Set text label fonts
+            titleBar0Label.Font = new Font("Modern No. 20", 12, FontStyle.Bold);
+            titleBar1Label.Font = new Font("Modern No. 20", 12, FontStyle.Bold);
+            titleBar2Label.Font = new Font("Modern No. 20", 12, FontStyle.Bold);
+
+            // Set label sizes
+            titleBar0Label.AutoSize = true;
+            titleBar1Label.AutoSize = true;
+            titleBar2Label.AutoSize = true;
+
+            // Set label locations
+            titleBar0Label.Location = new Point(titleBar0.Location.X, 0);
+            titleBar1Label.Location = new Point(titleBar1.Location.X, 0);
+            titleBar2Label.Location = new Point(titleBar2.Location.X, 0);
+
+            // Set text color
+            titleBar0Label.ForeColor = Color.Black;
+            titleBar1Label.ForeColor = Color.Black;
+            titleBar2Label.ForeColor = Color.Black;
+
+            // Add labels to the form
+            this.Controls.Add(titleBar0Label);
+            this.Controls.Add(titleBar1Label);
+            this.Controls.Add(titleBar2Label);
+                    
+            // Bring all text labels to the front
+            titleBar0Label.BringToFront();
+            titleBar1Label.BringToFront();
+            titleBar2Label.BringToFront();
+        }
 
     }
 }

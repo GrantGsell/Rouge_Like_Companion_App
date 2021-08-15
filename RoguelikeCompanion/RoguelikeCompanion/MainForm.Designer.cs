@@ -34,12 +34,14 @@ namespace RoguelikeCompanion
             this.newRunButton = new System.Windows.Forms.Button();
             this.closeButton = new System.Windows.Forms.Button();
             this.bunifuDragControl1 = new Bunifu.Framework.UI.BunifuDragControl(this.components);
+            this.btnMuncherRecipes = new System.Windows.Forms.Button();
             this.titleBar.SuspendLayout();
             this.SuspendLayout();
             // 
             // titleBar
             // 
             this.titleBar.BackColor = System.Drawing.Color.RoyalBlue;
+            this.titleBar.Controls.Add(this.btnMuncherRecipes);
             this.titleBar.Controls.Add(this.newRunButton);
             this.titleBar.Controls.Add(this.closeButton);
             this.titleBar.Dock = System.Windows.Forms.DockStyle.Top;
@@ -87,7 +89,23 @@ namespace RoguelikeCompanion
             this.bunifuDragControl1.TargetControl = this.titleBar;
             this.bunifuDragControl1.Vertical = true;
             // 
-            // Form1
+            // btnMuncherRecipes
+            // 
+            this.btnMuncherRecipes.FlatAppearance.BorderColor = System.Drawing.Color.RoyalBlue;
+            this.btnMuncherRecipes.FlatAppearance.BorderSize = 0;
+            this.btnMuncherRecipes.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Gold;
+            this.btnMuncherRecipes.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnMuncherRecipes.Font = new System.Drawing.Font("Modern No. 20", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnMuncherRecipes.Location = new System.Drawing.Point(912, 0);
+            this.btnMuncherRecipes.Margin = new System.Windows.Forms.Padding(0);
+            this.btnMuncherRecipes.Name = "btnMuncherRecipes";
+            this.btnMuncherRecipes.Size = new System.Drawing.Size(243, 34);
+            this.btnMuncherRecipes.TabIndex = 1;
+            this.btnMuncherRecipes.Text = "Muncher Recipes";
+            this.btnMuncherRecipes.UseVisualStyleBackColor = true;
+            this.btnMuncherRecipes.Click += new System.EventHandler(this.btnMuncherRecipes_Click);
+            // 
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -95,7 +113,7 @@ namespace RoguelikeCompanion
             this.ClientSize = new System.Drawing.Size(1808, 939);
             this.Controls.Add(this.titleBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.LocationChanged += new System.EventHandler(this.Form1_LocationChanged);
@@ -110,5 +128,6 @@ namespace RoguelikeCompanion
         private Bunifu.Framework.UI.BunifuDragControl bunifuDragControl1;
         private System.Windows.Forms.Button closeButton;
         private System.Windows.Forms.Button newRunButton;
+        private System.Windows.Forms.Button btnMuncherRecipes;
     }
 }

@@ -25,9 +25,15 @@ namespace RoguelikeCompanion
         Dictionary<string, Point> objectFormPoint = new Dictionary<string, Point>();
         Dictionary<string, Point> synergyFormPoint = new Dictionary<string, Point>();
 
+        // Muncher recipe form
+        MuncherRecipes recipesForm;
+        bool showRecipesFlag;
+
         public MainForm()
         {
             InitializeComponent();
+            recipesForm = new MuncherRecipes();
+            showRecipesFlag = false;
         }
 
         private void closeButton_Click(object sender, EventArgs e)
@@ -82,6 +88,9 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelSynergy.SetAutoScrollMargin(10, 10);
             this.Controls.Add(dynamicFlowLayoutPanelSynergy);
 
+            // Set Muncher Recipes button size and location
+            btnMuncherRecipes.Height = newRunButton.Height;
+            btnMuncherRecipes.Location = new Point(newRunButton.Width, 0);
 
             // Timer to run the active capture method
             Timer activeCapTimer = new Timer();
@@ -351,6 +360,25 @@ namespace RoguelikeCompanion
             {
                 return;
             }
+        }
+
+
+        /*
+         */
+        private void btnMuncherRecipes_Click(object sender, EventArgs e)
+        {
+            if (!showRecipesFlag)
+            {
+                int newX = this.Location.X + this.Width / 2 - recipesForm.Width / 2;
+                int newY = this.Location.Y + this.Height / 2 - recipesForm.Height / 2;
+                recipesForm.Location = new Point(newX, newY);
+                recipesForm.Show();
+            }
+            else
+            {
+                recipesForm.Hide();
+            }
+            showRecipesFlag = !showRecipesFlag;
         }
     }
 }

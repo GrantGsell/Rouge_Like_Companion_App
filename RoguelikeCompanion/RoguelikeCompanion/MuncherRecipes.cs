@@ -202,6 +202,11 @@ namespace RoguelikeCompanion
             titleBar1.Location = new Point(recipeFLPArray[0, 1].Location.X, 0);
             titleBar2.Location = new Point(recipeFLPArray[0, 2].Location.X, 0);
 
+            // Set titlebar colors
+            titleBar0.BackColor = ColorTranslator.FromHtml("#FFF748");
+            titleBar1.BackColor = ColorTranslator.FromHtml("#FFF748");
+            titleBar2.BackColor = ColorTranslator.FromHtml("#FFF748");
+
             // Set title bar widths
             titleBar0.Width = recipeFLPArray[0, 0].Width;
             titleBar1.Width = recipeFLPArray[0, 1].Width;

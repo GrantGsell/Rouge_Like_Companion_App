@@ -134,10 +134,10 @@ namespace RoguelikeCompanion
             this.FormBorderStyle = FormBorderStyle.None;
 
             // Set titlebar size and location
-            setTitleBars();
+            setTitleBarsAndLabels();
 
             // Obtain height, width values
-            int width = recipeFLPArray[4, 0].Width + recipeFLPArray[4, 1].Width + recipeFLPArray[4, 2].Width + 50;
+            int width = recipeFLPArray[4, 0].Width + recipeFLPArray[4, 1].Width + recipeFLPArray[4, 2].Width + 30;
             int height = recipeFLPArray[4, 0].Height + recipeFLPArray[4, 0].Location.Y + 10;
             this.Size = new Size(width, height);
         }
@@ -195,7 +195,7 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public void setTitleBars()
+        public void setTitleBarsAndLabels()
         {
             // Set titlebar locations
             titleBar0.Location = new Point(0, 0);
@@ -218,9 +218,9 @@ namespace RoguelikeCompanion
             titleBar2Label.Text = "Result";
 
             // Set text label fonts
-            titleBar0Label.Font = new Font("Modern No. 20", 12, FontStyle.Bold);
-            titleBar1Label.Font = new Font("Modern No. 20", 12, FontStyle.Bold);
-            titleBar2Label.Font = new Font("Modern No. 20", 12, FontStyle.Bold);
+            titleBar0Label.Font = new Font("Modern No. 20", 16, FontStyle.Bold);
+            titleBar1Label.Font = new Font("Modern No. 20", 16, FontStyle.Bold);
+            titleBar2Label.Font = new Font("Modern No. 20", 16, FontStyle.Bold);
 
             // Set label sizes
             titleBar0Label.AutoSize = true;
@@ -228,14 +228,19 @@ namespace RoguelikeCompanion
             titleBar2Label.AutoSize = true;
 
             // Set label locations
-            titleBar0Label.Location = new Point(titleBar0.Location.X, 0);
-            titleBar1Label.Location = new Point(titleBar1.Location.X, 0);
-            titleBar2Label.Location = new Point(titleBar2.Location.X, 0);
+            titleBar0Label.Location = new Point(titleBar0.Location.X + titleBar0.Width / 2 - titleBar0Label.Width / 2, 0);
+            titleBar1Label.Location = new Point(titleBar1.Location.X + titleBar1.Width / 2 - titleBar1Label.Width / 2, 0);
+            titleBar2Label.Location = new Point(titleBar2.Location.X + titleBar2.Width / 2 - titleBar2Label.Width / 2, 0);
 
             // Set text color
             titleBar0Label.ForeColor = Color.Black;
             titleBar1Label.ForeColor = Color.Black;
             titleBar2Label.ForeColor = Color.Black;
+
+            // Set label background colors
+            titleBar0Label.BackColor = titleBar0.BackColor;
+            titleBar1Label.BackColor = titleBar1.BackColor;
+            titleBar2Label.BackColor = titleBar2.BackColor;
 
             // Add labels to the form
             this.Controls.Add(titleBar0Label);

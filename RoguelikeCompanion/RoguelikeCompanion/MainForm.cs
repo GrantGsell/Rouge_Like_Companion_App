@@ -25,6 +25,12 @@ namespace RoguelikeCompanion
         Dictionary<string, Point> objectFormPoint = new Dictionary<string, Point>();
         Dictionary<string, Point> synergyFormPoint = new Dictionary<string, Point>();
 
+        // Array for Nonobjet Notification Box text
+        string[] arrayNonObjectText = new string[]{"CELL_KEY", "CHALLENGE_COMPLETE", "CHALLENGE_FAILED",
+                                                       "DEAL_WITH_THE_DEVIL", "SACRIFICE_ACCEPTED", "SACRIFICE",
+                                                       "PURIFIED", "BRAVE_COMPANION", "ROLL_OF_THE_DICE",
+                                                       "GLASS_ARMOR", "SER_JUNKAN'S_BOON", "AT_PEACCE", "POP"};
+
         // Muncher recipe form
         MuncherRecipes recipesForm;
         bool showRecipesFlag;
@@ -36,16 +42,24 @@ namespace RoguelikeCompanion
             showRecipesFlag = false;
         }
 
+
+        /*
+         */
         private void closeButton_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
+
+        /*
+         */
         private void Form1_Load(object sender, EventArgs e)
         {
             this.Size = Screen.PrimaryScreen.WorkingArea.Size;
 
             objectNames = objectNameDictionary.Keys.ToArray<string>();
+
+            objectNames = objectNames.Concat(arrayNonObjectText).ToArray();
 
             this.IsMdiContainer = true;
 
@@ -125,11 +139,17 @@ namespace RoguelikeCompanion
 
                 // Return if null
                 if (guess == null) return;
-
+                                
                 // Fix guess object if not found in dictionary
                 if (!objectNameDictionary.ContainsKey(guess))
                 {
                     guess = closestWord(guess, objectNames);
+                }
+
+                // Check to see if the text is a non object notification box
+                if (arrayNonObjectText.Contains(guess))
+                {
+                    return;
                 }
 
                 // Replace apostrophes

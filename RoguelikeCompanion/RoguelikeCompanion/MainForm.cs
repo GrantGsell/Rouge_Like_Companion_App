@@ -106,6 +106,10 @@ namespace RoguelikeCompanion
             btnMuncherRecipes.Height = newRunButton.Height;
             btnMuncherRecipes.Location = new Point(newRunButton.Width, 0);
 
+            // Show then hide Muncher Recipes, this fixes initial form location
+            recipesForm.Show();
+            recipesForm.Hide();
+
             // Timer to run the active capture method
             Timer activeCapTimer = new Timer();
             activeCapTimer.Interval = (1250);
@@ -316,6 +320,11 @@ namespace RoguelikeCompanion
                 // Change the location of two children forms
                 dynamicFlowLayoutPanelItem.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, 40);
                 dynamicFlowLayoutPanelSynergy.Location = new Point(dynamicFlowLayoutPanelWeapon.Width, dynamicFlowLayoutPanelItem.Height + 40);
+
+                // Change the location of the Muncher Recipies form
+                int newX = this.Location.X + this.Width / 2 - recipesForm.Width / 2;
+                int newY = this.Location.Y + this.Height / 2 - recipesForm.Height / 2;
+                recipesForm.Location = new Point(newX, newY);
             }
             catch (System.NullReferenceException)
             {

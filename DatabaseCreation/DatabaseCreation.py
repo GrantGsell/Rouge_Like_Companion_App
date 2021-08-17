@@ -795,8 +795,8 @@ class DatabaseCreation:
                                                                             "shots.")
             newObj.synergy = [synObj0, synObj1]
         else:
-            newObj.type = None
-            newObj.quality = None
+            newObj.type = "Semiautomatic"
+            newObj.quality = "C"
             newObj.sell = "21"
             newObj.unlock = "Purchase from Doug"
             newObj.pic = requests.get("https://static.wikia.nocookie.net/enterthegungeon_gamepedia/images/1/16/"
@@ -967,9 +967,6 @@ class GungeonWeaponObject:
                 elif idx == 12: self.sell = info[colon_idx+1:]
                 elif idx == 13: self.unlock = info[colon_idx+1:]
 
-            # Fix reload time issue for weapons that dont need to reload
-            if self.reloadTime is None:
-                self.reloadTime = "N/A"
         return
 
 

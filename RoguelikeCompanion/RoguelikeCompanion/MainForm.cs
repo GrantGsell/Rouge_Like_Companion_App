@@ -138,11 +138,9 @@ namespace RoguelikeCompanion
 
             // Check for notification box
             int borderClass = BorderClass.predictIsBorder(borderNotificationBox, borderData);
-            borderClass = 3;
             if (borderClass != 0 && borderClass != 4)
             {
                 string guess = nn.newImagePrediction(notificationBox);
-                guess = "Smiley's_Revolver";
 
                 // Return if null
                 if (guess == null) return;

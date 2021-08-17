@@ -39,7 +39,7 @@ namespace RoguelikeCompanion
         public MainForm()
         {
             InitializeComponent();
-            recipesForm = new MuncherRecipes();
+            //recipesForm = new MuncherRecipes();
             showRecipesFlag = false;
         }
 
@@ -108,8 +108,8 @@ namespace RoguelikeCompanion
             btnMuncherRecipes.Location = new Point(newRunButton.Width, 0);
 
             // Show then hide Muncher Recipes, this fixes initial form location
-            recipesForm.Show();
-            recipesForm.Hide();
+            //recipesForm.Show();
+            //recipesForm.Hide();
 
             // Timer to run the active capture method
             Timer activeCapTimer = new Timer();
@@ -159,9 +159,6 @@ namespace RoguelikeCompanion
                     return;
                 }
 
-                // Replace apostrophes
-                guess = guess.Replace("'", "\\'");
-
                 // Check to see if the object was already found
                 if (currentRunObjects.ContainsKey(guess))
                 {
@@ -173,16 +170,16 @@ namespace RoguelikeCompanion
                 if (objectNameDictionary.GetValueOrDefault(guess).Item2)
                 {
                     // Add weapon to the main form
-                    var dataTuple = ObjectInformation.obtainWeaponStats(guess);
+                    var dataTuple = ObjectInformation.obtainWeaponStats(guess.Replace("\'", "''"));
                     IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item7, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
                     formChild.MdiParent = this;
                     dynamicFlowLayoutPanelWeapon.Controls.Add(formChild);
                     formChild.Show();
 
                     // Add Form object name and Location to dictionary
-                    if(!objectFormPoint.ContainsKey(dataTuple.Item1.Replace("'", "\\'")))
+                    if(!objectFormPoint.ContainsKey(dataTuple.Item1))
                     {
-                        objectFormPoint.Add(dataTuple.Item1.Replace("'", "\\'"), formChild.Location);
+                        objectFormPoint.Add(dataTuple.Item1, formChild.Location);
                     }
 
                     // Set forms to focus on newly added images
@@ -191,7 +188,7 @@ namespace RoguelikeCompanion
                 else
                 {
                     // Add item to the main form
-                    var itemDataTuple = ObjectInformation.obtainItemStats(guess);
+                    var itemDataTuple = ObjectInformation.obtainItemStats(guess.Replace("\'", "''"));
                     IndividualItemForm formChild = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanelItem.Width - (dynamicFlowLayoutPanelItem.AutoScrollMargin.Width * 3));
                     formChild.MdiParent = this;
                     dynamicFlowLayoutPanelItem.Controls.Add(formChild);
@@ -199,15 +196,15 @@ namespace RoguelikeCompanion
                     dynamicFlowLayoutPanelItem.ScrollControlIntoView(formChild);
 
                     // Add Form object name and Location to dictionary
-                    if (!objectFormPoint.ContainsKey(itemDataTuple.Item1.Replace("'", "\\'")))
+                    if (!objectFormPoint.ContainsKey(itemDataTuple.Item1))
                     {
-                        objectFormPoint.Add(itemDataTuple.Item1.Replace("'", "\\'"), formChild.Location);
+                        objectFormPoint.Add(itemDataTuple.Item1, formChild.Location);
                     }
                 }
 
 
                 // Add synergies to the main form
-                var synergyTupleList = ObjectInformation.obtainSynergyStats(guess);
+                var synergyTupleList = ObjectInformation.obtainSynergyStats(guess.Replace("\'", "''"));
                 foreach (var synergyTuple in synergyTupleList)
                 {
                     // Check the object form dictionary for the synergy item

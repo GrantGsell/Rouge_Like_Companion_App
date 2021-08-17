@@ -42,7 +42,7 @@ class DatabaseCreation:
                     data_object = self.issueObjects(name)
 
                 # Obtain object id from objects table
-                name = name.replace("\'", "\\'")
+                name = name.replace("\'", "''")
                 object_id = self.obtain_id_from_objects_table(name)
 
                 # Write gun data to gun_stats table in the MySQL database
@@ -55,7 +55,7 @@ class DatabaseCreation:
             item_stats_dictionary = self.get_item_stats()
             for name in item_names:
                 # Obtain object id from objects table
-                sql_name = name.replace("\'", "\\'")
+                sql_name = name.replace("\'", "''")
                 object_id = self.obtain_id_from_objects_table(sql_name)
 
                 # Obtain item object data

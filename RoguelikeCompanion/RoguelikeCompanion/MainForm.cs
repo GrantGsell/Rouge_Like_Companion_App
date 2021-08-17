@@ -39,7 +39,7 @@ namespace RoguelikeCompanion
         public MainForm()
         {
             InitializeComponent();
-            //recipesForm = new MuncherRecipes();
+            recipesForm = new MuncherRecipes();
             showRecipesFlag = false;
         }
 
@@ -108,8 +108,8 @@ namespace RoguelikeCompanion
             btnMuncherRecipes.Location = new Point(newRunButton.Width, 0);
 
             // Show then hide Muncher Recipes, this fixes initial form location
-            //recipesForm.Show();
-            //recipesForm.Hide();
+            recipesForm.Show();
+            recipesForm.Hide();
 
             // Timer to run the active capture method
             Timer activeCapTimer = new Timer();
@@ -202,7 +202,7 @@ namespace RoguelikeCompanion
 
 
                 // Add synergies to the main form
-                var synergyTupleList = ObjectInformation.obtainSynergyStats(guess.Replace("\'", "''"));
+                var synergyTupleList = ObjectInformation.obtainSynergyStats(guess);
                 foreach (var synergyTuple in synergyTupleList)
                 {
                     // Check the object form dictionary for the synergy item

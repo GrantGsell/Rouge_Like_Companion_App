@@ -80,7 +80,7 @@ namespace RoguelikeCompanion
                         "FROM objects " +
                         "LEFT JOIN gun_stats ON object_id = gun_id " +
                         "LEFT JOIN object_quality ON quality = quality_letter " +
-                        "WHERE object_name = \'" + weaponName + "\'";
+                        "WHERE object_name = \'" + weaponName.Replace("'", "''") + "\'";
                 MyCommand = new MySqlCommand(query, MyConnection);
 
                 // Obtain data
@@ -137,7 +137,7 @@ namespace RoguelikeCompanion
                 query = "SELECT object_id, object_name, item_type, effect, img " +
                         "FROM objects " +
                         "LEFT JOIN item_stats USING (object_id)  " +
-                        "WHERE object_name = \'" + itemName + "\'";
+                        "WHERE object_name = \'" + itemName.Replace("'", "''") + "\'";
                 MyCommand = new MySqlCommand(query, MyConnection);
 
                 // Obtain data
@@ -192,7 +192,7 @@ namespace RoguelikeCompanion
                         "synergy_object_name, synergy_object_text, synergy_is_gun " +
                         "FROM objects " +
                         "INNER JOIN synergies USING (object_id) " +
-                        "WHERE object_name = \'" + objectName + "\'";
+                        "WHERE object_name = \'" + objectName.Replace("'", "''") + "\'";
                 MyCommand = new MySqlCommand(query, MyConnection);
 
                 // Obtain all synergy data
@@ -204,9 +204,6 @@ namespace RoguelikeCompanion
                     // Obtain synergy object name and is_gun
                     string synergyObjectName = MyReader.GetString(3);
                     bool synergy_is_gun = MyReader.GetBoolean(5);
-
-                    // Replace appostrophe
-                    synergyObjectName = synergyObjectName.Replace("'", "\\'");
 
                     // Create a second connector and reader objects
                     MySqlConnection MyConnection2 = null;
@@ -224,7 +221,7 @@ namespace RoguelikeCompanion
                                 "object_id, object_name, pic " +
                                 "FROM objects " +
                                 "LEFT JOIN gun_stats ON object_id = gun_id " +
-                                "WHERE object_name = \'" + synergyObjectName + "\'";
+                                "WHERE object_name = \'" + synergyObjectName.Replace("'", "''") + "\'";
                         MyCommand2 = new MySqlCommand(query, MyConnection2);
                         MySqlDataAdapter da = new MySqlDataAdapter(MyCommand2);
                         DataTable table = new DataTable();
@@ -237,7 +234,7 @@ namespace RoguelikeCompanion
                                 "object_id, object_name, img " +
                                 "FROM objects " +
                                 "LEFT JOIN item_stats USING (object_id) " +
-                                "WHERE object_name = \'" + synergyObjectName + "\'";
+                                "WHERE object_name = \'" + synergyObjectName.Replace("'", "''") + "\'";
                         MyCommand2 = new MySqlCommand(query, MyConnection2);
                         MySqlDataAdapter da = new MySqlDataAdapter(MyCommand2);
                         DataTable table = new DataTable();

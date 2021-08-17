@@ -72,8 +72,7 @@ namespace RoguelikeCompanion
             foreach (string name in singleRecipe.Item1) 
             {
                 // Obtain item stats from IndividualWeaponform class
-                string updatedName = name.Replace("'", "\\'");
-                var weaponTuple = ObjectInformation.obtainWeaponStats(updatedName);
+                var weaponTuple = ObjectInformation.obtainWeaponStats(name);
 
                 // Create a form for each item using IndividualSynergyForm
                 IndividualMuncherForm newForm = new IndividualMuncherForm(weaponTuple.Item6, weaponTuple.Item1);
@@ -88,8 +87,7 @@ namespace RoguelikeCompanion
             foreach (string name in singleRecipe.Item2)
             {
                 // Obtain item stats from IndividualWeaponform class
-                string updatedName = name.Replace("'", "\\'");
-                var weaponTuple = ObjectInformation.obtainWeaponStats(updatedName);
+                var weaponTuple = ObjectInformation.obtainWeaponStats(name);
 
                 // Create a form for each item using IndividualSynergyForm
                 IndividualMuncherForm newForm = new IndividualMuncherForm(weaponTuple.Item6, weaponTuple.Item1);

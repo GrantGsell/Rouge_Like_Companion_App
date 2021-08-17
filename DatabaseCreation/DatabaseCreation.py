@@ -846,8 +846,6 @@ class DatabaseCreation:
             print('Url ERROR')
             return
 
-
-
 class SynergyObj:
     def __init__(self, transform_name=None, synergy_object_names=None, synergy_text=None):
         self.transformName = transform_name
@@ -858,21 +856,21 @@ class SynergyObj:
 class GungeonWeaponObject:
     def __init__(self, name=None):
         self.name = name
-        self.type = None
-        self.quality = None
-        self.magSize = None
-        self.maxAmmo = None
-        self.reloadTime = None
-        self.dps = None
-        self.damage = None
-        self.fireRate = None
-        self.shotSpeed = None
-        self.range = None
-        self.force = None
-        self.speed = None
-        self.sell = None
-        self.unlock = None
-        self.pic = None
+        self.type = "N/A"
+        self.quality = "N/A"
+        self.magSize = "N/A"
+        self.maxAmmo = "N/A"
+        self.reloadTime = "N/A"
+        self.dps = "N/A"
+        self.damage = "N/A"
+        self.fireRate = "N/A"
+        self.shotSpeed = "N/A"
+        self.range = "N/A"
+        self.force = "N/A"
+        self.speed = "N/A"
+        self.sell = "N/A"
+        self.unlock = "N/A"
+        self.pic = "N/A"
         self.synergy = None
 
     def new_weapon(self, name: str, weapon_names, item_names):

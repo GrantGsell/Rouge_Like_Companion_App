@@ -91,7 +91,8 @@ namespace RoguelikeCompanion
                 string dps = (string)table.Rows[0][2];
                 string reloadTime = (string)table.Rows[0][3];
                 string sellPrice = (string)table.Rows[0][4];
-                string gunType = (string)table.Rows[0][5];
+                string gunType;
+                gunType = (string)table.Rows[0][5];
                 byte[] weaponRaw = (byte[])table.Rows[0][6];
                 byte[] qualityRaw = (byte[])table.Rows[0][7];
 

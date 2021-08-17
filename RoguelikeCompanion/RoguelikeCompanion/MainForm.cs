@@ -29,7 +29,8 @@ namespace RoguelikeCompanion
         string[] arrayNonObjectText = new string[]{"CELL_KEY", "CHALLENGE_COMPLETE", "CHALLENGE_FAILED",
                                                        "DEAL_WITH_THE_DEVIL", "SACRIFICE_ACCEPTED", "SACRIFICE",
                                                        "PURIFIED", "BRAVE_COMPANION", "ROLL_OF_THE_DICE",
-                                                       "GLASS_ARMOR", "SER_JUNKAN'S_BOON", "AT_PEACCE", "POP"};
+                                                       "GLASS_ARMOR", "SER_JUNKAN'S_BOON", "AT_PEACCE", "POP",
+                                                       "HUNT_COMPLETE"};
 
         // Muncher recipe form
         MuncherRecipes recipesForm;
@@ -137,9 +138,11 @@ namespace RoguelikeCompanion
 
             // Check for notification box
             int borderClass = BorderClass.predictIsBorder(borderNotificationBox, borderData);
+            borderClass = 3;
             if (borderClass != 0 && borderClass != 4)
             {
                 string guess = nn.newImagePrediction(notificationBox);
+                guess = "Smiley's_Revolver";
 
                 // Return if null
                 if (guess == null) return;

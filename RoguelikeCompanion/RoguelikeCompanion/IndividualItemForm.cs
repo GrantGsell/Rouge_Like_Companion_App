@@ -45,7 +45,6 @@ namespace RoguelikeCompanion
             // Set the datagridviev header size if needed
             if (height > itemData.Rows[0].Height + itemData.ColumnHeadersHeight)
             {
-                itemData.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
                 itemData.ColumnHeadersHeight = height - itemData.Rows[0].Height;
             }          
         }

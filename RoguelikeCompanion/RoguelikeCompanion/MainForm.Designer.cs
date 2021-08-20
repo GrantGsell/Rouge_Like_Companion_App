@@ -40,7 +40,7 @@ namespace RoguelikeCompanion
             // 
             // titleBar
             // 
-            this.titleBar.BackColor = System.Drawing.Color.RoyalBlue;
+            this.titleBar.BackColor = System.Drawing.Color.DeepSkyBlue;
             this.titleBar.Controls.Add(this.btnMuncherRecipes);
             this.titleBar.Controls.Add(this.newRunButton);
             this.titleBar.Controls.Add(this.closeButton);

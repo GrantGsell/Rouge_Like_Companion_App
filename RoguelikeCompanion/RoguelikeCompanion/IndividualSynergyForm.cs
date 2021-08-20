@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RoguelikeCompanion
@@ -20,6 +14,9 @@ namespace RoguelikeCompanion
             InitializeComponent();
             this.synergyData = synergyDataGrid(synergizesWith);
             this.synergyImage = IndividualWeaponForm.createPictureBox(img, 75, 75);
+
+            // Remove borders, set double buffer
+            this.FormBorderStyle = FormBorderStyle.None;
         }
 
 
@@ -72,19 +69,12 @@ namespace RoguelikeCompanion
 
         private void IndividualSynergyForm_Load(object sender, EventArgs e)
         {
-            // Remove borders
-            this.FormBorderStyle = FormBorderStyle.None;
-
             // Create an image object in the top left corner
             synergyImage.Location = new Point(0, 75 - synergyImage.Height);
 
             // Place the synergy DataGridView object below the image
             int imageHeightOffset = synergyImage.Height;
-            synergyData.Location = new Point(0, (75 - synergyImage.Height) + imageHeightOffset);
-
-            // Add image and data grid to the form
-            this.Controls.Add(synergyImage);
-            this.Controls.Add(synergyData);
+            synergyData.Location = new Point(0, (75 - synergyImage.Height) + imageHeightOffset);        
 
             // Set form size
             int height = synergyData.Height + 75;
@@ -94,6 +84,10 @@ namespace RoguelikeCompanion
             // Center image
             int updatedImageWidth = Math.Abs(synergyData.Width / 2 - synergyImage.Width / 2);
             synergyImage.Location = new Point(updatedImageWidth, 75 - synergyImage.Height);
+
+            // Add image and data grid to the form
+            this.Controls.Add(synergyImage);
+            this.Controls.Add(synergyData);
         }
     }
 }

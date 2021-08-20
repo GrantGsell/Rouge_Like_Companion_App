@@ -36,6 +36,8 @@ namespace RoguelikeCompanion
         MuncherRecipes recipesForm;
         bool showRecipesFlag;
 
+        int temp = 0;
+
         public MainForm()
         {
             InitializeComponent();
@@ -65,7 +67,7 @@ namespace RoguelikeCompanion
             this.IsMdiContainer = true;
 
             // Create container for all weapons
-            dynamicFlowLayoutPanelWeapon = new FlowLayoutPanel();
+            dynamicFlowLayoutPanelWeapon = new CustomFlowLayoutPanel();
             dynamicFlowLayoutPanelWeapon.Name = "weaponFlowLayoutPanel";
             dynamicFlowLayoutPanelWeapon.Width = this.Width * 55 / 100;
             dynamicFlowLayoutPanelWeapon.Height = this.Height - 40;
@@ -78,7 +80,7 @@ namespace RoguelikeCompanion
             this.Controls.Add(dynamicFlowLayoutPanelWeapon);
 
             // Create container for all items
-            dynamicFlowLayoutPanelItem = new FlowLayoutPanel();
+            dynamicFlowLayoutPanelItem = new CustomFlowLayoutPanel();
             dynamicFlowLayoutPanelItem.Name = "itemFlowLayoutPanel";
             dynamicFlowLayoutPanelItem.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelItem.Height = this.Height / 2 - (40 / 2);
@@ -91,7 +93,7 @@ namespace RoguelikeCompanion
             this.Controls.Add(dynamicFlowLayoutPanelItem);
 
             // Create container for all synergies
-            dynamicFlowLayoutPanelSynergy = new FlowLayoutPanel();
+            dynamicFlowLayoutPanelSynergy = new CustomFlowLayoutPanel();
             dynamicFlowLayoutPanelSynergy.Name = "synergyFlowLayoutPanel";
             dynamicFlowLayoutPanelSynergy.Width = this.Width - dynamicFlowLayoutPanelWeapon.Width;
             dynamicFlowLayoutPanelSynergy.Height = this.Height / 2 - (40 / 2);
@@ -145,7 +147,10 @@ namespace RoguelikeCompanion
             if (borderClass != 0 && borderClass != 4)
             {
                 string guess = nn.newImagePrediction(notificationBox);
-                guess = "Master_Round";
+                if(temp == 0) guess = "Yellow_Chamber";
+                else if (temp == 1) guess = "Master_Round";
+                else guess = "Grappling_Hook";
+                temp++;
 
                 // Return if null
                 if (guess == null) return;

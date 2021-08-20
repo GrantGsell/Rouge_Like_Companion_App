@@ -16,6 +16,9 @@ namespace RoguelikeCompanion
             formSize = maxFormSize;
             itemImage = IndividualWeaponForm.createPictureBox(img, 75, 75);
             itemData = itemDataGrid(itemType, itemEffect);
+
+            // Remove borders, set double buffer
+            this.FormBorderStyle = FormBorderStyle.None;
         }
 
 

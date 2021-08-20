@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RoguelikeCompanion
@@ -35,8 +29,6 @@ namespace RoguelikeCompanion
             displayName.BorderStyle = BorderStyle.None;
             displayName.Margin = new Padding(0);
             displayName.Font = new Font("Modern No. 20", 12, FontStyle.Bold);
-            //Color newColor = ColorTranslator.FromHtml("#2DA8D8FF");
-            //displayName.ForeColor = newColor;
             displayName.AutoSize = true;
 
             return displayName;
@@ -68,7 +60,7 @@ namespace RoguelikeCompanion
 
             // Set forground(text) and background color
             this.ForeColor = ColorTranslator.FromHtml("#000000");
-            this.BackColor = ColorTranslator.FromHtml("#79cbb8"); 
+            this.BackColor = Color.DeepSkyBlue;
         }
     }
 }

@@ -167,7 +167,7 @@ namespace RoguelikeCompanion
                     {
                         arrayFLP[row, col].Location = new Point(width * col + col * 10, arrayFLP[row - 1, col].Height + arrayFLP[row - 1, col].Location.Y + 10);
                     }
-                    arrayFLP[row, col].BackColor = ColorTranslator.FromHtml("#79CBB8");
+                    arrayFLP[row, col].BackColor = Color.DeepSkyBlue;
                 }
             }
             return arrayFLP;
@@ -201,9 +201,9 @@ namespace RoguelikeCompanion
             titleBar2.Location = new Point(recipeFLPArray[0, 2].Location.X, 0);
 
             // Set titlebar colors
-            titleBar0.BackColor = ColorTranslator.FromHtml("#FFF748");
-            titleBar1.BackColor = ColorTranslator.FromHtml("#FFF748");
-            titleBar2.BackColor = ColorTranslator.FromHtml("#FFF748");
+            titleBar0.BackColor = Color.Gold;
+            titleBar1.BackColor = Color.Gold;
+            titleBar2.BackColor = Color.Gold;
 
             // Set title bar widths
             titleBar0.Width = recipeFLPArray[0, 0].Width;

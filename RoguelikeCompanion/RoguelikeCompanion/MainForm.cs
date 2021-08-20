@@ -103,6 +103,9 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelSynergy.SetAutoScrollMargin(10, 10);
             this.Controls.Add(dynamicFlowLayoutPanelSynergy);
 
+            // Set FLP background images
+            addBackgroundImages();
+
             // Set Muncher Recipes button size and location
             btnMuncherRecipes.Height = newRunButton.Height;
             btnMuncherRecipes.Location = new Point(newRunButton.Width, 0);
@@ -138,9 +141,11 @@ namespace RoguelikeCompanion
 
             // Check for notification box
             int borderClass = BorderClass.predictIsBorder(borderNotificationBox, borderData);
+            borderClass = 3;
             if (borderClass != 0 && borderClass != 4)
             {
                 string guess = nn.newImagePrediction(notificationBox);
+                guess = "Master_Round";
 
                 // Return if null
                 if (guess == null) return;
@@ -406,6 +411,26 @@ namespace RoguelikeCompanion
                 recipesForm.Hide();
             }
             showRecipesFlag = !showRecipesFlag;
+        }
+
+
+        public void addBackgroundImages()
+        {
+            // Obtain images 
+            Image imageWeaponFLP = Image.FromFile("C:/Users/Grant/Desktop/Rouge_Like_Companion_App/Gungeon_Backgound_Art.png");
+            Image imageItemFLP = Image.FromFile("C:/Users/Grant/Desktop/Rouge_Like_Companion_App/Gungeon_Backgound_Art_1.png");
+            Image imageSynergyFLP = Image.FromFile("C:/Users/Grant/Desktop/Rouge_Like_Companion_App/Gungeon_Backgound_Art_2.png");
+
+            // Set form backgrounds
+            dynamicFlowLayoutPanelWeapon.BackgroundImage = imageWeaponFLP;
+            dynamicFlowLayoutPanelItem.BackgroundImage = imageItemFLP;
+            dynamicFlowLayoutPanelSynergy.BackgroundImage = imageSynergyFLP;
+
+            // Fit the image to its container
+            dynamicFlowLayoutPanelWeapon.BackgroundImageLayout = ImageLayout.Stretch;
+            dynamicFlowLayoutPanelItem.BackgroundImageLayout = ImageLayout.Stretch;
+            dynamicFlowLayoutPanelSynergy.BackgroundImageLayout = ImageLayout.Stretch;
+
         }
     }
 }

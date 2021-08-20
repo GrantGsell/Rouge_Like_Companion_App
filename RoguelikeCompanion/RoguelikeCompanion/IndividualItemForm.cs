@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RoguelikeCompanion
@@ -25,6 +19,8 @@ namespace RoguelikeCompanion
         }
 
 
+        /*
+         */
         private void Form1_Load(object sender, EventArgs e)
         {
             // Remove borders
@@ -44,8 +40,14 @@ namespace RoguelikeCompanion
             // Set the form size
             int width = formSize; //itemImage.Width + itemData.Width;
             int height = (itemImage.Height > (itemData.Rows[0].Height + itemData.ColumnHeadersHeight)) ? itemImage.Height : itemData.Rows[0].Height + itemData.ColumnHeadersHeight;
-            itemData.Rows[0].Height = height - itemData.ColumnHeadersHeight;
             this.Size = new Size(width, height);
+
+            // Set the datagridviev header size if needed
+            if (height > itemData.Rows[0].Height + itemData.ColumnHeadersHeight)
+            {
+                itemData.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+                itemData.ColumnHeadersHeight = height - itemData.Rows[0].Height;
+            }          
         }
 
 
@@ -91,7 +93,7 @@ namespace RoguelikeCompanion
             // Add text wraping
             itemGrid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             itemGrid.Columns[1].DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            itemGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            itemGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCellsExceptHeaders;           
 
             // Set the second column size
             int idealEffectColumnWidth = formSize - itemImage.Width - itemGrid.Columns[0].Width - 5;

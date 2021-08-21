@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RoguelikeCompanion
@@ -35,8 +31,6 @@ namespace RoguelikeCompanion
         // Muncher recipe form
         MuncherRecipes recipesForm;
         bool showRecipesFlag;
-
-        int temp = 0;
 
         public MainForm()
         {
@@ -143,14 +137,9 @@ namespace RoguelikeCompanion
 
             // Check for notification box
             int borderClass = BorderClass.predictIsBorder(borderNotificationBox, borderData);
-            borderClass = 3;
             if (borderClass != 0 && borderClass != 4)
             {
                 string guess = nn.newImagePrediction(notificationBox);
-                if(temp == 0) guess = "Yellow_Chamber";
-                else if (temp == 1) guess = "Master_Round";
-                else guess = "Grappling_Hook";
-                temp++;
 
                 // Return if null
                 if (guess == null) return;
@@ -178,7 +167,7 @@ namespace RoguelikeCompanion
                 if (objectNameDictionary.GetValueOrDefault(guess).Item2)
                 {
                     // Add weapon to the main form
-                    var dataTuple = ObjectInformation.obtainWeaponStats(guess.Replace("\'", "''"));
+                    var dataTuple = ObjectInformation.obtainWeaponStats(guess);
                     IndividualWeaponForm formChild = new IndividualWeaponForm(dataTuple.Item6, dataTuple.Item7, dataTuple.Item1, dataTuple.Item2, dataTuple.Item3, dataTuple.Item4, dataTuple.Item5);
                     formChild.MdiParent = this;
                     dynamicFlowLayoutPanelWeapon.Controls.Add(formChild);
@@ -196,7 +185,7 @@ namespace RoguelikeCompanion
                 else
                 {
                     // Add item to the main form
-                    var itemDataTuple = ObjectInformation.obtainItemStats(guess.Replace("\'", "''"));
+                    var itemDataTuple = ObjectInformation.obtainItemStats(guess);
                     IndividualItemForm formChild = new IndividualItemForm(itemDataTuple.Item4, itemDataTuple.Item2, itemDataTuple.Item3, dynamicFlowLayoutPanelItem.Width - (dynamicFlowLayoutPanelItem.AutoScrollMargin.Width * 3));
                     formChild.MdiParent = this;
                     dynamicFlowLayoutPanelItem.Controls.Add(formChild);

@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace RoguelikeCompanion
 {
     public partial class MainForm : Form
-    {
+    { 
         string[] objectNames;
         double[,] borderData = BorderClass.readBorderData();
         NeuralNetwork nn = new NeuralNetwork();
@@ -26,7 +26,7 @@ namespace RoguelikeCompanion
                                                        "DEAL_WITH_THE_DEVIL", "SACRIFICE_ACCEPTED", "SACRIFICE",
                                                        "PURIFIED", "BRAVE_COMPANION", "ROLL_OF_THE_DICE",
                                                        "GLASS_ARMOR", "SER_JUNKAN'S_BOON", "AT_PEACCE", "POP",
-                                                       "HUNT_COMPLETE", "DELIVERY"};
+                                                       "HUNT_COMPLETE", "DELIVERY", "BALOON!", "REPLACEMENT_ARM"};
 
         // Muncher recipe form
         MuncherRecipes recipesForm;

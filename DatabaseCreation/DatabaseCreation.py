@@ -846,6 +846,121 @@ class DatabaseCreation:
             print('Url ERROR')
             return
 
+    """
+    Name        :
+    Purpose     :
+    Parameters  :
+    Return      :
+    """
+    def create_and_populate_shrine_table(self):
+        # Base URL
+        url = "https://enterthegungeon.fandom.com/wiki/Shrines"
+
+        # Obtain HTML page data, and check the get request was successful
+        try:
+            page = requests.get(url)
+            soup = BeautifulSoup(page.content, 'html.parser')
+        except:
+            return
+
+        # Find and extract rwo entries for each shrine
+        table_of_shrines = soup.find('table', class_="wikitable").select("tbody")
+        temp = soup.find('table', class_="wikitable").select("tbody > tr")
+
+        # Extract each shrine name image and effect
+        results = []
+        dice_shrine = []
+        dice_shrine_good = []
+        dice_shrine_bad = []
+        for i in range(1, len(temp)):
+            individual_shrine_data = temp[i]
+
+            if i > 8 and i < 21:
+                if i == 9:
+                    shrine_image_url = individual_shrine_data.contents[1].next.get("href")
+                    shrine_image = requests.get(shrine_image_url).content
+                    shrine_name = individual_shrine_data.contents[1].text
+                    dice_shrine.append([shrine_name, shrine_image, ""])
+                    continue
+                elif i == 10: continue
+                elif i == 20:
+                    (dice_shrine[0])[2] = individual_shrine_data.contents[1].text
+                    results.append(dice_shrine[0])
+                    continue
+
+                good_effect_name = individual_shrine_data.contents[1].text.replace("\n", "")
+                good_effect_text = individual_shrine_data.contents[3].text.replace("\n", "")
+                bad_effect_name = individual_shrine_data.contents[5].text.replace("\n", "")
+                bad_effect_text = individual_shrine_data.contents[7].text.replace("\n", "")
+                dice_shrine_good.append([good_effect_name, good_effect_text])
+                dice_shrine_bad.append([bad_effect_name, bad_effect_text])
+                continue
+
+            else:
+                shrine_effect = individual_shrine_data.contents[7].text
+                shrine_image_url = individual_shrine_data.contents[1].next.get("href")
+                shrine_image = requests.get(shrine_image_url).content
+                shrine_name = individual_shrine_data.contents[1].text.replace("\n", "")
+
+            results.append([shrine_name, shrine_image, shrine_effect])
+
+        # Read in the database configuration file data
+        db_config = read_db_config()
+
+        # Create tables for shrines
+        try:
+            # Connect to the MySQL database by creating a new MySQLConnection object
+            conn = MySQLConnection(**db_config)
+
+            # Create a new MySQLCursor object
+            cursor = conn.cursor()
+
+            # Clear the tables
+            query = "DROP TABLE IF EXISTS shrines;"
+            cursor.execute(query)
+            query = "DROP TABLE IF EXISTS good_dice_shrine_effects;"
+            cursor.execute(query)
+            query = "DROP TABLE IF EXISTS bad_dice_shrine_effects;"
+            cursor.execute(query)
+
+            # Initialize each table
+            query = "CREATE TABLE IF NOT EXISTS shrines ( " \
+                    "shrine_name text, " \
+                    "shrine_image blob, " \
+                    "shrine_effect text );"
+            cursor.execute(query)
+            query = "CREATE TABLE IF NOT EXISTS good_dice_shrine_effects ( " \
+                    "good_name text," \
+                    "effect text );"
+            cursor.execute(query)
+            query = "CREATE TABLE IF NOT EXISTS bad_dice_shrine_effects ( " \
+                    "bad_name text," \
+                    "effect text );"
+            cursor.execute(query)
+
+            # Populate shrine table
+            query = "INSERT INTO shrines(shrine_name, shrine_image, shrine_effect) " \
+                    "VALUES(%s, %s, %s)"
+            cursor.executemany(query, results)
+            conn.commit()
+
+            # Populate good dice shrine effects
+            query = "INSERT INTO good_dice_shrine_effects(good_name, effect) " \
+                    "VALUES(%s, %s)"
+            cursor.executemany(query, dice_shrine_good)
+            conn.commit()
+
+            # Populate bad dice shrine effects
+            query = "INSERT INTO bad_dice_shrine_effects(bad_name, effect) " \
+                    "VALUES(%s, %s)"
+            cursor.executemany(query, dice_shrine_bad)
+            conn.commit()
+
+
+        except Exception as e:
+            print(e)
+
+
 class SynergyObj:
     def __init__(self, transform_name=None, synergy_object_names=None, synergy_text=None):
         self.transformName = transform_name
@@ -989,7 +1104,7 @@ class GungeonWeaponObject:
             return syn_text_temp
 
 def main():
-    #DatabaseCreation().get_gun_info("Pulse_Cannon")
+    DatabaseCreation().create_and_populate_shrine_table()
 
     DatabaseCreation().top_database_creation()
 

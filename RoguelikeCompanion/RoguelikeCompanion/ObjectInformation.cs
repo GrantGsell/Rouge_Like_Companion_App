@@ -315,9 +315,48 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public static void getDiceEffects(Boolean )
+        public static List<Tuple<string, string>> getDiceEffects(Boolean goodEffects)
         {
+            List<Tuple<string, string>> diceEffects = new List<Tuple<string, string>>();
+            try
+            {
+                // Create connector and reader objects
+                MySqlConnection MyConnection = null;
+                MySqlDataReader MyReader = null;
 
+                // Create the SQL connection
+                MyConnection = new MySqlConnection(SQLInfo.getLogin());
+                MyConnection.Open();
+
+                // Create a query string and command
+                String query;
+                MySqlCommand MyCommand;
+
+                // Write and execute query
+                if(goodEffects) query = "SELECT * FROM good_dice_shrine_effects";
+                else query = "SELECT * FROM bad_dice_shrine_effects";
+                MyCommand = new MySqlCommand(query, MyConnection);
+
+                // Obtain all shrine data
+                MySqlDataAdapter da = new MySqlDataAdapter(MyCommand);
+                DataTable table = new DataTable();
+                da.Fill(table);
+
+                for (int i = 0; i < 14; i++)
+                {
+                    string effectName = (string)table.Rows[i][0];
+                    string effectText = (string)table.Rows[i][1];
+
+                    // Add shrine data to list
+                    diceEffects.Add(Tuple.Create(effectName, effectText));
+                }
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return diceEffects;
         }
 
     }

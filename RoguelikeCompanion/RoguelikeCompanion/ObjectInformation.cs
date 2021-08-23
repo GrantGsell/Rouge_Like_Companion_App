@@ -260,5 +260,65 @@ namespace RoguelikeCompanion
 
             return results;
         }
+
+
+        /*
+         */
+        public static List<Tuple<string, Bitmap, string>> getShrineData()
+        {
+            List<Tuple<string, Bitmap, string>> shrineData = new List<Tuple<string, Bitmap, string>>();
+            try
+            {
+                // Create connector and reader objects
+                MySqlConnection MyConnection = null;
+                MySqlDataReader MyReader = null;
+
+                // Create the SQL connection
+                MyConnection = new MySqlConnection(SQLInfo.getLogin());
+                MyConnection.Open();
+
+                // Create a query string and command
+                String query;
+                MySqlCommand MyCommand;
+
+                // Write and execute query
+                query = "SELECT * FROM shrines";
+                MyCommand = new MySqlCommand(query, MyConnection);
+
+                // Obtain all shrine data
+                MySqlDataAdapter da = new MySqlDataAdapter(MyCommand);
+                DataTable table = new DataTable();
+                da.Fill(table);
+                
+                for(int i = 0; i < 14; i++)
+                {
+                    string shrineName = (string)table.Rows[i][0];
+                    byte[]  itemImageRaw = (byte[])table.Rows[i][1];
+                    string shrineEffect = (string)table.Rows[i][2];
+
+                    // Convert raw image data to image
+                    MemoryStream ms = new MemoryStream(itemImageRaw);
+                    Bitmap shrineImage = new Bitmap(ms);
+
+                    // Add shrine data to list
+                    shrineData.Add(Tuple.Create(shrineName, shrineImage, shrineEffect));
+                }
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return shrineData;
+        }
+
+
+        /*
+         */
+        public static void getDiceEffects(Boolean )
+        {
+
+        }
+
     }
 }

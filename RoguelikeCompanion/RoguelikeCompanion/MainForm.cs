@@ -30,13 +30,17 @@ namespace RoguelikeCompanion
 
         // Muncher recipe form
         MuncherRecipes recipesForm;
+        Shrines shrinesForm;
         bool showRecipesFlag;
+        bool showShrinesFlag;
 
         public MainForm()
         {
             InitializeComponent();
             recipesForm = new MuncherRecipes();
+            shrinesForm = new Shrines(recipesForm.Width, recipesForm.Height);
             showRecipesFlag = false;
+            showShrinesFlag = false;
         }
 
 
@@ -425,6 +429,22 @@ namespace RoguelikeCompanion
             dynamicFlowLayoutPanelItem.BackgroundImageLayout = ImageLayout.Stretch;
             dynamicFlowLayoutPanelSynergy.BackgroundImageLayout = ImageLayout.Stretch;
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (!showShrinesFlag)
+            {
+                int newX = this.Location.X + this.Width / 2 - shrinesForm.Width / 2;
+                int newY = this.Location.Y + this.Height / 2 - shrinesForm.Height / 2;
+                shrinesForm.Location = new Point(newX, newY);
+                shrinesForm.Show();
+            }
+            else
+            {
+                shrinesForm.Hide();
+            }
+            showShrinesFlag = !showShrinesFlag;
         }
     }
 }

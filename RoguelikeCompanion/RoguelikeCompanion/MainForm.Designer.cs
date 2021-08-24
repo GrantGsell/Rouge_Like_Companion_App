@@ -35,12 +35,14 @@ namespace RoguelikeCompanion
             this.newRunButton = new System.Windows.Forms.Button();
             this.closeButton = new System.Windows.Forms.Button();
             this.bunifuDragControl1 = new Bunifu.Framework.UI.BunifuDragControl(this.components);
+            this.button1 = new System.Windows.Forms.Button();
             this.titleBar.SuspendLayout();
             this.SuspendLayout();
             // 
             // titleBar
             // 
             this.titleBar.BackColor = System.Drawing.Color.DeepSkyBlue;
+            this.titleBar.Controls.Add(this.button1);
             this.titleBar.Controls.Add(this.btnMuncherRecipes);
             this.titleBar.Controls.Add(this.newRunButton);
             this.titleBar.Controls.Add(this.closeButton);
@@ -58,10 +60,10 @@ namespace RoguelikeCompanion
             this.btnMuncherRecipes.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Gold;
             this.btnMuncherRecipes.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnMuncherRecipes.Font = new System.Drawing.Font("Modern No. 20", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnMuncherRecipes.Location = new System.Drawing.Point(912, 0);
+            this.btnMuncherRecipes.Location = new System.Drawing.Point(500, 0);
             this.btnMuncherRecipes.Margin = new System.Windows.Forms.Padding(0);
             this.btnMuncherRecipes.Name = "btnMuncherRecipes";
-            this.btnMuncherRecipes.Size = new System.Drawing.Size(243, 34);
+            this.btnMuncherRecipes.Size = new System.Drawing.Size(250, 40);
             this.btnMuncherRecipes.TabIndex = 1;
             this.btnMuncherRecipes.Text = "Muncher Recipes";
             this.btnMuncherRecipes.UseVisualStyleBackColor = true;
@@ -75,8 +77,9 @@ namespace RoguelikeCompanion
             this.newRunButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.newRunButton.Font = new System.Drawing.Font("Modern No. 20", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.newRunButton.Location = new System.Drawing.Point(0, 0);
+            this.newRunButton.Margin = new System.Windows.Forms.Padding(0);
             this.newRunButton.Name = "newRunButton";
-            this.newRunButton.Size = new System.Drawing.Size(765, 40);
+            this.newRunButton.Size = new System.Drawing.Size(500, 40);
             this.newRunButton.TabIndex = 1;
             this.newRunButton.Text = "New Run";
             this.newRunButton.UseVisualStyleBackColor = true;
@@ -105,6 +108,22 @@ namespace RoguelikeCompanion
             this.bunifuDragControl1.TargetControl = this.titleBar;
             this.bunifuDragControl1.Vertical = true;
             // 
+            // button1
+            // 
+            this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.button1.FlatAppearance.BorderSize = 0;
+            this.button1.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Font = new System.Drawing.Font("Modern No. 20", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.button1.Location = new System.Drawing.Point(750, 0);
+            this.button1.Margin = new System.Windows.Forms.Padding(0);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(150, 40);
+            this.button1.TabIndex = 1;
+            this.button1.Text = "Shrines";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -129,5 +148,6 @@ namespace RoguelikeCompanion
         private System.Windows.Forms.Button closeButton;
         private System.Windows.Forms.Button newRunButton;
         private System.Windows.Forms.Button btnMuncherRecipes;
+        private System.Windows.Forms.Button button1;
     }
 }

@@ -62,7 +62,9 @@ namespace RoguelikeCompanion
                 newPicture.BackgroundImageLayout = ImageLayout.Stretch;
                 newPicture.Location = new Point(buttonWidth * col, buttonHeight * row + 40);
                 string effect = shrineData[i].Item3;
-                newPicture.MouseHover += (sender, EventArgs) => { picShrine_MouseHover(sender, EventArgs, effect, newPicture); };
+
+                ToolTip toolTip = new ToolTip();
+                newPicture.MouseHover += (sender, EventArgs) => { picShrine_MouseHover(sender, EventArgs, effect, newPicture, toolTip); };
                 this.Controls.Add(newPicture);
                 col++;
                 col = (col > 4) ? 0 : col;
@@ -73,10 +75,11 @@ namespace RoguelikeCompanion
 
         /*
          */
-        void picShrine_MouseHover(object sender, EventArgs e, string shrineEffect, PictureBox newPicture)
+        void picShrine_MouseHover(object sender, EventArgs e, string shrineEffect, PictureBox newPicture, ToolTip toolTip)
         {
-            ToolTip ToolTip1 = new ToolTip();
-            ToolTip1.Show(shrineEffect, newPicture);
+            ToolTip toolTip = new ToolTip();
+            toolTip.IsBalloon = true;
+            toolTip.Show(shrineEffect, newPicture);
         }
     }
 }

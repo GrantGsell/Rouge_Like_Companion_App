@@ -57,7 +57,7 @@ namespace RoguelikeCompanion
          */
         public void createPictures()
         {
-            // Obtain the size of each button
+            // Obtain the size of each button in an artifical 5x3 grid
             int buttonWidth = this.Size.Width / 5;
             int buttonHeight = (this.Size.Height - 40) / 3;
 
@@ -66,16 +66,29 @@ namespace RoguelikeCompanion
             int col = 0;
             for(int i = 0; i < shrineData.Count; i++)
             {
-                string newPictureName = "pic" + shrineData[i].Item1;
+                // Create a new picture box for each shrine image and set size
                 PictureBox newPicture = new PictureBox();
                 newPicture.Size = new Size(buttonWidth, buttonHeight);
+
+                // Set picture box name
+                string newPictureName = "pic" + shrineData[i].Item1;
                 newPicture.Name = newPictureName;
+
+                // Set the picturebox background as the shrine image and fit it
                 newPicture.BackgroundImage = shrineData[i].Item2;
                 newPicture.BackgroundImageLayout = ImageLayout.Stretch;
+
+                // Set the new image location in the 5x3 predetermined 'grid'
                 newPicture.Location = new Point(buttonWidth * col, buttonHeight * row + 40);
+
+                // Set picture box mouse over event to show shrine effect
                 string effect = shrineData[i].Item3;
                 newPicture.MouseHover += (sender, EventArgs) => { picShrine_MouseHover(sender, EventArgs, effect, newPicture); };
+                
+                // Add the picture box to the form
                 this.Controls.Add(newPicture);
+
+                // Iterate column, row variables
                 col++;
                 col = (col > 4) ? 0 : col;
                 row = (col == 0) ? row + 1 : row;
@@ -106,6 +119,29 @@ namespace RoguelikeCompanion
             diceNameEffects.Columns[1].HeaderText = "Good Effect";
             diceNameEffects.Columns[2].HeaderText = "Bad Name";
             diceNameEffects.Columns[3].HeaderText = "Bad Effect";
+
+            // Center header cells
+            diceNameEffects.Columns[0].HeaderCell.Style.Alignment = DataGridViewContentAlignment.TopCenter;
+            diceNameEffects.Columns[1].HeaderCell.Style.Alignment = DataGridViewContentAlignment.TopCenter;
+            diceNameEffects.Columns[2].HeaderCell.Style.Alignment = DataGridViewContentAlignment.TopCenter;
+            diceNameEffects.Columns[3].HeaderCell.Style.Alignment = DataGridViewContentAlignment.TopCenter;
+
+            // Set interactive options off
+            diceNameEffects.ReadOnly = true;
+            diceNameEffects.AllowUserToOrderColumns = false;
+            diceNameEffects.AllowUserToResizeRows = false;
+            diceNameEffects.AllowUserToResizeColumns = false;
+            diceNameEffects.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+            // Turn 'off' cell highlighting
+            diceNameEffects.DefaultCellStyle.SelectionBackColor = diceNameEffects.DefaultCellStyle.BackColor;
+            diceNameEffects.DefaultCellStyle.SelectionForeColor = diceNameEffects.DefaultCellStyle.ForeColor;
+
+            // Turn off sorting for columns
+            diceNameEffects.Columns[0].SortMode = DataGridViewColumnSortMode.NotSortable;
+            diceNameEffects.Columns[1].SortMode = DataGridViewColumnSortMode.NotSortable;
+            diceNameEffects.Columns[2].SortMode = DataGridViewColumnSortMode.NotSortable;
+            diceNameEffects.Columns[3].SortMode = DataGridViewColumnSortMode.NotSortable;
 
             // Set number of rows and add row data
             diceNameEffects.RowCount = goodEffects.Count;

@@ -57,9 +57,9 @@ namespace RoguelikeCompanion
             this.btnDiceEffects.Location = new System.Drawing.Point(1130, 0);
             this.btnDiceEffects.Margin = new System.Windows.Forms.Padding(0);
             this.btnDiceEffects.Name = "btnDiceEffects";
-            this.btnDiceEffects.Size = new System.Drawing.Size(251, 33);
+            this.btnDiceEffects.Size = new System.Drawing.Size(200, 33);
             this.btnDiceEffects.TabIndex = 1;
-            this.btnDiceEffects.Text = "Dice Effects By Name";
+            this.btnDiceEffects.Text = "Dice Name Effects";
             this.btnDiceEffects.UseVisualStyleBackColor = false;
             this.btnDiceEffects.Click += new System.EventHandler(this.btnDiceEffects_Click);
             // 

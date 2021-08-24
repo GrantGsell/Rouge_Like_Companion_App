@@ -25,7 +25,7 @@ namespace RoguelikeCompanion
         private void Shrines_Load(object sender, EventArgs e)
         {
             getShrineData();
-            createButtons();
+            createPictures();
             this.Controls.Add(effectText);
         }
 
@@ -42,7 +42,7 @@ namespace RoguelikeCompanion
 
         /*
          */
-        public void createButtons()
+        public void createPictures()
         {
             // Obtain the size of each button
             int buttonWidth = this.Size.Width / 5;
@@ -53,16 +53,16 @@ namespace RoguelikeCompanion
             int col = 0;
             for(int i = 0; i < shrineData.Count; i++)
             {
-                string newButtonName = "btn" + shrineData[i].Item1;
-                Button newButton = new Button();
-                newButton.Size = new Size(buttonWidth, buttonHeight);
-                newButton.Name = newButtonName;
-                newButton.BackgroundImage = shrineData[i].Item2;
-                newButton.BackgroundImageLayout = ImageLayout.Stretch;
-                newButton.Location = new Point(buttonWidth * col, buttonHeight * row);
+                string newPictureName = "pic" + shrineData[i].Item1;
+                PictureBox newPicture = new PictureBox();
+                newPicture.Size = new Size(buttonWidth, buttonHeight);
+                newPicture.Name = newPictureName;
+                newPicture.BackgroundImage = shrineData[i].Item2;
+                newPicture.BackgroundImageLayout = ImageLayout.Stretch;
+                newPicture.Location = new Point(buttonWidth * col, buttonHeight * row);
                 string effect = shrineData[i].Item3;
-                newButton.MouseHover += (sender, EventArgs) => { btnShrine_MouseHover(sender, EventArgs, effect, newButton); };
-                this.Controls.Add(newButton);
+                newPicture.MouseHover += (sender, EventArgs) => { picShrine_MouseHover(sender, EventArgs, effect, newPicture); };
+                this.Controls.Add(newPicture);
                 col++;
                 col = (col > 4) ? 0 : col;
                 row = (col == 0) ? row + 1 : row;
@@ -72,11 +72,10 @@ namespace RoguelikeCompanion
 
         /*
          */
-        void btnShrine_MouseHover(object sender, EventArgs e, string shrineEffect, Button newButton)
+        void picShrine_MouseHover(object sender, EventArgs e, string shrineEffect, PictureBox newPicture)
         {
             ToolTip ToolTip1 = new ToolTip();
-            //ToolTip1.SetToolTip(newButton, "TEST");
-            ToolTip1.Show(shrineEffect, newButton);
+            ToolTip1.Show(shrineEffect, newPicture);
         }
     }
 }

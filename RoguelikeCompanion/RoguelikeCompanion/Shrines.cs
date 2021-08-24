@@ -26,6 +26,7 @@ namespace RoguelikeCompanion
         {
             getShrineData();
             createPictures();
+            this.BackColor = Color.DeepSkyBlue;
             this.Controls.Add(effectText);
         }
 

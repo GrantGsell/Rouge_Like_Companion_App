@@ -34,13 +34,15 @@ namespace RoguelikeCompanion
             // 
             // shrineTextBox
             // 
-            this.shrineTextBox.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.shrineTextBox.BackColor = System.Drawing.Color.Gold;
+            this.shrineTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.shrineTextBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.shrineTextBox.Font = new System.Drawing.Font("Modern No. 20", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.shrineTextBox.Location = new System.Drawing.Point(0, 0);
             this.shrineTextBox.Name = "shrineTextBox";
-            this.shrineTextBox.Size = new System.Drawing.Size(1393, 40);
+            this.shrineTextBox.Size = new System.Drawing.Size(1393, 33);
             this.shrineTextBox.TabIndex = 0;
+            this.shrineTextBox.TabStop = false;
             this.shrineTextBox.Text = "Hover Over Shrine Image to See Effects";
             this.shrineTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 

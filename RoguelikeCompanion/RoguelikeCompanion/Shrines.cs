@@ -15,6 +15,7 @@ namespace RoguelikeCompanion
         List<Tuple<string, Bitmap, string>> shrineData;
         List<Tuple<string, string>> goodDiceEffects;
         List<Tuple<string, string>> badDiceEffects;
+        TextBox effectText = new TextBox();
         public Shrines(int width, int height)
         {
             InitializeComponent();
@@ -25,6 +26,7 @@ namespace RoguelikeCompanion
         {
             getShrineData();
             createButtons();
+            this.Controls.Add(effectText);
         }
 
 
@@ -58,11 +60,23 @@ namespace RoguelikeCompanion
                 newButton.BackgroundImage = shrineData[i].Item2;
                 newButton.BackgroundImageLayout = ImageLayout.Stretch;
                 newButton.Location = new Point(buttonWidth * col, buttonHeight * row);
+                string effect = shrineData[i].Item3;
+                newButton.MouseHover += (sender, EventArgs) => { btnShrine_MouseHover(sender, EventArgs, effect, newButton); };
                 this.Controls.Add(newButton);
                 col++;
                 col = (col > 4) ? 0 : col;
                 row = (col == 0) ? row + 1 : row;
             }
+        }
+
+
+        /*
+         */
+        void btnShrine_MouseHover(object sender, EventArgs e, string shrineEffect, Button newButton)
+        {
+            ToolTip ToolTip1 = new ToolTip();
+            //ToolTip1.SetToolTip(newButton, "TEST");
+            ToolTip1.Show(shrineEffect, newButton);
         }
     }
 }

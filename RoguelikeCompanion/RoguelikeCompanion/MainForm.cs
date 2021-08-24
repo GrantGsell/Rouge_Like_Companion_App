@@ -26,7 +26,7 @@ namespace RoguelikeCompanion
                                                        "DEAL_WITH_THE_DEVIL", "SACRIFICE_ACCEPTED", "SACRIFICE",
                                                        "PURIFIED", "BRAVE_COMPANION", "ROLL_OF_THE_DICE",
                                                        "GLASS_ARMOR", "SER_JUNKAN'S_BOON", "AT_PEACCE", "POP",
-                                                       "HUNT_COMPLETE", "DELIVERY", "BALOON!", "REPLACEMENT_ARM"};
+                                                       "HUNT_COMPLETE", "DELIVERY", "BALOON!", "REPLACEMENT_ARM", "AMMO"};
 
         // Muncher recipe form
         MuncherRecipes recipesForm;
@@ -38,7 +38,7 @@ namespace RoguelikeCompanion
         {
             InitializeComponent();
             recipesForm = new MuncherRecipes();
-            shrinesForm = new Shrines(recipesForm.Width, recipesForm.Height);
+            shrinesForm = new Shrines(1000, 500);//Shrines(recipesForm.Width, recipesForm.Height);
             showRecipesFlag = false;
             showShrinesFlag = false;
         }

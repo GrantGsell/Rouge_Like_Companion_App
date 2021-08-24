@@ -342,7 +342,7 @@ namespace RoguelikeCompanion
                 DataTable table = new DataTable();
                 da.Fill(table);
 
-                for (int i = 0; i < 14; i++)
+                for (int i = 0; i < 9; i++)
                 {
                     string effectName = (string)table.Rows[i][0];
                     string effectText = (string)table.Rows[i][1];

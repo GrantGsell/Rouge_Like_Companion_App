@@ -34,7 +34,7 @@ namespace RoguelikeCompanion
             // 
             // shrineTextBox
             // 
-            this.shrineTextBox.BackColor = System.Drawing.Color.Gold;
+            this.shrineTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.shrineTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.shrineTextBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.shrineTextBox.Font = new System.Drawing.Font("Modern No. 20", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);

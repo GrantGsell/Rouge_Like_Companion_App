@@ -29,21 +29,38 @@ namespace RoguelikeCompanion
         /// </summary>
         private void InitializeComponent()
         {
+            this.shrineTextBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
+            // 
+            // shrineTextBox
+            // 
+            this.shrineTextBox.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.shrineTextBox.Dock = System.Windows.Forms.DockStyle.Top;
+            this.shrineTextBox.Font = new System.Drawing.Font("Modern No. 20", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.shrineTextBox.Location = new System.Drawing.Point(0, 0);
+            this.shrineTextBox.Name = "shrineTextBox";
+            this.shrineTextBox.Size = new System.Drawing.Size(1393, 40);
+            this.shrineTextBox.TabIndex = 0;
+            this.shrineTextBox.Text = "Hover Over Shrine Image to See Effects";
+            this.shrineTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // Shrines
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1393, 900);
+            this.Controls.Add(this.shrineTextBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Shrines";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Shrines_Load);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
+
+        private System.Windows.Forms.TextBox shrineTextBox;
     }
 }

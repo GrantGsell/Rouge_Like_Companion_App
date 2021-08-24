@@ -46,7 +46,7 @@ namespace RoguelikeCompanion
         {
             // Obtain the size of each button
             int buttonWidth = this.Size.Width / 5;
-            int buttonHeight = this.Size.Height / 3;
+            int buttonHeight = (this.Size.Height - 40) / 3;
 
             // Create, add backgrond to buttons
             int row = 0;
@@ -59,7 +59,7 @@ namespace RoguelikeCompanion
                 newPicture.Name = newPictureName;
                 newPicture.BackgroundImage = shrineData[i].Item2;
                 newPicture.BackgroundImageLayout = ImageLayout.Stretch;
-                newPicture.Location = new Point(buttonWidth * col, buttonHeight * row);
+                newPicture.Location = new Point(buttonWidth * col, buttonHeight * row + 40);
                 string effect = shrineData[i].Item3;
                 newPicture.MouseHover += (sender, EventArgs) => { picShrine_MouseHover(sender, EventArgs, effect, newPicture); };
                 this.Controls.Add(newPicture);

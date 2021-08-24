@@ -30,6 +30,7 @@ namespace RoguelikeCompanion
         private void InitializeComponent()
         {
             this.shrineTextBox = new System.Windows.Forms.TextBox();
+            this.btnDiceEffects = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // shrineTextBox
@@ -46,11 +47,28 @@ namespace RoguelikeCompanion
             this.shrineTextBox.Text = "Hover Over Shrine Image to See Effects";
             this.shrineTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // btnDiceEffects
+            // 
+            this.btnDiceEffects.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
+            this.btnDiceEffects.FlatAppearance.BorderSize = 0;
+            this.btnDiceEffects.FlatAppearance.MouseOverBackColor = System.Drawing.Color.DeepSkyBlue;
+            this.btnDiceEffects.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDiceEffects.Font = new System.Drawing.Font("Modern No. 20", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnDiceEffects.Location = new System.Drawing.Point(1130, 0);
+            this.btnDiceEffects.Margin = new System.Windows.Forms.Padding(0);
+            this.btnDiceEffects.Name = "btnDiceEffects";
+            this.btnDiceEffects.Size = new System.Drawing.Size(251, 33);
+            this.btnDiceEffects.TabIndex = 1;
+            this.btnDiceEffects.Text = "Dice Effects By Name";
+            this.btnDiceEffects.UseVisualStyleBackColor = false;
+            this.btnDiceEffects.Click += new System.EventHandler(this.btnDiceEffects_Click);
+            // 
             // Shrines
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1393, 900);
+            this.Controls.Add(this.btnDiceEffects);
             this.Controls.Add(this.shrineTextBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Shrines";
@@ -64,5 +82,6 @@ namespace RoguelikeCompanion
         #endregion
 
         private System.Windows.Forms.TextBox shrineTextBox;
+        private System.Windows.Forms.Button btnDiceEffects;
     }
 }

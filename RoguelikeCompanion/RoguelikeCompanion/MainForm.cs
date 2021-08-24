@@ -114,6 +114,10 @@ namespace RoguelikeCompanion
             recipesForm.Show();
             recipesForm.Hide();
 
+            // Show then hide Shrines, this fixes initial form location
+            shrinesForm.Show();
+            shrinesForm.Hide();
+
             // Timer to run the active capture method
             Timer activeCapTimer = new Timer();
             activeCapTimer.Interval = (1250);
@@ -326,6 +330,9 @@ namespace RoguelikeCompanion
                 int newX = this.Location.X + this.Width / 2 - recipesForm.Width / 2;
                 int newY = this.Location.Y + this.Height / 2 - recipesForm.Height / 2;
                 recipesForm.Location = new Point(newX, newY);
+
+                // Change the location of the Shrines form
+                shrinesForm.Location = new Point(newX, newY);
             }
             catch (System.NullReferenceException)
             {

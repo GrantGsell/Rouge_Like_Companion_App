@@ -10,6 +10,14 @@ namespace RoguelikeCompanion
     class ObjectInformation
     {
         /*
+         * Obtains the names, id, and a boolean for each object from the MySQL
+         * database. The boolean denotes if the object is a weapon (true)
+         * or an item (false).
+         * 
+         * @return objectNames, a Dictionary whose key is the object name, and
+         *      whose value is a 2 item Tuple. The Tuples first item is the 
+         *      objects id and its second item is the boolean denoting if the
+         *      object is a weapon or item.
          */
         public static Dictionary<string, (string, bool)> createObjectNameDictionary()
         {
@@ -56,6 +64,18 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Obtains the weapon data from the MySQL database
+         * 
+         * @param waponName, a string denoting the name of the weapon whose
+         *      data we want to obtain.
+         * @return A Tuple with 7 elements,
+         *      item1: weapon name              (string)
+         *      item2: weapon dps               (string)
+         *      item3: reload time              (string)
+         *      item4: sell price               (string)
+         *      item5: weapon type              (string)
+         *      item6: weapon image             (Bitmap)
+         *      item7: weapon quality image     (Bitmap)
          */
         public static Tuple<string, string, string, string, string, Bitmap, Bitmap> obtainWeaponStats(string weaponName)
         {
@@ -88,8 +108,7 @@ namespace RoguelikeCompanion
                 string dps = (string)table.Rows[0][2];
                 string reloadTime = (string)table.Rows[0][3];
                 string sellPrice = (string)table.Rows[0][4];
-                string gunType;
-                gunType = (string)table.Rows[0][5];
+                string gunType = (string)table.Rows[0][5];
                 byte[] weaponRaw = (byte[])table.Rows[0][6];
                 byte[] qualityRaw = (byte[])table.Rows[0][7];
 
@@ -114,6 +133,16 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Obtains the item data from the MySQL database
+         * 
+         * @param itemName, a string denoting the name of the item whose data
+         *      we want to obtain.
+         * @return A Tuple with 4 elements,
+         *      item1: item name    (string)
+         *      item2: item type    (string)
+         *      item3: item effect  (string)
+         *      item4: item image   (Bitmap)
+         *      
          */
         public static Tuple<string, string, string, Bitmap> obtainItemStats(string itemName)
         {
@@ -165,6 +194,16 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Obtain synergy object data for a given object specified by 
+         * objectName.
+         * 
+         * @param objectName denotes the object whose synergies we want to 
+         *      obtain.
+         * @return A List of Tuples that contain 4 items
+         *      item1: image of the synergy object          (string)
+         *      item2: name of the input object             (string)
+         *      item3: name of the synergy object           (string)
+         *      item4: synergy object is a weapon or item   (boolean)
          */
         public static List<Tuple<Bitmap, string, string, bool>> obtainSynergyStats(string objectName)
         {
@@ -263,6 +302,12 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Obtains shrine data from the MySQL database.
+         * 
+         * @return shrineData, a List of Tuples with three items.
+         *      item1: shrine name      (string)
+         *      item2: shrine image     (Bitmap)
+         *      item3: shrine effect    (string)
          */
         public static List<Tuple<string, Bitmap, string>> getShrineData()
         {
@@ -314,6 +359,13 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Obtains the dice effects associated with each dice effect name.
+         * 
+         * @param goodEffects a boolean determining if we want to query the 
+         *      good effects (true) or bad effects (false).
+         * @return diceEffects, a List of Tuples with two elements.
+         *      item1: dice effect name                 (string)
+         *      item2: dice effect based on the name    (string)
          */
         public static List<Tuple<string, string>> getDiceEffects(Boolean goodEffects)
         {
@@ -329,7 +381,7 @@ namespace RoguelikeCompanion
                 MyConnection.Open();
 
                 // Create a query string and command
-                String query;
+                string query;
                 MySqlCommand MyCommand;
 
                 // Write and execute query
@@ -341,7 +393,6 @@ namespace RoguelikeCompanion
                 MySqlDataAdapter da = new MySqlDataAdapter(MyCommand);
                 DataTable table = new DataTable();
                 da.Fill(table);
-
                 for (int i = 0; i < 9; i++)
                 {
                     string effectName = (string)table.Rows[i][0];

@@ -12,6 +12,13 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Isolates text in a given iamge and, and determines the column 
+         * indices for character segmentation of the text.
+         * 
+         * @param image a Bitmap denoting an image containing text.
+         * @return A Tuple containing a List of ints denoting the column splits
+         * for each character, and a Bitmap containing the isolated text of
+         * the original image.
          */
         public static (List<int>, Bitmap) characterSegmentation(Bitmap image)
         {
@@ -36,6 +43,16 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Crops the notification box image into an image containing only the 
+         * objects name text, with a small buffer before the frst and last 
+         * letter using a slidng window.
+         * 
+         * @param image denoting a bitmap that potentially contains text.
+         * @param swHeight denoting the slidng window box height.
+         * @param swWidth denoting the sliding window box width.
+         * @param swDelta denoting the step size for the sliding window.
+         * @return A Bitmap containing the isolated text. Returns null if the 
+         * image does not contain any text.
          */
         public static Bitmap isolateText(Bitmap image, int swHeight, int swWidth, int swDelta)
         {
@@ -88,6 +105,20 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Counts the number of black or white pixels within the given image to
+         * determine if an image contains a certain number of black/white
+         * pixels.
+         * 
+         * @param image a Bitmap that is being checked for enough black/white 
+         *      pixels.
+         * @param threshold an integer denoting the value a pixel must be 
+         *      less than or greater than to qualify as a black/white pixel.
+         * @param numBWPixels denoting the number of black/white pixels the
+         *      image must contian to return a true value.
+         * @param countWhite a boolean denoting if the image in question should
+         *      be compared to the black or white pixel values.
+         * @return A boolean denoting if the image contains enough black/white
+         *      pixels to reach the numBWPixels threshold value.
          */
         public static bool numBWPixels(Bitmap image, int threshold, int numBWPixels, bool countWhite)
         {
@@ -116,6 +147,10 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Turns each pixel within an image to black if each of its RGB values
+         * are below a threshold value of 140.
+         * 
+         * @param image, the Bitmap to have its pixel values changed to black.
          */
         public static void preprocessBackground(Bitmap image)
         {
@@ -146,7 +181,13 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Determine the column indexes that best splits the image into 
+         *      individual characters.
          * 
+         * @param image, a Bitmap containing the character text to be parsed.
+         * @param swHeight, an int denoting the sliding window box height.
+         * @param charSplits, a List containing the column indicies that split
+         *      the text into characters.
          */
         public static List<int> getCharacterSeparationIndices(Bitmap image, int swHeight)
         {

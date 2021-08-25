@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Drawing;
 using MySql.Data.MySqlClient;
 
@@ -13,6 +8,11 @@ namespace RoguelikeCompanion
     {
 
         /*
+         * Reads array data for each of the four border classes
+         * 
+         * Each array element denotes the average value for a specific pixel
+         * 
+         * @return borderData a 4 x 7200 2D array
          */
         public static double[,] readBorderData()
         {
@@ -24,8 +24,8 @@ namespace RoguelikeCompanion
             MyConnection = new MySqlConnection(SQLInfo.getLogin());
             MyConnection.Open();
 
-            // Create a query and command
-            String query;
+            // Create a statement and command
+            String statement;
             MySqlCommand MyCommand;
 
             // Populate border matrix
@@ -34,21 +34,21 @@ namespace RoguelikeCompanion
             for (int row = 0; row < 32; row++)
             {
                 // Create a temporary table to hold 1/8 rows for one class
-                query = "DROP TABLE IF EXISTS temp_border_data";
-                MyCommand = new MySqlCommand(query, MyConnection);
+                statement = "DROP TABLE IF EXISTS temp_border_data";
+                MyCommand = new MySqlCommand(statement, MyConnection);
                 MyCommand.ExecuteNonQuery();
-                query = "CREATE TEMPORARY TABLE temp_border_data AS SELECT * FROM border_data WHERE row_num = " + row.ToString();
-                MyCommand = new MySqlCommand(query, MyConnection);
+                statement = "CREATE TEMPORARY TABLE temp_border_data AS SELECT * FROM border_data WHERE row_num = " + row.ToString();
+                MyCommand = new MySqlCommand(statement, MyConnection);
                 MyCommand.ExecuteNonQuery();
 
                 // Remove the temp tables row identifier
-                query = "ALTER TABLE temp_border_data DROP COLUMN row_num";
-                MyCommand = new MySqlCommand(query, MyConnection);
+                statement = "ALTER TABLE temp_border_data DROP COLUMN row_num";
+                MyCommand = new MySqlCommand(statement, MyConnection);
                 MyCommand.ExecuteNonQuery();
 
                 // Extract the 900 columns for one row and read into matrix
-                query = "SELECT * FROM temp_border_data";
-                MyCommand = new MySqlCommand(query, MyConnection);
+                statement = "SELECT * FROM temp_border_data";
+                MyCommand = new MySqlCommand(statement, MyConnection);
                 MyReader = MyCommand.ExecuteReader();
                 MyReader.Read();
                 for (int col = 1; col <= 900; col++)
@@ -80,6 +80,23 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Predicts if the given image contains one of the four borders, by
+         * incrementing one of four array elements if a given pixle is not 
+         * within a certain threshold of the average pixel value for each
+         * individual border class.
+         * 
+         * The smallest element of the difference array is then selected
+         * and compared to a threshold value to determine if there are 
+         * too many descrepencies between the smallest border class.
+         * 
+         * @param notificationBox a new image, potentially containing a new
+         *      border.
+         * @param borderData a 4 x 7200 2D array containing the average value
+         *      for each of the 7200 pixels, for each of the 4 border classes.
+         * @return smallestValIdx an int denoting which of the four classes the
+         *      new image contains. Returns 0 if the smallest difference is over
+         *      a 100 difference threshold. 0 denotes that the image does not 
+         *      contain one of the four borders.
          */
         public static int predictIsBorder(Bitmap notificationBox, double[,] borderData)
         {
@@ -149,7 +166,11 @@ namespace RoguelikeCompanion
         }
 
 
-        /*
+        /* 
+         * Takes an image and extracts the RGB data for each pixel.
+         * 
+         * @param image denoting a new image to extract the RGB data from.
+         * @return imageRGBArray containg the RGB data for each pixel.
          */
         public static int[] getRGBData(Bitmap image)
         {
@@ -170,9 +191,6 @@ namespace RoguelikeCompanion
                     imageRGBArray[arrIndex++] = c.R;
                     imageRGBArray[arrIndex++] = c.G;
                     imageRGBArray[arrIndex++] = c.B;
-                    //int r = c.R;
-                    //int g = c.G;
-                    //int b = c.B;
                 }
             }
 

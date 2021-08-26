@@ -8,6 +8,13 @@ namespace RoguelikeCompanion
     {
         PictureBox objectImage;
         Label objectLabel;
+
+        /*
+         * Constructor that creates the PictureBox and Label control for the
+         * object specified by objectName.
+         * 
+         * @param objectName denotes the name of the weapon.
+         */
         public IndividualMuncherForm(Image img, string objectName)
         {
             InitializeComponent();
@@ -16,6 +23,12 @@ namespace RoguelikeCompanion
         }
 
 
+        /*
+         * Creates a label control for the given weapon.
+         * 
+         * @param objectName, denoting the text of the label.
+         * @return displayName, control containing the objects name.
+         */
         public Label createObjectLabel(string objectName)
         {
             // Replace objectName underscores and backslashes
@@ -35,6 +48,10 @@ namespace RoguelikeCompanion
         }
 
 
+        /*
+         * Combines the objects label and image into a singular form and sets
+         * its properties.
+         */
         private void IndividualMuncherForm_Load(object sender, EventArgs e)
         {
             // Remove borders

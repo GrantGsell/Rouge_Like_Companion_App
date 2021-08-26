@@ -33,14 +33,19 @@ namespace RoguelikeCompanion
         Shrines shrinesForm;
         bool showRecipesFlag;
         bool showShrinesFlag;
+        int primaryScreenWidth;
+        int primaryScreenHeight;
 
         public MainForm()
         {
             InitializeComponent();
             recipesForm = new MuncherRecipes();
-            shrinesForm = new Shrines(1000, 500);//Shrines(recipesForm.Width, recipesForm.Height);
+            shrinesForm = new Shrines(1000, 500);
             showRecipesFlag = false;
             showShrinesFlag = false;
+
+            primaryScreenWidth = Screen.PrimaryScreen.Bounds.Width;
+            primaryScreenHeight = Screen.PrimaryScreen.Bounds.Height;
         }
 
 
@@ -120,7 +125,7 @@ namespace RoguelikeCompanion
 
             // Timer to run the active capture method
             Timer activeCapTimer = new Timer();
-            activeCapTimer.Interval = (1250);
+            activeCapTimer.Interval = (500);
             activeCapTimer.Tick += new EventHandler(activeCapTimer_Tick);
             activeCapTimer.Start();
         }
@@ -139,7 +144,7 @@ namespace RoguelikeCompanion
         public void activeCapture()
         {
             // Obtain bitmaps
-            Bitmap initialImage = ScreenImgCapture.bitmapScreenCapture();
+            Bitmap initialImage = ScreenImgCapture.bitmapScreenCapture(primaryScreenWidth, primaryScreenHeight);
             Bitmap notificationBox = ScreenImgCapture.cropBitMap(initialImage, 567, 425, 767, 77);
             Bitmap borderNotificationBox = ScreenImgCapture.cropBitMap(notificationBox, 25, notificationBox.Width - 25, 0, notificationBox.Height);
 

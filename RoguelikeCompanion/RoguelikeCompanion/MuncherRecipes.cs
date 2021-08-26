@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RoguelikeCompanion
@@ -15,6 +10,10 @@ namespace RoguelikeCompanion
         // Initialize the five MuncherRecipes
         FlowLayoutPanel[,] recipeFLPArray;
 
+        /*
+         * Constructor that creates the array containing the muncher recipe 
+         * data.
+         */
         public MuncherRecipes()
         {
             InitializeComponent();
@@ -23,6 +22,13 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Manually creates a list of Tuples containing the muncher recipes.
+         *      item1: Array of weapon 1's
+         *      item2: Array of weapon 2's
+         *      item3: One element array of the result(weapon 1's + weapon 2's)
+         * 
+         * @return allRecipes, each tuple contains one of the five muncher 
+         *      recipes.
          */
         public List<Tuple<string[], string[], string[]>> allRecipesList()
         {
@@ -65,13 +71,20 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Adds each weapon from one recipe into one the three respective 
+         * FlowLayoutPanels.
+         * 
+         * @param singleRecipe, a Tuple with an array of weapon names for each
+         *      of the three columns in a single row.
+         * @param rowNum, the number denoting the row of FLPs that these
+         *      weapons should be added to.
          */
         public void populateOneRecipeRow(Tuple<string[], string[], string[]> singleRecipe, int rowNum)
         {
             // Add first column objects
             foreach (string name in singleRecipe.Item1) 
             {
-                // Obtain item stats from IndividualWeaponform class
+                // Obtain weapon image
                 var weaponTuple = ObjectInformation.obtainWeaponStats(name);
 
                 // Create a form for each item using IndividualSynergyForm
@@ -117,6 +130,9 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Creates the array of FLPs, populates each FLP with the correct data,
+         * sets the title bar with labels, and sizes the form to show all FLPs
+         * without cutting off any of the data.
          */
         private void MuncherRecipes_Load(object sender, EventArgs e)
         {            
@@ -142,6 +158,11 @@ namespace RoguelikeCompanion
 
         
         /*
+         * Creates a 2D array of FLPs and sizes each FLP so that all of the 
+         * FLPs are placed correctly within this form.
+         * 
+         * @return arrayFLP, containing the correctly placed 15 FLPs in a 
+         *      5 x 3 grid.
          */
         public FlowLayoutPanel[,] createArrayOfFlowLayoutPanels()
         {
@@ -175,6 +196,8 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Adds the Muncher Recipes to each of their respective 
+         * FlowLayoutPanels.
          */
         public void populateAllFLPs()
         {
@@ -192,6 +215,9 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Changes the properties of the title bars panels placed in the 
+         * designer, adds labels to each of the panels and sets the properties
+         * for both sets of controls.
          */
         public void setTitleBarsAndLabels()
         {

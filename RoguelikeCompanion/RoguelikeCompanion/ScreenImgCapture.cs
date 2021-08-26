@@ -13,13 +13,13 @@ namespace RoguelikeCompanion
          * 
          * @return bitMap, the resized screencapture.
          */
-        public static Bitmap bitmapScreenCapture()
-        {
-            int width = Screen.PrimaryScreen.Bounds.Width;
-            int height = Screen.PrimaryScreen.Bounds.Height;
-            width = 1536;
-            height = 864;
-            Bitmap bitMap = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+        public static Bitmap bitmapScreenCapture(int width, int height)
+        {           
+            Bitmap bitMap = new Bitmap(width, height);
+            if(bitMap.Width == 1536 && bitMap.Height == 864)
+            {
+                return bitMap;
+            }
             try
             {
                 // Obtain screen bitmap
@@ -27,16 +27,22 @@ namespace RoguelikeCompanion
                 g.CopyFromScreen(0, 0, 0, 0, bitMap.Size);
 
                 // Resize the bitmap image
-                bitMap = new Bitmap(bitMap, new Size(width, height));
+                int resizeWidth = 1536;
+                int resizeHeight = 864;
+                Bitmap resize = new Bitmap(bitMap, new Size(resizeWidth, resizeHeight));
 
                 // Set the picture box image
-                return bitMap;
+                return resize;
             }
-            catch (Exception ex)
+            catch (ArgumentException ex)
             {
                 Console.WriteLine(ex.ToString());
+                return bitMap;
             }
-            return bitMap;
+            catch (System.ComponentModel.Win32Exception w)
+            {
+                return bitMap;
+            }
         }
 
 

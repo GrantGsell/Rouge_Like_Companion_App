@@ -10,21 +10,31 @@ namespace RoguelikeCompanion
         DataGridView itemData;
         int formSize;
 
-        public IndividualItemForm(Image img, string itemType, string itemEffect, int maxFormSize)
+
+        /*
+         * Item form constructor.
+         * 
+         * @param img, image of the item.
+         * @param itemType, type of the item either passive or active.
+         * @param itemEffect, a description of what the item does
+         * @param maxFormWidth, the maximum width of the form so that none of
+         *      the text is cut off.
+         */
+        public IndividualItemForm(Image img, string itemType, string itemEffect, int maxFormWidth)
         {
             InitializeComponent();
-            formSize = maxFormSize;
+            formSize = maxFormWidth;
             itemImage = IndividualWeaponForm.createPictureBox(img, 75, 75);
             itemData = itemDataGrid(itemType, itemEffect);
-
-            // Remove borders, set double buffer
-            this.FormBorderStyle = FormBorderStyle.None;
         }
 
 
         /*
+         * Load the form, add item image and item DataGridView to the form. The
+         * image and DGV need to be added to the form first before the forms 
+         * size is set, in order to remove any grey spaces.
          */
-        private void Form1_Load(object sender, EventArgs e)
+        private void itemForm_Load(object sender, EventArgs e)
         {
             // Remove borders
             this.FormBorderStyle = FormBorderStyle.None;
@@ -41,7 +51,7 @@ namespace RoguelikeCompanion
             this.Controls.Add(itemData);
 
             // Set the form size
-            int width = formSize; //itemImage.Width + itemData.Width;
+            int width = formSize;
             int height = (itemImage.Height > (itemData.Rows[0].Height + itemData.ColumnHeadersHeight)) ? itemImage.Height : itemData.Rows[0].Height + itemData.ColumnHeadersHeight;
             this.Size = new Size(width, height);
 
@@ -54,27 +64,18 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Creates a DataGridView control to contain a single items type and
+         * effect
+         * 
+         * @param itemType, a string denoting if an item is passive or active.
+         * @param itemEffect, a string denothing what the item does.
+         * @return itemGrid, a DataGridView control dispalying the item data.
          */
         public DataGridView itemDataGrid(string itemType, string itemEffect)
         {
             // Create a new container to hold item data
             DataGridView itemGrid = new DataGridView();
             itemGrid.Width = formSize - itemImage.Width;
-
-            // Set interactive options to off
-            itemGrid.ReadOnly = true;
-            itemGrid.AllowUserToOrderColumns = false;
-            itemGrid.AllowUserToResizeRows = false;
-            itemGrid.AllowUserToResizeColumns = false;
-            itemGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-
-            // Turn 'off' cell highlighting
-            itemGrid.DefaultCellStyle.SelectionBackColor = itemGrid.DefaultCellStyle.BackColor;
-            itemGrid.DefaultCellStyle.SelectionForeColor = itemGrid.DefaultCellStyle.ForeColor;
-
-            // Turn off scrolling and row headers
-            itemGrid.ScrollBars = ScrollBars.None;
-            itemGrid.RowHeadersVisible = false;
 
             // Set number of columns, names and center headers/column[0]
             itemGrid.ColumnCount = 2;
@@ -100,6 +101,21 @@ namespace RoguelikeCompanion
             // Set the second column size
             int idealEffectColumnWidth = formSize - itemImage.Width - itemGrid.Columns[0].Width - 5;
             itemGrid.Columns[1].Width = idealEffectColumnWidth;
+
+            // Set interactive options to off
+            itemGrid.ReadOnly = true;
+            itemGrid.AllowUserToOrderColumns = false;
+            itemGrid.AllowUserToResizeRows = false;
+            itemGrid.AllowUserToResizeColumns = false;
+            itemGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+            // Turn 'off' cell highlighting
+            itemGrid.DefaultCellStyle.SelectionBackColor = itemGrid.DefaultCellStyle.BackColor;
+            itemGrid.DefaultCellStyle.SelectionForeColor = itemGrid.DefaultCellStyle.ForeColor;
+
+            // Turn off scrolling and row headers
+            itemGrid.ScrollBars = ScrollBars.None;
+            itemGrid.RowHeadersVisible = false;
 
             return itemGrid;
         }

@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 
 namespace RoguelikeCompanion
 {
@@ -14,7 +8,10 @@ namespace RoguelikeCompanion
     {
 
         /*
-         * Obtain a full-screen image and resize it to 1536 x 864
+         * Obtain a full-screen image and resize it to 1536 x 864. The resize
+         * is due to cropping of the area where the text box would appear.
+         * 
+         * @return bitMap, the resized screencapture.
          */
         public static Bitmap bitmapScreenCapture()
         {
@@ -30,10 +27,10 @@ namespace RoguelikeCompanion
                 g.CopyFromScreen(0, 0, 0, 0, bitMap.Size);
 
                 // Resize the bitmap image
-                Bitmap resized = new Bitmap(bitMap, new Size(width, height));
+                bitMap = new Bitmap(bitMap, new Size(width, height));
 
                 // Set the picture box image
-                return resized;
+                return bitMap;
             }
             catch (Exception ex)
             {
@@ -44,21 +41,29 @@ namespace RoguelikeCompanion
 
 
         /*
-         * Crop a bitmap
+         * Crops a bitmap to isolate a certain arrea
+         * 
+         * @param fullScreenCapture, the imaged to be cropped.
+         * @param widthOffset, starting X point on the original image.
+         * @param heightOffset, starting Y point on the original image.
+         * @param newWidth, the width of the crop box.
+         * @param newHeight, the height of the crop box.
+         * @return croppedBox, the cropped image from the specified location of
+         * the original image.
          */
         public static Bitmap cropBitMap(Bitmap fullScreenCapture, int widthOffset, int newWidth, int heightOffset, int newHeight)
         {
             // Set the crop location, and the crop bitmap
             Rectangle cropRectangle = new Rectangle(widthOffset, heightOffset, newWidth, newHeight);
-            Bitmap target = new Bitmap(cropRectangle.Width, cropRectangle.Height);
+            Bitmap croppedBox = new Bitmap(cropRectangle.Width, cropRectangle.Height);
 
             // Isolate and draw the croped portion of the image
-            using (Graphics g = Graphics.FromImage(target))
+            using (Graphics g = Graphics.FromImage(croppedBox))
             {
                 g.DrawImage(fullScreenCapture, new Rectangle(0, 0, cropRectangle.Width, cropRectangle.Height), cropRectangle, GraphicsUnit.Pixel);
             }
 
-            return target;
+            return croppedBox;
         }
     }
 }

@@ -1,13 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RoguelikeCompanion
@@ -28,7 +20,11 @@ namespace RoguelikeCompanion
         }
 
 
-        private void Form2_Load(object sender, EventArgs e)
+        /*
+         * Loads the foram to contian the weapon image, weapon statistics and 
+         * weapon quality image.
+         */
+        private void weaponForm_Load(object sender, EventArgs e)
         {
             // Remove borders
             this.FormBorderStyle = FormBorderStyle.None;
@@ -52,7 +48,7 @@ namespace RoguelikeCompanion
 
             // Set form size
             int width = weaponData.Width;
-            int height = 100 + 50 + weaponData.Height;//imageOffset + weaponData.Height + qualityPB.Height;
+            int height = 100 + 50 + weaponData.Height;
             this.Size = new Size(width, height);
 
             // Center Images
@@ -64,14 +60,27 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Creates a new PictureBox control, scales the given image and then
+         * places it into the new control. The control is sized to fit the
+         * scaled image size and not the rectangle specified by newWidth,
+         * newHeight.
+         * 
+         * @param img, the image of the object.
+         * @param newWidth, the maximum width of the rectangle to scale the 
+         *      image into.
+         * @param newHeight, the maximum height of the rectangle to scale the
+         *      image into.
+         * @return imageBox, a PictureBox control containing the scaled image.
          */
         public static PictureBox createPictureBox(Image img, int newWidth, int newHeight)
         {
             PictureBox imageBox = new PictureBox();
+
+            // Transform image into a bitmap and scale it
             Bitmap bm = new Bitmap(img);
-            //int newHeight = 100;//img.Height * scaleFactor;
-            //int newWidth = 100;// img.Width * scaleFactor;
             bm = ScaleImage(bm, newHeight, newWidth);
+
+            // Set the picture box size to fit the scaled image
             imageBox.Height = bm.Height;
             imageBox.Width = bm.Width;
             imageBox.Image = bm;
@@ -81,6 +90,17 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Transforms an image from its original size into the maximum size
+         * that allows the image to fit in a give rectangle of maxWidth x 
+         * maxHeight.
+         * 
+         * @param bmp, the original image.
+         * @param maxWidth, the maximum width of the rectangle to scale the
+         *      image to fit into.
+         * @param maxHeight, the maximum height of the rectangle to scale the
+         *      image to fit into.
+         * @return newImage, the original image scaled to fit into a rectangle
+         *      given by the input parameters.
          */
         public static Bitmap ScaleImage(Bitmap bmp, int maxWidth, int maxHeight)
         {
@@ -101,6 +121,18 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Creates a DataGridView object to display the weapons stats.
+         * 
+         * @param name, the weapon name.
+         * @param dps, the damage per second of the weapon.
+         * @param reloatTime, the amount of time in seconds for the weapon to 
+         *      be reloaded.
+         * @param sellPrice, the amount of shells the weapon is worth if sold.
+         * @param gunType, the output type of the weapon, automatic, semiauto,
+         *      beam, etc.
+         * @return weaponGrid, a DGV control displaying all of the input 
+         *      parameters in a 5x2 grid. Column 1 contains the stat name,
+         *      column 2 contains the statistic.
          */
         public DataGridView weaponDataGrid(string name, string dps, string reloadTime, string sellPrice, string gunType)
         {

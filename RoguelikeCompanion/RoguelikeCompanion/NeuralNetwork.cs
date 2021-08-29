@@ -24,11 +24,6 @@ namespace RoguelikeCompanion
         static int inputLayerSize = 810;
         static int hiddenLayerSize = 100;
 
-        // Set parameter matrix values and path
-        string parameterFilePath = "C:/Users/Grant/Desktop/Java_Rouge_Like_App/src/parameters.csv";
-        static int theta_size = (hiddenLayerSize * (inputLayerSize + 1)) + (characters.Length * (hiddenLayerSize + 1));
-        Matrix<double> parameterMatrix = Matrix<double>.Build.Dense(1, theta_size);
-
         // Theta matrices from parameters matrix for forward propagation
         static Matrix<double> theta1 = Matrix<double>.Build.Dense(hiddenLayerSize, inputLayerSize + 1);
         static Matrix<double> theta2 = Matrix<double>.Build.Dense(characters.Length, hiddenLayerSize + 1);
@@ -41,9 +36,7 @@ namespace RoguelikeCompanion
         public NeuralNetwork()
         {
             readMeanStdConstCols(numFeatures, mean, std, constantColumns);
-            readParametersFromCSV(parameterMatrix, this.parameterFilePath);
-            copyParameters(theta1, parameterMatrix, 0);
-            copyParameters(theta2, parameterMatrix, theta1.RowCount * theta1.ColumnCount);
+            populateParameterMatricies();
         }
 
 
@@ -88,7 +81,7 @@ namespace RoguelikeCompanion
                     this.normalizeInputData(newCharMatrix, this.mean, this.std, this.constantColumns);
 
                     // Make new prediction
-                    double prediction = makeNNPrediction(this.parameterMatrix, newCharMatrix, inputLayerSize, hiddenLayerSize, characters.Length);
+                    double prediction = makeNNPrediction(newCharMatrix, inputLayerSize, hiddenLayerSize, characters.Length);
 
                     // Translate prediction into associated character
                     int predictIdx = (int)prediction;
@@ -109,7 +102,6 @@ namespace RoguelikeCompanion
             if (objectName == "Ammo" || objectName == null) return null;
             return objectName;
         }
-
 
 
         /*
@@ -268,21 +260,13 @@ namespace RoguelikeCompanion
 
 
         /*
-         */
-        public double determineCharacter(Matrix<double> newCharMatrix)
-        {
-            return NeuralNetwork.makeNNPrediction(this.parameterMatrix, newCharMatrix, inputLayerSize, hiddenLayerSize, characters.Length);
-        }
-
-
-        /*
          * Reads in the NN parameters from the given CSV file.
          * 
          * @param parameterMatrix, the matrix that will contain the parameters.
          * @param parameterCSVFilePath, the file path for the parameter CSV 
          *      file.
          */
-        public void readParametersFromCSV(Matrix<double> parameterMatrix, string parameterCSVFilePath)
+        public static void readParametersFromCSV(Matrix<double> parameterMatrix, string parameterCSVFilePath)
         {
             using(var reader = new StreamReader(parameterCSVFilePath))
             {
@@ -305,8 +289,6 @@ namespace RoguelikeCompanion
         /*
          * Runs the NN and makes a prediction for a single character.
          * 
-         * @param parameters, the parameter matrix for the learned neural 
-         *      network.
          * @param newCharData, new character data that has been transformed
          *      from a bitmap image into a matrix.
          * @param inputLayersSize, the number of input layer nodes.
@@ -316,7 +298,7 @@ namespace RoguelikeCompanion
          *      'characters' array, that the newCharData most likely 
          *      represents.
          */
-        public static double makeNNPrediction(Matrix<double> parameters, Matrix<double> newCharData, int inputLayerSize, int hiddenLayerSize, int numLabels)
+        public static double makeNNPrediction(Matrix<double> newCharData, int inputLayerSize, int hiddenLayerSize, int numLabels)
         {
             // Create bias unit matrix
             Matrix<double> biasUnits = Matrix<double>.Build.Dense(1, 1);
@@ -361,6 +343,23 @@ namespace RoguelikeCompanion
             }
         }
 
+
+        /*
+         * Takes the parameter data from a CSV file, given in a vector format,
+         * and transforms it into two matrices.
+         */
+        public static void populateParameterMatricies()
+        {
+            // Set parameter matrix values and path
+            string parameterFilePath = "C:/Users/Grant/Desktop/Java_Rouge_Like_App/src/parameters.csv";
+            int theta_size = (hiddenLayerSize * (inputLayerSize + 1)) + (characters.Length * (hiddenLayerSize + 1));
+            Matrix<double> parameterMatrix = Matrix<double>.Build.Dense(1, theta_size);
+
+            // Read and transform parameter data
+            readParametersFromCSV(parameterMatrix, parameterFilePath);
+            copyParameters(theta1, parameterMatrix, 0);
+            copyParameters(theta2, parameterMatrix, theta1.RowCount * theta1.ColumnCount);
+        }
 
         /*
          * Computes the sigmoid of the given matrix

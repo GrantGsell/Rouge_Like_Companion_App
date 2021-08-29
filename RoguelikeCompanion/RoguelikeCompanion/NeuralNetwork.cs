@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using MySql.Data.MySqlClient;
 using MathNet.Numerics.LinearAlgebra;
@@ -21,7 +20,6 @@ namespace RoguelikeCompanion
             "O", "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE",
             "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP", "ERRAPT"};
 
-        //
         // Set input, hidden and output layer sizes
         static int inputLayerSize = 810;
         static int hiddenLayerSize = 100;
@@ -37,6 +35,8 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Neural network constructor. Creates mean, standard deviation,
+         * constant columns and parameter vectors/matrices.
          */
         public NeuralNetwork()
         {
@@ -48,6 +48,11 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Constructs a string prediction for an objects name that is displayed
+         * in newImage.
+         * 
+         * @param newImage, an image with an objects name as text.
+         * @return string, a prediction for the text within the given image.
          */
         public string newImagePrediction(Bitmap newImage)
         {
@@ -83,7 +88,7 @@ namespace RoguelikeCompanion
                     this.normalizeInputData(newCharMatrix, this.mean, this.std, this.constantColumns);
 
                     // Make new prediction
-                    double prediction = determineCharacter(newCharMatrix);
+                    double prediction = makeNNPrediction(this.parameterMatrix, newCharMatrix, inputLayerSize, hiddenLayerSize, characters.Length);
 
                     // Translate prediction into associated character
                     int predictIdx = (int)prediction;
@@ -108,6 +113,16 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Read in the input array data for mean, standard deviation and
+         * constant columns from the MySQL database. The mean and std arrays
+         * have dimensions of 1 x numFeatures.
+         * 
+         * @param numFeatures, the number of features.
+         * @param mean, the mean value for each feature.
+         * @param std, the standard deviation for each feature.
+         * @param constantColumns, the list of columns whose standard deviation
+         *      is zero, to avoid a divide by zero error when performing 
+         *      normalization.
          */
         public static void readMeanStdConstCols(int numFeatures, double[] mean, double[] std, List<int> constantColumns)
         {
@@ -176,7 +191,15 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Normalized the input matrix, column-wise with each column having a
+         * zero mean unit variance.
          * 
+         * @param inputMatrix, the input matrix to be normalized.
+         * @param mean, an array containing the mean value for each column.
+         * @param std, an array containing the standard deviation for each 
+         *      column.
+         * @param constantColumns, a list containing the columns whose values
+         *      do not change from one example to the next.
          */
         public void normalizeInputData(Matrix<double> inputMatrix, double[] mean, double[] std, List<int> constantColumns)
         {
@@ -197,6 +220,16 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Takes an array of strings whose elements are one of the strings
+         * contained from the 'characters' array, and builds a string. Known 
+         * errors add nothing to the string, SPACEs are turned into underscores
+         * , the apostrophe error (ERRAP) and the appostrophe next to a 't' 
+         * (ERRAPT) add an appostrophe.
+         * 
+         * @param namePrediction is an array of strings containing the
+         *      character predictions.
+         * @reutnr objectName the string created when combining the character
+         *      predictions and removing/replacing errors.
          */
         public static string transformCharArrayToString(string[] namePrediction)
         {
@@ -243,6 +276,11 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Reads in the NN parameters from the given CSV file.
+         * 
+         * @param parameterMatrix, the matrix that will contain the parameters.
+         * @param parameterCSVFilePath, the file path for the parameter CSV 
+         *      file.
          */
         public void readParametersFromCSV(Matrix<double> parameterMatrix, string parameterCSVFilePath)
         {
@@ -265,6 +303,18 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Runs the NN and makes a prediction for a single character.
+         * 
+         * @param parameters, the parameter matrix for the learned neural 
+         *      network.
+         * @param newCharData, new character data that has been transformed
+         *      from a bitmap image into a matrix.
+         * @param inputLayersSize, the number of input layer nodes.
+         * @param hiddenLayerSize, the number of hidden nodes.
+         * @param numLabels, the number of output nodes (classes).
+         * @return maxValIdx, an index value corresponding to the string in the
+         *      'characters' array, that the newCharData most likely 
+         *      represents.
          */
         public static double makeNNPrediction(Matrix<double> parameters, Matrix<double> newCharData, int inputLayerSize, int hiddenLayerSize, int numLabels)
         {
@@ -291,6 +341,13 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Transforms input parameters from a vector format into a matrix
+         * format.
+         * 
+         * @param inputMatrix where the parameter data will be written into.
+         * @param inputVector a vector contianing all of the paramter data.
+         * @param vectorIdx the starting point for reading the parameter data
+         *      from the parameter vector.
          */
         public static void copyParameters(Matrix<double> inputMatrix, Matrix<double> inputVector, int vectorIdx)
         {
@@ -306,6 +363,10 @@ namespace RoguelikeCompanion
 
 
         /*
+         * Computes the sigmoid of the given matrix
+         * 
+         * @param matrix
+         * @return matrix, the computed sigmoid of the input parameter.
          */
         public static Matrix<double> sigmoid(Matrix<double> matrix)
         {

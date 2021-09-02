@@ -9,7 +9,7 @@ using System.IO;
 
 namespace RoguelikeCompanion
 {
-    class NeuralNetwork
+    public class NeuralNetwork
     {
         // Fields
         int numFeatures = 810;
@@ -246,7 +246,7 @@ namespace RoguelikeCompanion
                 }
                 else if (i == 0 || newWordFlag)
                 {
-                    objectName.Append(namePrediction[i]);
+                    objectName.Append(namePrediction[i].ToUpper());
                     newWordFlag = false;
                 }
                 else

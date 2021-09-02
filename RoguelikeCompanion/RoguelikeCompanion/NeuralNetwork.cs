@@ -12,10 +12,10 @@ namespace RoguelikeCompanion
     public class NeuralNetwork
     {
         // Fields
-        int numFeatures = 810;
-        double[] mean = new double[810];
-        double[] std = new double[810];
-        List<int> constantColumns = new List<int>();
+        static int numFeatures = 810;
+        static double[] mean = new double[810];
+        static double[] std = new double[810];
+        static List<int> constantColumns = new List<int>();
         static string[] characters = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
             "O", "P", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "4", "5", "7", "8", "'", "-", "SPACE",
             "ERRN", "ERRL", "ERRM", "ERRT", "ERRU", "ERRAP", "ERRAPT"};
@@ -47,7 +47,7 @@ namespace RoguelikeCompanion
          * @param newImage, an image with an objects name as text.
          * @return string, a prediction for the text within the given image.
          */
-        public string newImagePrediction(Bitmap newImage)
+        public static string newImagePrediction(Bitmap newImage)
         {
             string objectName = null;
             try
@@ -75,10 +75,10 @@ namespace RoguelikeCompanion
                     double[] pixelData = Array.ConvertAll<int, double>(BorderClass.getRGBData(currChar), x => x);
 
                     // Transform the data into a Simple Matrix object
-                    Matrix<double> newCharMatrix = Matrix<double>.Build.Dense(1, this.numFeatures, pixelData);
+                    Matrix<double> newCharMatrix = Matrix<double>.Build.Dense(1, numFeatures, pixelData);
 
                     // Normalize the new example data
-                    this.normalizeInputData(newCharMatrix, this.mean, this.std, this.constantColumns);
+                    normalizeInputData(newCharMatrix, mean, std, constantColumns);
 
                     // Make new prediction
                     double prediction = makeNNPrediction(newCharMatrix, inputLayerSize, hiddenLayerSize, characters.Length);
@@ -193,7 +193,7 @@ namespace RoguelikeCompanion
          * @param constantColumns, a list containing the columns whose values
          *      do not change from one example to the next.
          */
-        public void normalizeInputData(Matrix<double> inputMatrix, double[] mean, double[] std, List<int> constantColumns)
+        public static void normalizeInputData(Matrix<double> inputMatrix, double[] mean, double[] std, List<int> constantColumns)
         {
             // Apply data normalization to input matrix
             for(int col = 0; col < inputMatrix.ColumnCount; col++)

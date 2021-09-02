@@ -63,5 +63,31 @@ namespace TestRogulikeCompanion
             }
             
         }
+
+
+        [Fact]
+        public void TestTransformCharArrayToString()
+        {
+            // Testing inputs
+            string[] inp0 = { "" };
+            string[] inp1 = { "T", "e", "s", "t" };
+            string[] inp2 = { "S", "h", "a", "d", "e", "s", "ERRAP", "s", "SPACE", "r", "e", "v", "o", "l", "v", "e", "r" };
+            string[] inp3 = { "D", "a", "r", "t", "SPACE", "g", "ERRU", "ERRN" };
+            string[] inp4 = { "H", "u", "ERRN", "ERRT", "s", "m", "a", "n" };
+
+            // Testing outputs
+            string out0 = "";
+            string out1 = "Test";
+            string out2 = "Shades's_Revolver";
+            string out3 = "Dart_G";
+            string out4 = "Husman";
+
+            // Assertions
+            Assert.Equal(NeuralNetwork.transformCharArrayToString(inp0), out0);
+            Assert.Equal(NeuralNetwork.transformCharArrayToString(inp1), out1);
+            Assert.Equal(NeuralNetwork.transformCharArrayToString(inp2), out2);
+            Assert.Equal(NeuralNetwork.transformCharArrayToString(inp3), out3);
+            Assert.Equal(NeuralNetwork.transformCharArrayToString(inp4), out4);
+        }
     }
 }

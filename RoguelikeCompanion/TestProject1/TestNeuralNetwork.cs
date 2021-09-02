@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using RoguelikeCompanion;
 using MathNet.Numerics.LinearAlgebra;
+using System.Drawing;
 
 namespace TestRogulikeCompanion
 {
@@ -88,6 +89,46 @@ namespace TestRogulikeCompanion
             Assert.Equal(NeuralNetwork.transformCharArrayToString(inp2), out2);
             Assert.Equal(NeuralNetwork.transformCharArrayToString(inp3), out3);
             Assert.Equal(NeuralNetwork.transformCharArrayToString(inp4), out4);
+        }
+
+        [Fact]
+        public void TestNewImagePrediction()
+        {
+            // Testing inputs
+            Bitmap inp0 = (Bitmap)Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/class_2_border/class_2_0.jpg");
+            Bitmap inp1 = (Bitmap)Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/class_2_border/class_2_2.jpg");
+            Bitmap inp2 = (Bitmap)Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/class_2_border/class_2_3.jpg");
+            Bitmap inp3 = (Bitmap)Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/class_2_border/class_2_5.jpg");
+            Bitmap inp4 = (Bitmap)Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/class_2_border/class_2_9.jpg");
+            Bitmap inp5 = (Bitmap)Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/class_2_border/class_2_7.jpg");
+
+
+            // Testing outputs
+            string out0 = "Bullet_Time";
+            string out1 = "Backpack";
+            string out2 = "Ice_Cube";
+            string out3 = "Orange";
+            string out4 = "Trank_Gun";           
+            string out5 = "Cloranthy_Ring";
+
+            // Create Testing Tuples
+            Tuple<Bitmap, string>[] testingTuple =
+            {
+                Tuple.Create(inp0, out0),
+                Tuple.Create(inp1, out1),
+                Tuple.Create(inp2, out2),
+                Tuple.Create(inp3, out3),
+                Tuple.Create(inp4, out4),
+                Tuple.Create(inp5, out5)
+            };
+
+            // Perform testing
+            NeuralNetwork nn = new NeuralNetwork();
+            foreach(var pair in testingTuple)
+            {
+                Bitmap notificationBox = ScreenImgCapture.cropBitMap(pair.Item1, 567, 425, 767, 77);
+                Assert.Equal(nn.newImagePrediction(notificationBox), pair.Item2);
+            }
         }
     }
 }

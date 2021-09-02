@@ -92,7 +92,7 @@ namespace TestRogulikeCompanion
         }
 
         [Fact]
-        public void TestNewImagePrediction()
+        public static void TestNewImagePrediction()
         {
             // Testing inputs
             Bitmap inp0 = (Bitmap)Image.FromFile("C:/Users/Grant/Desktop/Java_Rouge_Like_App/screenshots/class_2_border/class_2_0.jpg");
@@ -126,8 +126,8 @@ namespace TestRogulikeCompanion
             NeuralNetwork nn = new NeuralNetwork();
             foreach(var pair in testingTuple)
             {
-                Bitmap notificationBox = ScreenImgCapture.cropBitMap(pair.Item1, 567, 425, 767, 77);
-                Assert.Equal(nn.newImagePrediction(notificationBox), pair.Item2);
+                //Bitmap notificationBox = ScreenImgCapture.cropBitMap(pair.Item1, 567, 425, 767, 77);
+                Assert.Equal(nn.newImagePrediction(pair.Item1), pair.Item2);
             }
         }
     }

@@ -126,7 +126,6 @@ namespace TestRogulikeCompanion
             NeuralNetwork nn = new NeuralNetwork();
             foreach(var pair in testingTuple)
             {
-                //Bitmap notificationBox = ScreenImgCapture.cropBitMap(pair.Item1, 567, 425, 767, 77);
                 Assert.Equal(nn.newImagePrediction(pair.Item1), pair.Item2);
             }
         }

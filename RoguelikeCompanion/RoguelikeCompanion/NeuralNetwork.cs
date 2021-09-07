@@ -47,7 +47,7 @@ namespace RoguelikeCompanion
          * @param newImage, an image with an objects name as text.
          * @return string, a prediction for the text within the given image.
          */
-        public static string newImagePrediction(Bitmap newImage)
+        public string newImagePrediction(Bitmap newImage)
         {
             string objectName = null;
             try

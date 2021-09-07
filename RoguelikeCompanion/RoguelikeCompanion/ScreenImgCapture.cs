@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace RoguelikeCompanion
 {
-    class ScreenImgCapture
+    public class ScreenImgCapture
     {
 
         /*

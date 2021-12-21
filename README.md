@@ -1,4 +1,4 @@
-# Rougelike Companion App (Machine Learning APplication)
+# Rougelike Companion App (Machine Learning Application)
 
 Over the course of the last year streaming services have had an influx of new users and have grown drastically in popularity. Game streaming in particular saw a large growth with Twitch and YouTube gaming seeing a revenue increase of 33% and 21% respectively from 2020 to 2021.
 

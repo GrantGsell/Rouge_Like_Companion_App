@@ -10,11 +10,30 @@ using System.Windows.Forms;
 
 namespace RoguelikeCompanion
 {
-    public partial class Form1 : Form
+    public partial class NNVisualization : Form
     {
-        public Form1()
+        // Fields
+        NeuralNetwork nn = new NeuralNetwork();
+
+        public NNVisualization()
         {
             InitializeComponent();
         }
+
+
+        public void showExtractedTextBox(Bitmap textBoxImage)
+        {
+            // Set image and fit to size
+            extractedTextBox.Image = textBoxImage;
+            extractedTextBox.SizeMode = PictureBoxSizeMode.StretchImage;
+        }
+
+        public void showCurrentSlidingWindow(Bitmap slidingWindow)
+        {
+            // Set image and fit to size
+            currentSlidingWindowSlice.Image = slidingWindow;
+            currentSlidingWindowSlice.SizeMode = PictureBoxSizeMode.StretchImage;
+        }
+
     }
 }

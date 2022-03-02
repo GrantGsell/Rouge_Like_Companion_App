@@ -88,6 +88,10 @@ namespace NeuralNetworkVisualization
                 //Bitmap test = ScreenImgCapture.cropBitMap(isolatedTextImage, charSeparationIndicies[0], swWidth, 0, swHeight);
                 Bitmap test = ScreenImgCapture.cropBitMap(isolatedTextImage, i, swWidth, 0, swHeight);
                 showCurrentSlidingWindow(test);
+                if (charSeparationIndicies.Contains(i))
+                {
+                    Thread.Sleep(1000);
+                }
             }
            
         }

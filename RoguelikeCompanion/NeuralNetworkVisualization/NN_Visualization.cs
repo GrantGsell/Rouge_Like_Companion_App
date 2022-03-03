@@ -102,6 +102,7 @@ namespace NeuralNetworkVisualization
             // Obtain indicies for character separation
             List<int> charSeparationIndicies;
             (charSeparationIndicies, isolatedTextImage) = CharacterSegmentation.characterSegmentation(newImage);
+            showExtractedTextBox(isolatedTextImage);
 
             // Create List of Sliding Window Images
             List<Bitmap> slidingWindowImages = new List<Bitmap>();
@@ -135,10 +136,9 @@ namespace NeuralNetworkVisualization
             // Sliding window dimensions and step size
             int swHeight = 18, swWidth = 15, swDelta = 5;
 
-            showExtractedTextBox(image);
-            //Bitmap test = ScreenImgCapture.cropBitMap(image, currSWIndex, swWidth, 0, swHeight);
-            Bitmap test = slidingWindowImages[currSWIndex];
-            showCurrentSlidingWindow(test);
+            // Extract the next sliding window slice and display it
+            Bitmap currSW = slidingWindowImages[currSWIndex];
+            showCurrentSlidingWindow(currSW);
 
             // Change sliding window background color
             if (foundLetters[currSWIndex])
@@ -147,7 +147,7 @@ namespace NeuralNetworkVisualization
                 slidingWindowBackground.BackColor = Color.Red;
 
             currSWIndex++;
-            if (currSWIndex > image.Width - swWidth + swDelta)
+            if (currSWIndex > image.Width - swWidth)
                 slideShowTimer.Stop();
             
         }

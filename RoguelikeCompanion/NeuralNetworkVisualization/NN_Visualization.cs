@@ -34,7 +34,7 @@ namespace NeuralNetworkVisualization
             (slidingWindowImages, isCharacterList) = imageIsolation(newImage);
 
             // Image Slideshow via timer
-            slideShowTimer.Interval = (500);
+            slideShowTimer.Interval = (100);
             slideShowTimer.Tick += new EventHandler(slideShow_Tick);
             slideShowTimer.Start();
         }
@@ -106,7 +106,7 @@ namespace NeuralNetworkVisualization
             // Create List of Sliding Window Images
             List<Bitmap> slidingWindowImages = new List<Bitmap>();
             List<bool> isCharacterList = new List<bool>();
-            for(int i = 0; i < isolatedTextImage.Width - swWidth + swDelta; i += swDelta)
+            for(int i = 0; i < isolatedTextImage.Width - swWidth + swDelta; i++)
             {
                 Bitmap newSlidingWindowBox = ScreenImgCapture.cropBitMap(isolatedTextImage, i, swWidth, 0, swHeight);
                 slidingWindowImages.Add(newSlidingWindowBox);

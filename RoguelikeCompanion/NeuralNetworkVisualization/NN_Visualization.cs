@@ -142,9 +142,16 @@ namespace NeuralNetworkVisualization
 
             // Change sliding window background color
             if (foundLetters[currSWIndex])
-                slidingWindowBackground.BackColor = Color.Green;
+            {
+                slidingWindowBackground.BackColor = Color.Green;                
+                string guess = NeuralNetwork.makeNNPrediction(currSW);
+                addFoundCharacterToForm(currSW, guess);
+                int a = 5;
+            }
             else
+            {
                 slidingWindowBackground.BackColor = Color.Red;
+            }
 
             currSWIndex++;
             if (currSWIndex > image.Width - swWidth)
@@ -159,6 +166,15 @@ namespace NeuralNetworkVisualization
         public void slideShow_Tick(object sender, EventArgs e)
         {
             imageSlideShow(slidingWindowImages, isCharacterList, isolatedTextImage);
+        }
+
+
+        /*
+         */
+        public void addFoundCharacterToForm(Bitmap image, string guess)
+        {
+            individualCharacterForm newChar = new individualCharacterForm(image, guess);
+            extractedCharFLP.Controls.Add(newChar);
         }
 
     }

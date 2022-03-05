@@ -12,7 +12,7 @@ namespace NeuralNetworkVisualization
 {
     public partial class individualCharacterForm : Form
     {
-        PictureBox characterImage;
+        PictureBox characterImage = new PictureBox();
         TextBox characterGuess = new TextBox();
 
         /*
@@ -26,11 +26,22 @@ namespace NeuralNetworkVisualization
         public individualCharacterForm(Bitmap img, string character)
         {
             InitializeComponent();
-            this.characterGuess.Text = character;
-            this.characterImage = createPictureBox(img, 75, 75);
 
-            // Remove borders, set double buffer
-            this.FormBorderStyle = FormBorderStyle.None;
+            // Set image properties
+            int scale = 5;
+            int imgWidth = 18 * scale;
+            int imgHeight = 15 * scale;
+            characterImage.Image = scaleImage(img, imgWidth, imgHeight);
+            characterImage.Size  = new Size(this.characterImage.Image.Width, this.characterImage.Image.Height);
+
+            // Set TextBox properties
+            this.characterGuess.Text = character;
+            this.characterGuess.Font = new Font(characterGuess.Font.FontFamily, 16);
+            this.characterGuess.TextAlign = HorizontalAlignment.Center;
+            this.characterGuess.Location = new Point(this.characterImage.Image.Width / 2 - this.characterGuess.Width / 2, 0);
+
+            // Set form properties
+            this.Size = new Size(this.characterImage.Image.Width, 200);
         }
 
 
@@ -40,25 +51,27 @@ namespace NeuralNetworkVisualization
          */
         private void individualCharacterForm_Load(object sender, EventArgs e)
         {
+            /*
             // Create an image object in the top left corner
-            characterImage.Location = new Point(0, 75 - characterImage.Height);
+            characterImage.Location = new Point(0, 0);
 
             // Place thee TextBox below the image
             int imageHeightOffset = characterImage.Height;
-            characterGuess.Location = new Point(0, (75 - characterImage.Height) + imageHeightOffset);
+            characterGuess.Location = new Point(0, 30);
+            */
 
             // Set form size
-            int height = characterGuess.Height + 75;
-            int width = (characterGuess.Width > characterImage.Width) ? characterGuess.Width : characterImage.Width;
-            this.Size = new Size(width, height);
+            this.Size = new Size(200, 500);
 
+            /*
             // Center image
             int updatedImageWidth = Math.Abs(characterGuess.Width / 2 - characterImage.Width / 2);
-            characterImage.Location = new Point(updatedImageWidth, 75 - characterImage.Height);
+            characterImage.Location = new Point(updatedImageWidth, 25 - characterImage.Height);
 
             // Add image and TextBox
             this.Controls.Add(characterImage);
             this.Controls.Add(characterGuess);
+            */
         }
 
 
@@ -80,7 +93,7 @@ namespace NeuralNetworkVisualization
             PictureBox imageBox = new PictureBox();
 
             // Scale bit map
-            bm = ScaleImage(bm, newHeight, newWidth);
+            bm = scaleImage(bm, newHeight, newWidth);
 
             // Set the picture box size to fit the scaled image
             imageBox.Height = bm.Height;
@@ -104,7 +117,7 @@ namespace NeuralNetworkVisualization
          * @return newImage, the original image scaled to fit into a rectangle
          *      given by the input parameters.
          */
-        public static Bitmap ScaleImage(Bitmap bmp, int maxWidth, int maxHeight)
+        public static Bitmap scaleImage(Bitmap bmp, int maxWidth, int maxHeight)
         {
             var ratioX = (double)maxWidth / bmp.Width;
             var ratioY = (double)maxHeight / bmp.Height;

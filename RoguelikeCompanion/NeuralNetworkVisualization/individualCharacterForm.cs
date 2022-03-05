@@ -49,59 +49,7 @@ namespace NeuralNetworkVisualization
          * Loads this form with the character bitmap image and the prediction
          *   for that character.
          */
-        private void individualCharacterForm_Load(object sender, EventArgs e)
-        {
-            /*
-            // Create an image object in the top left corner
-            characterImage.Location = new Point(0, 0);
-
-            // Place thee TextBox below the image
-            int imageHeightOffset = characterImage.Height;
-            characterGuess.Location = new Point(0, 30);
-            */
-
-            // Set form size
-            this.Size = new Size(200, 500);
-
-            /*
-            // Center image
-            int updatedImageWidth = Math.Abs(characterGuess.Width / 2 - characterImage.Width / 2);
-            characterImage.Location = new Point(updatedImageWidth, 25 - characterImage.Height);
-
-            // Add image and TextBox
-            this.Controls.Add(characterImage);
-            this.Controls.Add(characterGuess);
-            */
-        }
-
-
-        /*
-         * Creates a new PictureBox control, scales the given image and then
-         * places it into the new control. The control is sized to fit the
-         * scaled image size and not the rectangle specified by newWidth,
-         * newHeight.
-         * 
-         * @param img, the image of the object.
-         * @param newWidth, the maximum width of the rectangle to scale the 
-         *      image into.
-         * @param newHeight, the maximum height of the rectangle to scale the
-         *      image into.
-         * @return imageBox, a PictureBox control containing the scaled image.
-         */
-        public static PictureBox createPictureBox(Bitmap bm, int newWidth, int newHeight)
-        {
-            PictureBox imageBox = new PictureBox();
-
-            // Scale bit map
-            bm = scaleImage(bm, newHeight, newWidth);
-
-            // Set the picture box size to fit the scaled image
-            imageBox.Height = bm.Height;
-            imageBox.Width = bm.Width;
-            imageBox.Image = bm;
-
-            return imageBox;
-        }
+        private void individualCharacterForm_Load(object sender, EventArgs e) {  }
 
 
         /*

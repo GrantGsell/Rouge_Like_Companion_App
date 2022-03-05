@@ -25,6 +25,8 @@ namespace NeuralNetworkVisualization
         {
             InitializeComponent();
 
+            this.IsMdiContainer = true;
+
             // Read in new image 
             Bitmap newImage = convertToBitmap(textBoxPathName);
 
@@ -173,8 +175,10 @@ namespace NeuralNetworkVisualization
          */
         public void addFoundCharacterToForm(Bitmap image, string guess)
         {
-            individualCharacterForm newChar = new individualCharacterForm(image, guess);
-            extractedCharFLP.Controls.Add(newChar);
+            individualCharacterForm charChildForm = new individualCharacterForm(image, guess);
+            charChildForm.MdiParent = this;
+            extractedCharFLP.Controls.Add(charChildForm);
+            charChildForm.Show();
         }
 
     }

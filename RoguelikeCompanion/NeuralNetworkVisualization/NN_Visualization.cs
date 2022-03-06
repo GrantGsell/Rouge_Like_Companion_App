@@ -13,10 +13,17 @@ namespace NeuralNetworkVisualization
         NeuralNetwork nn = new NeuralNetwork();
         string textBoxPathName = @"C:\Users\Grant\Desktop\Java_Rouge_Like_App\screenshots\temp_1.jpg";
         List<Bitmap> slidingWindowImages = new List<Bitmap>();
+        List<Bitmap> scaledSlidingWindowImages = new List<Bitmap>();
         List<bool> isCharacterList = new List<bool>();
         int currSWIndex = 0;
         Bitmap isolatedTextImage;
         Timer slideShowTimer = new Timer();
+
+        // Rectagle outline made out of four picture boxes
+        PictureBox rectTop = new PictureBox();
+        PictureBox rectRight = new PictureBox();
+        PictureBox rectBottom = new PictureBox();
+        PictureBox rectLeft = new PictureBox();
 
         /*
          * NN_Visualization constructor.
@@ -30,10 +37,11 @@ namespace NeuralNetworkVisualization
             // Read in new image 
             Bitmap newImage = convertToBitmap(textBoxPathName);
 
-            string guess = nn.newImagePrediction(newImage);
-
             // Obtain all sliding window images
-            (slidingWindowImages, isCharacterList) = imageIsolation(newImage);
+            (slidingWindowImages, isCharacterList, scaledSlidingWindowImages) = imageIsolation(newImage);
+
+            // Initialize outline rectangle
+            initializeRectangleOutline();
 
             // Image Slideshow via timer
             slideShowTimer.Interval = (100);
@@ -52,7 +60,7 @@ namespace NeuralNetworkVisualization
         {
             // Set image and fit to size
             extractedTextBox.Image = textBoxImage;
-            extractedTextBox.SizeMode = PictureBoxSizeMode.StretchImage;
+            //extractedTextBox.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
 
@@ -66,7 +74,7 @@ namespace NeuralNetworkVisualization
         {
             // Set image and fit to size
             currentSlidingWindowSlice.Image = slidingWindow;
-            currentSlidingWindowSlice.SizeMode = PictureBoxSizeMode.StretchImage;
+            //currentSlidingWindowSlice.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
 
@@ -93,10 +101,11 @@ namespace NeuralNetworkVisualization
          *   process or not.
          *
          * @params newImage, a bitmap denoting the image to be processed.
-         * @return two lists, one containing the sliding window slices, and one
-         *   containing if the respective bitmap is a character to be processed.
+         * @return three lists, one containing the sliding window slices, one
+         *   containing if the respective bitmap is a character to be processed,
+         *   one containing the scaled bitmaps images.
          */
-        public (List<Bitmap>, List<bool>) imageIsolation(Bitmap newImage)
+        public (List<Bitmap>, List<bool>, List<Bitmap>) imageIsolation(Bitmap newImage)
         {
             // Sliding window dimensions and step size
             int swHeight = 18, swWidth = 15, swDelta = 5;
@@ -104,22 +113,27 @@ namespace NeuralNetworkVisualization
             // Obtain indicies for character separation
             List<int> charSeparationIndicies;
             (charSeparationIndicies, isolatedTextImage) = CharacterSegmentation.characterSegmentation(newImage);
-            showExtractedTextBox(isolatedTextImage);
+            //showExtractedTextBox(isolatedTextImage);
+            Bitmap scaledIsolatedTextImage = individualCharacterForm.scaleImage(isolatedTextImage, isolatedTextImage.Width * 5, isolatedTextImage.Height * 5);
+            showExtractedTextBox(scaledIsolatedTextImage);
 
             // Create List of Sliding Window Images
             List<Bitmap> slidingWindowImages = new List<Bitmap>();
+            List<Bitmap> scaledSlidingWindowImages = new List<Bitmap>();
             List<bool> isCharacterList = new List<bool>();
             for(int i = 0; i < isolatedTextImage.Width - swWidth + swDelta; i++)
             {
                 Bitmap newSlidingWindowBox = ScreenImgCapture.cropBitMap(isolatedTextImage, i, swWidth, 0, swHeight);
+                Bitmap scaledNewSWB = individualCharacterForm.scaleImage(newSlidingWindowBox, newSlidingWindowBox.Width * 5, newSlidingWindowBox.Height * 5);
                 slidingWindowImages.Add(newSlidingWindowBox);
+                scaledSlidingWindowImages.Add(scaledNewSWB);
                 if (charSeparationIndicies.Contains(i))
                     isCharacterList.Add(true);
                 else
                     isCharacterList.Add(false);                             
             }
 
-            return (slidingWindowImages, isCharacterList);
+            return (slidingWindowImages, isCharacterList, scaledSlidingWindowImages);
         }
 
 
@@ -140,7 +154,8 @@ namespace NeuralNetworkVisualization
 
             // Extract the next sliding window slice and display it
             Bitmap currSW = slidingWindowImages[currSWIndex];
-            showCurrentSlidingWindow(currSW);
+            Bitmap scaledCurrSW = scaledSlidingWindowImages[currSWIndex];
+            showCurrentSlidingWindow(scaledCurrSW);
 
             // Change sliding window background color
             if (foundLetters[currSWIndex])
@@ -148,7 +163,6 @@ namespace NeuralNetworkVisualization
                 slidingWindowBackground.BackColor = Color.Green;                
                 string guess = NeuralNetwork.makeNNPrediction(currSW);
                 addFoundCharacterToForm(currSW, guess);
-                int a = 5;
             }
             else
             {
@@ -156,6 +170,7 @@ namespace NeuralNetworkVisualization
             }
 
             currSWIndex++;
+            moveRectangle();
             if (currSWIndex > image.Width - swWidth)
                 slideShowTimer.Stop();
             
@@ -172,6 +187,10 @@ namespace NeuralNetworkVisualization
 
 
         /*
+         * Creates a child form that contains a sliding window slice and the
+         *   prediction for said slice.
+         * @param image, the sliding window slice.
+         * @param guess, the single character prediciton of the slice.
          */
         public void addFoundCharacterToForm(Bitmap image, string guess)
         {
@@ -179,6 +198,61 @@ namespace NeuralNetworkVisualization
             charChildForm.MdiParent = this;
             extractedCharFLP.Controls.Add(charChildForm);
             charChildForm.Show();
+        }
+
+
+        /*
+         * Creates a rectangle to mimic a sliding window, made out of four thin
+         *   picture boxes.
+         */
+        public void initializeRectangleOutline()
+        {
+            // Get textBox width, height scalers
+            int widthScalar = extractedTextBox.Width / 15;
+            int heightScalar = extractedTextBox.Height / 18;
+
+            // Set rectangle outline sizes
+            rectTop.Size = new Size(15 * 4 + 5, 2);
+            rectBottom.Size = new Size(15 * 4 + 5, 2);
+            rectRight.Size = new Size(2, 18 * heightScalar);
+            rectLeft.Size = new Size(2, 18 * heightScalar);
+
+            // Set rectangle outline color (back color)
+            rectTop.BackColor = Color.Aqua;
+            rectBottom.BackColor = Color.Aqua;
+            rectRight.BackColor = Color.Aqua;
+            rectLeft.BackColor = Color.Aqua;
+
+            // Set rectangle location
+            rectTop.Location = new Point(extractedTextBox.Location.X, extractedTextBox.Location.Y);
+            rectBottom.Location = new Point(extractedTextBox.Location.X, extractedTextBox.Location.Y + 18 * heightScalar);
+            rectRight.Location = new Point(extractedTextBox.Location.X + 15 * 4 + 4, extractedTextBox.Location.Y);
+            rectLeft.Location = new Point(extractedTextBox.Location.X, extractedTextBox.Location.Y);          
+
+            // Add all rectangle outline constructs to form
+            this.Controls.Add(rectTop);
+            this.Controls.Add(rectBottom);
+            this.Controls.Add(rectRight);
+            this.Controls.Add(rectLeft);
+
+            // Send all edges to front
+            rectTop.BringToFront();
+            rectBottom.BringToFront();
+            rectRight.BringToFront();
+            rectLeft.BringToFront();
+        }
+
+
+        /*
+         * Moves each sliding window side by five in the x-direction
+         */
+        public void moveRectangle()
+        {
+            int delta = 5;
+            rectTop.Location = new Point(rectTop.Location.X + delta, rectTop.Location.Y);
+            rectBottom.Location = new Point(rectBottom.Location.X + delta, rectBottom.Location.Y);
+            rectRight.Location = new Point(rectRight.Location.X + delta, rectRight.Location.Y);
+            rectLeft.Location = new Point(rectLeft.Location.X + delta, rectLeft.Location.Y);
         }
 
     }

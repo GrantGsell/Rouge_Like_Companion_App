@@ -172,7 +172,16 @@ namespace NeuralNetworkVisualization
             currSWIndex++;
             moveRectangle();
             if (currSWIndex > image.Width - swWidth)
+            {
+                // Stop timer
                 slideShowTimer.Stop();
+
+                // Populate text boxes
+                string guess = nn.newImagePrediction(convertToBitmap(textBoxPathName));
+                initialGuessTB.Text = guess;
+
+                // Correct guess and display
+            }
             
         }
 
@@ -255,5 +264,21 @@ namespace NeuralNetworkVisualization
             rectLeft.Location = new Point(rectLeft.Location.X + delta, rectLeft.Location.Y);
         }
 
+
+        /*
+         */
+        public void setInitialGuessTextBox(string initialGuess)
+        {
+            initialGuessTB.Text = initialGuess;
+            initialGuessTB.TextAlign = HorizontalAlignment.Center;
+        }
+
+        /*
+         */
+        public void setCorrectedGuessTextBox(string correctedGuess)
+        {
+            correctedGuessTB.Text = correctedGuess;
+            correctedGuessTB.TextAlign = HorizontalAlignment.Center;
+        }
     }
 }

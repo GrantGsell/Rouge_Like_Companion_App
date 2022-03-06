@@ -280,5 +280,73 @@ namespace NeuralNetworkVisualization
             correctedGuessTB.Text = correctedGuess;
             correctedGuessTB.TextAlign = HorizontalAlignment.Center;
         }
+
+
+        /*
+         * Finds the closest word in the string array via levenshtein distance
+         *   given the string guess.
+         *   
+         * @param guess, the string to be checked against.
+         * @param objectNames, the array containing correct object names.
+        */
+        public string closestWord(string guess, string[] objectNames)
+        {
+            // Calculate the Levenshtein distance between incorrect word and all potential words
+            int minLevDist = 50;
+            String correctWord = "";
+            foreach (string elem in objectNames)
+            {
+                int currDist = levenshteinDistance(guess, elem);
+                if (minLevDist > currDist)
+                {
+                    minLevDist = currDist;
+                    correctWord = elem;
+                }
+            }
+
+            return correctWord;
+        }
+
+
+        /*
+         * Edit Distance (Levenshtein Distance)
+         */
+        public int levenshteinDistance(string guess, string compareWord)
+        {
+            // Make both words lowercase
+            string wordA = guess.ToLower();
+            string wordB = compareWord.ToLower();
+
+            // Declare Levenshtein distance matrix
+            int[,] levMatrix = new int[wordB.Length + 1, wordA.Length + 1];
+
+            // Initialize the first row, col of the matrix
+            for (int row = 1; row < wordB.Length + 1; row++)
+            {
+                levMatrix[row, 0] = row;
+            }
+            for (int col = 1; col < wordA.Length + 1; col++)
+            {
+                levMatrix[0, col] = col;
+            }
+
+            // Use tabulation to populate the table
+            for (int row = 1; row < wordB.Length + 1; row++)
+            {
+                for (int col = 1; col < wordA.Length + 1; col++)
+                {
+                    int sameCharFlag = 1;
+                    if (wordA[col - 1] == wordB[row - 1])
+                    {
+                        sameCharFlag = 0;
+                    }
+                    levMatrix[row, col] = Math.Min(
+                                Math.Min(levMatrix[row - 1, col] + 1, levMatrix[row - 1, col - 1] + sameCharFlag),
+                                levMatrix[row, col - 1] + 1
+                    );
+                }
+            }
+            return levMatrix[wordB.Length, wordA.Length];
+        }
     }
 }

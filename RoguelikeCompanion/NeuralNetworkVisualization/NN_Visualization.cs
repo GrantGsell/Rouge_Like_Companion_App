@@ -23,13 +23,6 @@ namespace NeuralNetworkVisualization
         // For guess correction
         Dictionary<string, (string, bool)> objectNameDictionary = ObjectInformation.createObjectNameDictionary();
         string[] objectNames;
-        // Array for Nonobjet Notification Box text
-        string[] arrayNonObjectText = new string[]{"CELL_KEY", "CHALLENGE_COMPLETE", "CHALLENGE_FAILED",
-                                                       "DEAL_WITH_THE_DEVIL", "SACRIFICE_ACCEPTED", "SACRIFICE",
-                                                       "PURIFIED", "BRAVE_COMPANION", "ROLL_OF_THE_DICE",
-                                                       "GLASS_ARMOR", "SER_JUNKAN'S_BOON", "AT_PEACCE", "POP",
-                                                       "HUNT_COMPLETE", "DELIVERY", "BALOON!", "REPLACEMENT_ARM", "AMMO"};
-
 
 
         // Rectagle outline made out of four picture boxes
@@ -56,9 +49,12 @@ namespace NeuralNetworkVisualization
             // Initialize outline rectangle
             initializeRectangleOutline();
 
+            // Set object names dictionary
             objectNames = objectNameDictionary.Keys.ToArray<string>();
-            objectNames = objectNames.Concat(arrayNonObjectText).ToArray();
 
+            // Initialize Textboxes
+            initializeTextBoxes();
+            
             // Image Slideshow via timer
             slideShowTimer.Interval = (100);
             slideShowTimer.Tick += new EventHandler(slideShow_Tick);
@@ -76,7 +72,6 @@ namespace NeuralNetworkVisualization
         {
             // Set image and fit to size
             extractedTextBox.Image = textBoxImage;
-            //extractedTextBox.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
 
@@ -89,8 +84,7 @@ namespace NeuralNetworkVisualization
         public void showCurrentSlidingWindow(Bitmap slidingWindow)
         {
             // Set image and fit to size
-            currentSlidingWindowSlice.Image = slidingWindow;
-            //currentSlidingWindowSlice.SizeMode = PictureBoxSizeMode.StretchImage;
+            currentSlidingWindowSlice.Image = slidingWindow;            
         }
 
 
@@ -287,6 +281,23 @@ namespace NeuralNetworkVisualization
 
 
         /*
+         * Initialize Textbox Controls
+         */
+        public void initializeTextBoxes()
+        {
+            // Make the textbox un-editable
+            initialGuessTB.Enabled = false;
+            correctedGuessTB.Enabled = false;
+
+            // Center all text for both boxes
+            initialGuessTB.TextAlign = HorizontalAlignment.Center;
+            correctedGuessTB.TextAlign = HorizontalAlignment.Center;
+        }
+
+
+        /*
+         * Sets the text for the initialGuessTB.
+         * @initialGuess, the string text to be displayed.
          */
         public void setInitialGuessTextBox(string initialGuess)
         {
@@ -294,7 +305,10 @@ namespace NeuralNetworkVisualization
             initialGuessTB.TextAlign = HorizontalAlignment.Center;
         }
 
+
         /*
+         * Sets the text for the correctedGuessTB.
+         * @correctedGuess, the string text to be displayed.
          */
         public void setCorrectedGuessTextBox(string correctedGuess)
         {

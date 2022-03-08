@@ -12,7 +12,7 @@ namespace NeuralNetworkVisualization
     {
         // Class Fields
         NeuralNetwork nn = new NeuralNetwork();
-        string textBoxPathName = @"C:\Users\Grant\Desktop\Java_Rouge_Like_App\screenshots\temp_1.jpg";
+        string textBoxPathName = @"C:\Users\Grant\Desktop\Java_Rouge_Like_App\screenshots\temp_12.jpg";
         List<Bitmap> slidingWindowImages = new List<Bitmap>();
         List<Bitmap> scaledSlidingWindowImages = new List<Bitmap>();
         List<bool> isCharacterList = new List<bool>();
@@ -70,8 +70,14 @@ namespace NeuralNetworkVisualization
          */
         public void showExtractedTextBox(Bitmap textBoxImage)
         {
-            // Set image and fit to size
+            // Set image and fit the box to size
             extractedTextBox.Image = textBoxImage;
+            extractedTextBox.Width = textBoxImage.Width;
+            extractedTextBox.Height = textBoxImage.Height;
+
+            // Set the picture box to be width centered in the form
+            int xOffset = this.Width / 2 - extractedTextBox.Width / 2;
+            extractedTextBox.Location = new Point(xOffset, extractedTextBox.Height);
         }
 
 
@@ -84,7 +90,17 @@ namespace NeuralNetworkVisualization
         public void showCurrentSlidingWindow(Bitmap slidingWindow)
         {
             // Set image and fit to size
-            currentSlidingWindowSlice.Image = slidingWindow;            
+            currentSlidingWindowSlice.Image = slidingWindow;
+
+            // Set the picutre box to be width centered in the form
+            int xOffset = this.Width / 2 - currentSlidingWindowSlice.Width / 2;
+            int yOffset = extractedTextBox.Location.Y + extractedTextBox.Height + 80;
+            currentSlidingWindowSlice.Location = new Point(xOffset, yOffset);
+
+            // Set sliding window background location
+            int deltaX = slidingWindowBackground.Width / 2 - currentSlidingWindowSlice.Width / 2;
+            int deltaY = slidingWindowBackground.Height / 2 - currentSlidingWindowSlice.Height / 2;
+            slidingWindowBackground.Location = new Point(xOffset - deltaX, yOffset - deltaY);
         }
 
 
@@ -292,6 +308,8 @@ namespace NeuralNetworkVisualization
             // Center all text for both boxes
             initialGuessTB.TextAlign = HorizontalAlignment.Center;
             correctedGuessTB.TextAlign = HorizontalAlignment.Center;
+
+            // Center the text boxes within the form
         }
 
 

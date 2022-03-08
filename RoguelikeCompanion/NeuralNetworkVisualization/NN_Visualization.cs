@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace NeuralNetworkVisualization
@@ -18,6 +19,18 @@ namespace NeuralNetworkVisualization
         int currSWIndex = 0;
         Bitmap isolatedTextImage;
         Timer slideShowTimer = new Timer();
+
+        // For guess correction
+        Dictionary<string, (string, bool)> objectNameDictionary = ObjectInformation.createObjectNameDictionary();
+        string[] objectNames;
+        // Array for Nonobjet Notification Box text
+        string[] arrayNonObjectText = new string[]{"CELL_KEY", "CHALLENGE_COMPLETE", "CHALLENGE_FAILED",
+                                                       "DEAL_WITH_THE_DEVIL", "SACRIFICE_ACCEPTED", "SACRIFICE",
+                                                       "PURIFIED", "BRAVE_COMPANION", "ROLL_OF_THE_DICE",
+                                                       "GLASS_ARMOR", "SER_JUNKAN'S_BOON", "AT_PEACCE", "POP",
+                                                       "HUNT_COMPLETE", "DELIVERY", "BALOON!", "REPLACEMENT_ARM", "AMMO"};
+
+
 
         // Rectagle outline made out of four picture boxes
         PictureBox rectTop = new PictureBox();
@@ -42,6 +55,9 @@ namespace NeuralNetworkVisualization
 
             // Initialize outline rectangle
             initializeRectangleOutline();
+
+            objectNames = objectNameDictionary.Keys.ToArray<string>();
+            objectNames = objectNames.Concat(arrayNonObjectText).ToArray();
 
             // Image Slideshow via timer
             slideShowTimer.Interval = (100);
@@ -180,7 +196,12 @@ namespace NeuralNetworkVisualization
                 string guess = nn.newImagePrediction(convertToBitmap(textBoxPathName));
                 initialGuessTB.Text = guess;
 
-                // Correct guess and display
+                // Correct guess and display, Fix guess object if not found in dictionary
+                if (!objectNameDictionary.ContainsKey(guess))
+                {
+                    guess = closestWord(guess, objectNames);
+                }
+                correctedGuessTB.Text = guess;
             }
             
         }

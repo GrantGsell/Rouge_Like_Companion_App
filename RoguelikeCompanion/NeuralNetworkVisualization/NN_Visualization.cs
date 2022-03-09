@@ -47,6 +47,9 @@ namespace NeuralNetworkVisualization
             // Obtain all sliding window images
             (slidingWindowImages, isCharacterList, scaledSlidingWindowImages) = imageIsolation(newImage);
 
+            // Initialize original image control
+            initializeOriginalImage(newImage);
+
             // Initialize Extracted Text Box
             initalizeExtractedTextBox(scaledIsolatedTextImage);
 
@@ -73,7 +76,31 @@ namespace NeuralNetworkVisualization
 
 
         /*
-         * Popuplates the 'extractedTextBox' image property.
+         * Initializes the orignal image as well as its associated label
+         * 
+         * @param image, a bitmap containing the original image.
+         */
+        public void initializeOriginalImage(Bitmap image)
+        {
+            // Set picture box image and size
+            originalImage.Image = image;
+            originalImage.Size = new Size(image.Width, image.Height);
+
+            // Set original picture box location
+            int xOffset = this.Width / 2 - image.Width / 2;
+            int yOffset = 40;
+            originalImage.Location = new Point(xOffset, yOffset);
+
+            // Set original image label text, location
+            labelOriginalImage.Text = "Original Image :";
+            xOffset = this.Width / 2 - labelOriginalImage.Width / 2;
+            yOffset = originalImage.Location.Y - 35;
+            labelOriginalImage.Location = new Point(xOffset, yOffset);
+        }
+
+
+        /*
+         * Initializes the extracted text box containing the object image
          * 
          * @param textBoxImage, the image used to populate the image property.
          * @return none.
@@ -87,11 +114,11 @@ namespace NeuralNetworkVisualization
 
             // Set the picture box to be width centered in the form
             int xOffset = this.Width / 2 - extractedTextBox.Width / 2;
-            int yOffset = 50;
+            int yOffset = originalImage.Location.Y + originalImage.Height + 50;
             extractedTextBox.Location = new Point(xOffset, yOffset);
 
             // Set extracted text box label text and location
-            labelExtractedText.Text = "Extracted Text Box :";
+            labelExtractedText.Text = "Extracted Object Name :";
             xOffset = this.Width / 2 - labelExtractedText.Width / 2;
             yOffset -= 30;
             labelExtractedText.Location = new Point(xOffset, yOffset);
@@ -99,6 +126,7 @@ namespace NeuralNetworkVisualization
 
         /*
          * Sets the location, size for the sliding window control and its label.
+         * 
          * @param slidingWindow, a singluar sliding window slice used to 
          *   determine dimensions.
          */
@@ -126,6 +154,7 @@ namespace NeuralNetworkVisualization
 
         /*
          * Sets the location, size for the FLP window control and its label.
+         * 
          * @param slidingWindowSlices, a singluar sliding window slice used to 
          *   determine dimensions.
          * @param isLetter, a boolean list denoting if each given slice is a 
@@ -225,6 +254,7 @@ namespace NeuralNetworkVisualization
         /*
          * Iterates, and shows the next sliding window slice in the slidingWindowImage
          *   list.
+         *   
          * @param slidingWindowImages, a list of all of the sliding window slices.
          * @param foundLetters, a list denoting if the respective sliding window slice is
          *   a character that should be processed.
@@ -288,6 +318,7 @@ namespace NeuralNetworkVisualization
         /*
          * Creates a child form that contains a sliding window slice and the
          *   prediction for said slice.
+         *   
          * @param image, the sliding window slice.
          * @param guess, the single character prediciton of the slice.
          */

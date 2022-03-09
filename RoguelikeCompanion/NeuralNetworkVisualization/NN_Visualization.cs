@@ -18,6 +18,7 @@ namespace NeuralNetworkVisualization
         List<bool> isCharacterList = new List<bool>();
         int currSWIndex = 0;
         Bitmap isolatedTextImage;
+        Bitmap scaledIsolatedTextImage;
         Timer slideShowTimer = new Timer();
 
         // For guess correction
@@ -46,15 +47,24 @@ namespace NeuralNetworkVisualization
             // Obtain all sliding window images
             (slidingWindowImages, isCharacterList, scaledSlidingWindowImages) = imageIsolation(newImage);
 
+            // Initialize Extracted Text Box
+            initalizeExtractedTextBox(scaledIsolatedTextImage);
+
+            // Initialize Sliding Window
+            initializeSlidingWindow(scaledSlidingWindowImages[0]);
+
+            // Initialize flow layout panel
+            initializeExtractedCharacterFLP(scaledSlidingWindowImages, isCharacterList);
+
             // Initialize outline rectangle
             initializeRectangleOutline();
-
-            // Set object names dictionary
-            objectNames = objectNameDictionary.Keys.ToArray<string>();
 
             // Initialize Textboxes
             initializeTextBoxes();
             
+            // Set object names dictionary
+            objectNames = objectNameDictionary.Keys.ToArray<string>();
+
             // Image Slideshow via timer
             slideShowTimer.Interval = (100);
             slideShowTimer.Tick += new EventHandler(slideShow_Tick);
@@ -68,7 +78,7 @@ namespace NeuralNetworkVisualization
          * @param textBoxImage, the image used to populate the image property.
          * @return none.
          */
-        public void showExtractedTextBox(Bitmap textBoxImage)
+        public void initalizeExtractedTextBox(Bitmap textBoxImage)
         {
             // Set image and fit the box to size
             extractedTextBox.Image = textBoxImage;
@@ -77,7 +87,41 @@ namespace NeuralNetworkVisualization
 
             // Set the picture box to be width centered in the form
             int xOffset = this.Width / 2 - extractedTextBox.Width / 2;
-            extractedTextBox.Location = new Point(xOffset, extractedTextBox.Height);
+            extractedTextBox.Location = new Point(xOffset, 50);
+        }
+
+        /*
+         */
+        public void initializeSlidingWindow(Bitmap slidingWindow)
+        {
+            // Set the sliding window size
+            currentSlidingWindowSlice.Size = new Size(slidingWindow.Width, slidingWindow.Height);
+
+            // Set the picutre box to be width centered in the form
+            int xOffset = this.Width / 2 - slidingWindow.Width / 2;
+            int yOffset = extractedTextBox.Location.Y + extractedTextBox.Height + 60;
+            currentSlidingWindowSlice.Location = new Point(xOffset, yOffset);
+
+            // Set sliding window background location
+            int deltaX = slidingWindowBackground.Width / 2 - slidingWindow.Width / 2;
+            int deltaY = slidingWindowBackground.Height / 2 - slidingWindow.Height / 2;
+            slidingWindowBackground.Location = new Point(xOffset - deltaX, yOffset - deltaY);
+        }
+
+        /*
+         */
+        public void initializeExtractedCharacterFLP(List<Bitmap> slidingWindowSlices, List<bool> isLetter)
+        {
+            // Set the flow layout panel width
+            int numSlices = 0;
+            foreach(bool flag in isLetter) if (flag) numSlices++;
+            int width = slidingWindowSlices[0].Width;
+            extractedCharFLP.Width = (numSlices - 1) * width;
+
+            // Center the flow layout panel, set height
+            int xOffset = this.Width / 2 - extractedCharFLP.Width / 2;
+            int yOffset = slidingWindowBackground.Location.Y + slidingWindowBackground.Height + 60;
+            extractedCharFLP.Location = new Point(xOffset, yOffset);
         }
 
 
@@ -91,16 +135,6 @@ namespace NeuralNetworkVisualization
         {
             // Set image and fit to size
             currentSlidingWindowSlice.Image = slidingWindow;
-
-            // Set the picutre box to be width centered in the form
-            int xOffset = this.Width / 2 - currentSlidingWindowSlice.Width / 2;
-            int yOffset = extractedTextBox.Location.Y + extractedTextBox.Height + 80;
-            currentSlidingWindowSlice.Location = new Point(xOffset, yOffset);
-
-            // Set sliding window background location
-            int deltaX = slidingWindowBackground.Width / 2 - currentSlidingWindowSlice.Width / 2;
-            int deltaY = slidingWindowBackground.Height / 2 - currentSlidingWindowSlice.Height / 2;
-            slidingWindowBackground.Location = new Point(xOffset - deltaX, yOffset - deltaY);
         }
 
 
@@ -139,9 +173,7 @@ namespace NeuralNetworkVisualization
             // Obtain indicies for character separation
             List<int> charSeparationIndicies;
             (charSeparationIndicies, isolatedTextImage) = CharacterSegmentation.characterSegmentation(newImage);
-            //showExtractedTextBox(isolatedTextImage);
-            Bitmap scaledIsolatedTextImage = individualCharacterForm.scaleImage(isolatedTextImage, isolatedTextImage.Width * 5, isolatedTextImage.Height * 5);
-            showExtractedTextBox(scaledIsolatedTextImage);
+            scaledIsolatedTextImage = individualCharacterForm.scaleImage(isolatedTextImage, isolatedTextImage.Width * 5, isolatedTextImage.Height * 5);
 
             // Create List of Sliding Window Images
             List<Bitmap> slidingWindowImages = new List<Bitmap>();
@@ -309,7 +341,19 @@ namespace NeuralNetworkVisualization
             initialGuessTB.TextAlign = HorizontalAlignment.Center;
             correctedGuessTB.TextAlign = HorizontalAlignment.Center;
 
-            // Center the text boxes within the form
+            // Center the initial guess control and its label
+            int xOffset = this.Width / 2 - initialGuessTB.Width / 2;
+            int yOffset = extractedCharFLP.Location.Y + extractedCharFLP.Height + 30;
+            int xLabelOffset = this.Width / 2 - labelInitalWordGuess.Width / 2;
+            labelInitalWordGuess.Location = new Point(xLabelOffset, yOffset);
+            initialGuessTB.Location = new Point(xOffset, yOffset + 30);
+
+            // Center the Corrected Word gues control and its label
+            xOffset = this.Width / 2 - correctedGuessTB.Width / 2;
+            yOffset += 60;
+            xLabelOffset = this.Width / 2 - labelCorrectedWord.Width / 2;
+            labelCorrectedWord.Location = new Point(xLabelOffset, yOffset);
+            correctedGuessTB.Location = new Point(xOffset, yOffset + 30);
         }
 
 

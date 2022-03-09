@@ -54,7 +54,7 @@ namespace NeuralNetworkVisualization
             initializeSlidingWindow(scaledSlidingWindowImages[0]);
 
             // Initialize flow layout panel
-            initializeExtractedCharacterFLP(scaledSlidingWindowImages, isCharacterList);
+            initializeExtractedCharacterFLP(scaledSlidingWindowImages[0], isCharacterList);
 
             // Initialize outline rectangle
             initializeRectangleOutline();
@@ -87,10 +87,20 @@ namespace NeuralNetworkVisualization
 
             // Set the picture box to be width centered in the form
             int xOffset = this.Width / 2 - extractedTextBox.Width / 2;
-            extractedTextBox.Location = new Point(xOffset, 50);
+            int yOffset = 50;
+            extractedTextBox.Location = new Point(xOffset, yOffset);
+
+            // Set extracted text box label text and location
+            labelExtractedText.Text = "Extracted Text Box :";
+            xOffset = this.Width / 2 - labelExtractedText.Width / 2;
+            yOffset -= 30;
+            labelExtractedText.Location = new Point(xOffset, yOffset);
         }
 
         /*
+         * Sets the location, size for the sliding window control and its label.
+         * @param slidingWindow, a singluar sliding window slice used to 
+         *   determine dimensions.
          */
         public void initializeSlidingWindow(Bitmap slidingWindow)
         {
@@ -106,22 +116,39 @@ namespace NeuralNetworkVisualization
             int deltaX = slidingWindowBackground.Width / 2 - slidingWindow.Width / 2;
             int deltaY = slidingWindowBackground.Height / 2 - slidingWindow.Height / 2;
             slidingWindowBackground.Location = new Point(xOffset - deltaX, yOffset - deltaY);
+
+            // Set extracted text box label text and location
+            labelSlidingWindowSlice.Text = "Current Sliding Window Slice :";
+            xOffset = this.Width / 2 - labelSlidingWindowSlice.Width / 2;
+            yOffset -= (25 + deltaY);
+            labelSlidingWindowSlice.Location = new Point(xOffset, yOffset);
         }
 
         /*
+         * Sets the location, size for the FLP window control and its label.
+         * @param slidingWindowSlices, a singluar sliding window slice used to 
+         *   determine dimensions.
+         * @param isLetter, a boolean list denoting if each given slice is a 
+         *   character or not
          */
-        public void initializeExtractedCharacterFLP(List<Bitmap> slidingWindowSlices, List<bool> isLetter)
+        public void initializeExtractedCharacterFLP(Bitmap slidingWindowSlices, List<bool> isLetter)
         {
             // Set the flow layout panel width
             int numSlices = 0;
             foreach(bool flag in isLetter) if (flag) numSlices++;
-            int width = slidingWindowSlices[0].Width;
+            int width = slidingWindowSlices.Width;
             extractedCharFLP.Width = (numSlices - 1) * width;
 
             // Center the flow layout panel, set height
             int xOffset = this.Width / 2 - extractedCharFLP.Width / 2;
             int yOffset = slidingWindowBackground.Location.Y + slidingWindowBackground.Height + 60;
             extractedCharFLP.Location = new Point(xOffset, yOffset);
+
+            // Set extracted text box label text and location
+            labelFLP.Text = "Extracted Characters :";
+            xOffset = this.Width / 2 - labelFLP.Width / 2;
+            yOffset -= 30;
+            labelFLP.Location = new Point(xOffset, yOffset);
         }
 
 

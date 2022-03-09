@@ -27,21 +27,70 @@ namespace NeuralNetworkVisualization
         {
             InitializeComponent();
 
-            // Set image properties
-            int scale = 5;
-            int imgWidth = 18 * scale;
-            int imgHeight = 15 * scale;
-            characterImage.Image = scaleImage(img, imgWidth, imgHeight);
-            characterImage.Size  = new Size(this.characterImage.Image.Width, this.characterImage.Image.Height);
+            // Resize the image
+            img = resize(img);
 
-            // Set TextBox properties
-            this.characterGuess.Text = character;
-            this.characterGuess.Font = new Font(characterGuess.Font.FontFamily, 16);
-            this.characterGuess.TextAlign = HorizontalAlignment.Center;
-            this.characterGuess.Location = new Point(this.characterImage.Image.Width / 2 - this.characterGuess.Width / 2, 0);
+            // Initialize text box
+            initializeTextBox(img, character);
+
+            // Initialize image
+            initializeImage(img);
+
+            
 
             // Set form properties
             this.Size = new Size(this.characterImage.Image.Width, 200);
+        }
+
+        /*
+         * Initialize image control and its background.
+         * 
+         * @param img, is the image to be displayed.
+         */
+        public void initializeImage(Bitmap img)
+        {
+            // Set image properties
+            characterImage.Image = img;
+            characterImage.Size = new Size(characterImage.Image.Width, characterImage.Image.Height);
+            characterImage.Location = new Point(0, characterGuess.Height + 15);
+
+            // Set image background
+            guessBackground.Location = new Point(0, characterGuess.Height + 5);
+        }
+
+
+        /*
+         * Initialize the text box containing the guess for the given image.
+         * 
+         * @param guess, the string guess associated with the image.
+         */
+        public void initializeTextBox(Bitmap img, string guess)
+        {
+            // Set TextBox properties
+            characterGuess.Text = guess;
+            if (guess.Equals("SPACE"))
+            {
+                characterGuess.Width = img.Width;
+                characterGuess.Text = "Space";
+            }
+            characterGuess.Font = new Font(characterGuess.Font.FontFamily, 16);
+            characterGuess.TextAlign = HorizontalAlignment.Center;
+            characterGuess.Location = new Point(img.Width / 2 - characterGuess.Width / 2, 0);
+        }
+
+
+        /*
+         * Resizes an image by a factor of 5.
+         * 
+         * @param image, the image to be resized.
+         * @return bitmap, the resized image.
+         */
+        public Bitmap resize(Bitmap image)
+        {
+            int scale = 5;
+            int imgWidth = 18 * scale;
+            int imgHeight = 15 * scale;
+            return scaleImage(image, imgWidth, imgHeight);
         }
 
 

@@ -36,8 +36,6 @@ namespace NeuralNetworkVisualization
             // Initialize image
             initializeImage(img);
 
-            
-
             // Set form properties
             this.Size = new Size(this.characterImage.Image.Width, 200);
         }
@@ -72,6 +70,11 @@ namespace NeuralNetworkVisualization
             {
                 characterGuess.Width = img.Width;
                 characterGuess.Text = "Space";
+            }
+            else if(guess.Length > 1 && guess.Substring(0, 2).Equals("ER"))
+            {
+                characterGuess.Width = img.Width;
+                characterGuess.Text = "Error";
             }
             characterGuess.Font = new Font(characterGuess.Font.FontFamily, 16);
             characterGuess.TextAlign = HorizontalAlignment.Center;

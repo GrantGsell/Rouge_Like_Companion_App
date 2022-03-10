@@ -12,7 +12,7 @@ namespace NeuralNetworkVisualization
     {
         // Class Fields
         NeuralNetwork nn = new NeuralNetwork();
-        string textBoxPathName = @"C:\Users\Grant\Desktop\Java_Rouge_Like_App\screenshots\temp_12.jpg";
+        string textBoxPathName = @"C:\Users\Grant\Desktop\Java_Rouge_Like_App\screenshots\temp_31.jpg";
         List<Bitmap> slidingWindowImages = new List<Bitmap>();
         List<Bitmap> scaledSlidingWindowImages = new List<Bitmap>();
         List<bool> isCharacterList = new List<bool>();
@@ -20,6 +20,7 @@ namespace NeuralNetworkVisualization
         Bitmap isolatedTextImage;
         Bitmap scaledIsolatedTextImage;
         Timer slideShowTimer = new Timer();
+        Color backColor = Color.DarkGray;
 
         // For guess correction
         Dictionary<string, (string, bool)> objectNameDictionary = ObjectInformation.createObjectNameDictionary();
@@ -46,6 +47,9 @@ namespace NeuralNetworkVisualization
 
             // Obtain all sliding window images
             (slidingWindowImages, isCharacterList, scaledSlidingWindowImages) = imageIsolation(newImage);
+
+            // Initialize background image
+            initializeBackground();
 
             // Initialize original image control
             initializeOriginalImage(newImage);
@@ -76,6 +80,18 @@ namespace NeuralNetworkVisualization
 
 
         /*
+         * Initialize Background image
+         */
+        public void initializeBackground()
+        {
+            // Set background size and location
+            formBackground.Size = new Size(this.Width, this.Height);
+            formBackground.Location = new Point(0, 0);
+            formBackground.BackColor = backColor;
+        }
+
+
+        /*
          * Initializes the orignal image as well as its associated label
          * 
          * @param image, a bitmap containing the original image.
@@ -91,11 +107,12 @@ namespace NeuralNetworkVisualization
             int yOffset = 40;
             originalImage.Location = new Point(xOffset, yOffset);
 
-            // Set original image label text, location
+            // Set original image label text, location, color
             labelOriginalImage.Text = "Original Image :";
             xOffset = this.Width / 2 - labelOriginalImage.Width / 2;
             yOffset = originalImage.Location.Y - 35;
             labelOriginalImage.Location = new Point(xOffset, yOffset);
+            labelOriginalImage.BackColor = backColor;
         }
 
 
@@ -117,11 +134,12 @@ namespace NeuralNetworkVisualization
             int yOffset = originalImage.Location.Y + originalImage.Height + 50;
             extractedTextBox.Location = new Point(xOffset, yOffset);
 
-            // Set extracted text box label text and location
+            // Set extracted text box label text and location and color
             labelExtractedText.Text = "Extracted Object Name :";
             xOffset = this.Width / 2 - labelExtractedText.Width / 2;
             yOffset -= 30;
             labelExtractedText.Location = new Point(xOffset, yOffset);
+            labelExtractedText.BackColor = backColor;
         }
 
         /*
@@ -145,11 +163,12 @@ namespace NeuralNetworkVisualization
             int deltaY = slidingWindowBackground.Height / 2 - slidingWindow.Height / 2;
             slidingWindowBackground.Location = new Point(xOffset - deltaX, yOffset - deltaY);
 
-            // Set extracted text box label text and location
+            // Set extracted text box label text, location and color
             labelSlidingWindowSlice.Text = "Current Sliding Window Slice :";
             xOffset = this.Width / 2 - labelSlidingWindowSlice.Width / 2;
             yOffset -= (25 + deltaY);
             labelSlidingWindowSlice.Location = new Point(xOffset, yOffset);
+            labelSlidingWindowSlice.BackColor = backColor;
         }
 
         /*
@@ -173,11 +192,12 @@ namespace NeuralNetworkVisualization
             int yOffset = slidingWindowBackground.Location.Y + slidingWindowBackground.Height + 60;
             extractedCharFLP.Location = new Point(xOffset, yOffset);
 
-            // Set extracted text box label text and location
+            // Set extracted text box label text, location and color
             labelFLP.Text = "Extracted Characters :";
             xOffset = this.Width / 2 - labelFLP.Width / 2;
             yOffset -= 30;
             labelFLP.Location = new Point(xOffset, yOffset);
+            labelFLP.BackColor = backColor;
         }
 
 
@@ -404,6 +424,7 @@ namespace NeuralNetworkVisualization
             int yOffset = extractedCharFLP.Location.Y + extractedCharFLP.Height + 30;
             int xLabelOffset = this.Width / 2 - labelInitalWordGuess.Width / 2;
             labelInitalWordGuess.Location = new Point(xLabelOffset, yOffset);
+            labelInitalWordGuess.BackColor = backColor;
             initialGuessTB.Location = new Point(xOffset, yOffset + 30);
 
             // Center the Corrected Word gues control and its label
@@ -411,6 +432,7 @@ namespace NeuralNetworkVisualization
             yOffset += 60;
             xLabelOffset = this.Width / 2 - labelCorrectedWord.Width / 2;
             labelCorrectedWord.Location = new Point(xLabelOffset, yOffset);
+            labelCorrectedWord.BackColor = backColor;
             correctedGuessTB.Location = new Point(xOffset, yOffset + 30);
         }
 

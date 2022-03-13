@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace NeuralNetworkVisualization
@@ -39,6 +33,7 @@ namespace NeuralNetworkVisualization
             // Set form properties
             this.Size = new Size(this.characterImage.Image.Width, 200);
         }
+
 
         /*
          * Initialize image control and its background.
